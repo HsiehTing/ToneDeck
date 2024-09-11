@@ -29,6 +29,7 @@ playground.xcworkspace
 # hence it is not needed unless you have added a package configuration file to your project
 # .swiftpm
 
+
 .build/
 
 # CocoaPods
@@ -60,3 +61,9 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore plist files
+GoogleService-Info.plist

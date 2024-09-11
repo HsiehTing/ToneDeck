@@ -7,102 +7,133 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7888EFCD2C91603100888E2A /* ToneDeckApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7888EFCC2C91603100888E2A /* ToneDeckApp.swift */; };
-		7888EFCF2C91603100888E2A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7888EFCE2C91603100888E2A /* ContentView.swift */; };
-		7888EFD12C91603500888E2A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7888EFD02C91603500888E2A /* Assets.xcassets */; };
-		7888EFD42C91603500888E2A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7888EFD32C91603500888E2A /* Preview Assets.xcassets */; };
+		78070FF42C918C1B0039B44C /* ToneDeckApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78070FF32C918C1B0039B44C /* ToneDeckApp.swift */; };
+		78070FF62C918C1B0039B44C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78070FF52C918C1B0039B44C /* ContentView.swift */; };
+		78070FF82C918C1E0039B44C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 78070FF72C918C1E0039B44C /* Assets.xcassets */; };
+		78070FFB2C918C1E0039B44C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 78070FFA2C918C1E0039B44C /* Preview Assets.xcassets */; };
+		780710042C918D9D0039B44C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 780710032C918D9D0039B44C /* GoogleService-Info.plist */; };
+		780710062C918DFB0039B44C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710052C918DFB0039B44C /* AppDelegate.swift */; };
+		780710382C9190130039B44C /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 780710372C9190130039B44C /* FirebaseAuth */; };
+		7807103A2C9190130039B44C /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 780710392C9190130039B44C /* FirebaseDatabase */; };
+		7807103C2C9190130039B44C /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7807103B2C9190130039B44C /* FirebaseFirestore */; };
+		7807103E2C9190130039B44C /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 7807103D2C9190130039B44C /* FirebaseStorage */; };
+		780710412C9190C00039B44C /* CardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710402C9190C00039B44C /* CardViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		7888EFC92C91603100888E2A /* ToneDeck.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToneDeck.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		7888EFCC2C91603100888E2A /* ToneDeckApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneDeckApp.swift; sourceTree = "<group>"; };
-		7888EFCE2C91603100888E2A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		7888EFD02C91603500888E2A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		7888EFD32C91603500888E2A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		78070FF02C918C1B0039B44C /* ToneDeck.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToneDeck.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		78070FF32C918C1B0039B44C /* ToneDeckApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneDeckApp.swift; sourceTree = "<group>"; };
+		78070FF52C918C1B0039B44C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		78070FF72C918C1E0039B44C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		78070FFA2C918C1E0039B44C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		780710032C918D9D0039B44C /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../GoogleService-Info.plist"; sourceTree = "<group>"; };
+		780710052C918DFB0039B44C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		780710402C9190C00039B44C /* CardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		7888EFC62C91603100888E2A /* Frameworks */ = {
+		78070FED2C918C1B0039B44C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7807103A2C9190130039B44C /* FirebaseDatabase in Frameworks */,
+				7807103E2C9190130039B44C /* FirebaseStorage in Frameworks */,
+				780710382C9190130039B44C /* FirebaseAuth in Frameworks */,
+				7807103C2C9190130039B44C /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		7888EFC02C91603100888E2A = {
+		78070FE72C918C1B0039B44C = {
 			isa = PBXGroup;
 			children = (
-				7888EFCB2C91603100888E2A /* ToneDeck */,
-				7888EFCA2C91603100888E2A /* Products */,
+				78070FF22C918C1B0039B44C /* ToneDeck */,
+				78070FF12C918C1B0039B44C /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		7888EFCA2C91603100888E2A /* Products */ = {
+		78070FF12C918C1B0039B44C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				7888EFC92C91603100888E2A /* ToneDeck.app */,
+				78070FF02C918C1B0039B44C /* ToneDeck.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		7888EFCB2C91603100888E2A /* ToneDeck */ = {
+		78070FF22C918C1B0039B44C /* ToneDeck */ = {
 			isa = PBXGroup;
 			children = (
-				7888EFCC2C91603100888E2A /* ToneDeckApp.swift */,
-				7888EFCE2C91603100888E2A /* ContentView.swift */,
-				7888EFD02C91603500888E2A /* Assets.xcassets */,
-				7888EFD22C91603500888E2A /* Preview Content */,
+				78070FF32C918C1B0039B44C /* ToneDeckApp.swift */,
+				78070FF52C918C1B0039B44C /* ContentView.swift */,
+				780710052C918DFB0039B44C /* AppDelegate.swift */,
+				7807103F2C9190A60039B44C /* ViewController */,
+				78070FF72C918C1E0039B44C /* Assets.xcassets */,
+				780710032C918D9D0039B44C /* GoogleService-Info.plist */,
+				78070FF92C918C1E0039B44C /* Preview Content */,
 			);
 			path = ToneDeck;
 			sourceTree = "<group>";
 		};
-		7888EFD22C91603500888E2A /* Preview Content */ = {
+		78070FF92C918C1E0039B44C /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
-				7888EFD32C91603500888E2A /* Preview Assets.xcassets */,
+				78070FFA2C918C1E0039B44C /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		7807103F2C9190A60039B44C /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				780710402C9190C00039B44C /* CardViewController.swift */,
+			);
+			path = ViewController;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		7888EFC82C91603100888E2A /* ToneDeck */ = {
+		78070FEF2C918C1B0039B44C /* ToneDeck */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7888EFD72C91603500888E2A /* Build configuration list for PBXNativeTarget "ToneDeck" */;
+			buildConfigurationList = 78070FFE2C918C1E0039B44C /* Build configuration list for PBXNativeTarget "ToneDeck" */;
 			buildPhases = (
-				7888EFC52C91603100888E2A /* Sources */,
-				7888EFC62C91603100888E2A /* Frameworks */,
-				7888EFC72C91603100888E2A /* Resources */,
+				78070FEC2C918C1B0039B44C /* Sources */,
+				78070FED2C918C1B0039B44C /* Frameworks */,
+				78070FEE2C918C1B0039B44C /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = ToneDeck;
+			packageProductDependencies = (
+				780710372C9190130039B44C /* FirebaseAuth */,
+				780710392C9190130039B44C /* FirebaseDatabase */,
+				7807103B2C9190130039B44C /* FirebaseFirestore */,
+				7807103D2C9190130039B44C /* FirebaseStorage */,
+			);
 			productName = ToneDeck;
-			productReference = 7888EFC92C91603100888E2A /* ToneDeck.app */;
+			productReference = 78070FF02C918C1B0039B44C /* ToneDeck.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		7888EFC12C91603100888E2A /* Project object */ = {
+		78070FE82C918C1B0039B44C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1540;
 				LastUpgradeCheck = 1540;
 				TargetAttributes = {
-					7888EFC82C91603100888E2A = {
+					78070FEF2C918C1B0039B44C = {
 						CreatedOnToolsVersion = 15.4;
 					};
 				};
 			};
-			buildConfigurationList = 7888EFC42C91603100888E2A /* Build configuration list for PBXProject "ToneDeck" */;
+			buildConfigurationList = 78070FEB2C918C1B0039B44C /* Build configuration list for PBXProject "ToneDeck" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -110,42 +141,48 @@
 				en,
 				Base,
 			);
-			mainGroup = 7888EFC02C91603100888E2A;
-			productRefGroup = 7888EFCA2C91603100888E2A /* Products */;
+			mainGroup = 78070FE72C918C1B0039B44C;
+			packageReferences = (
+				780710362C9190130039B44C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
+			productRefGroup = 78070FF12C918C1B0039B44C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				7888EFC82C91603100888E2A /* ToneDeck */,
+				78070FEF2C918C1B0039B44C /* ToneDeck */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		7888EFC72C91603100888E2A /* Resources */ = {
+		78070FEE2C918C1B0039B44C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7888EFD42C91603500888E2A /* Preview Assets.xcassets in Resources */,
-				7888EFD12C91603500888E2A /* Assets.xcassets in Resources */,
+				78070FFB2C918C1E0039B44C /* Preview Assets.xcassets in Resources */,
+				780710042C918D9D0039B44C /* GoogleService-Info.plist in Resources */,
+				78070FF82C918C1E0039B44C /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		7888EFC52C91603100888E2A /* Sources */ = {
+		78070FEC2C918C1B0039B44C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7888EFCF2C91603100888E2A /* ContentView.swift in Sources */,
-				7888EFCD2C91603100888E2A /* ToneDeckApp.swift in Sources */,
+				780710412C9190C00039B44C /* CardViewController.swift in Sources */,
+				780710062C918DFB0039B44C /* AppDelegate.swift in Sources */,
+				78070FF62C918C1B0039B44C /* ContentView.swift in Sources */,
+				78070FF42C918C1B0039B44C /* ToneDeckApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		7888EFD52C91603500888E2A /* Debug */ = {
+		78070FFC2C918C1E0039B44C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -197,7 +234,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -208,7 +245,7 @@
 			};
 			name = Debug;
 		};
-		7888EFD62C91603500888E2A /* Release */ = {
+		78070FFD2C918C1E0039B44C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -254,7 +291,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -264,7 +301,7 @@
 			};
 			name = Release;
 		};
-		7888EFD82C91603500888E2A /* Debug */ = {
+		78070FFF2C918C1E0039B44C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -280,12 +317,13 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.sting.ToneDeck;
+				PRODUCT_BUNDLE_IDENTIFIER = com.StingHsieh.ToneDeck;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -293,7 +331,7 @@
 			};
 			name = Debug;
 		};
-		7888EFD92C91603500888E2A /* Release */ = {
+		780710002C918C1E0039B44C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -309,12 +347,13 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.sting.ToneDeck;
+				PRODUCT_BUNDLE_IDENTIFIER = com.StingHsieh.ToneDeck;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -325,25 +364,59 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		7888EFC42C91603100888E2A /* Build configuration list for PBXProject "ToneDeck" */ = {
+		78070FEB2C918C1B0039B44C /* Build configuration list for PBXProject "ToneDeck" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7888EFD52C91603500888E2A /* Debug */,
-				7888EFD62C91603500888E2A /* Release */,
+				78070FFC2C918C1E0039B44C /* Debug */,
+				78070FFD2C918C1E0039B44C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7888EFD72C91603500888E2A /* Build configuration list for PBXNativeTarget "ToneDeck" */ = {
+		78070FFE2C918C1E0039B44C /* Build configuration list for PBXNativeTarget "ToneDeck" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7888EFD82C91603500888E2A /* Debug */,
-				7888EFD92C91603500888E2A /* Release */,
+				78070FFF2C918C1E0039B44C /* Debug */,
+				780710002C918C1E0039B44C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		780710362C9190130039B44C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.2.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		780710372C9190130039B44C /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 780710362C9190130039B44C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		780710392C9190130039B44C /* FirebaseDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 780710362C9190130039B44C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDatabase;
+		};
+		7807103B2C9190130039B44C /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 780710362C9190130039B44C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		7807103D2C9190130039B44C /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 780710362C9190130039B44C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
-	rootObject = 7888EFC12C91603100888E2A /* Project object */;
+	rootObject = 78070FE82C918C1B0039B44C /* Project object */;
 }
