@@ -18,6 +18,9 @@
 		7807103C2C9190130039B44C /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7807103B2C9190130039B44C /* FirebaseFirestore */; };
 		7807103E2C9190130039B44C /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 7807103D2C9190130039B44C /* FirebaseStorage */; };
 		780710412C9190C00039B44C /* CardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710402C9190C00039B44C /* CardViewController.swift */; };
+		780710432C91DF720039B44C /* AddCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710422C91DF720039B44C /* AddCardViewController.swift */; };
+		780710462C92859B0039B44C /* FireStoreCardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710452C92859B0039B44C /* FireStoreCardManager.swift */; };
+		780710492C9286FB0039B44C /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 780710482C9286FB0039B44C /* Kingfisher */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +32,8 @@
 		780710032C918D9D0039B44C /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../GoogleService-Info.plist"; sourceTree = "<group>"; };
 		780710052C918DFB0039B44C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		780710402C9190C00039B44C /* CardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewController.swift; sourceTree = "<group>"; };
+		780710422C91DF720039B44C /* AddCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCardViewController.swift; sourceTree = "<group>"; };
+		780710452C92859B0039B44C /* FireStoreCardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireStoreCardManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -40,6 +45,7 @@
 				7807103E2C9190130039B44C /* FirebaseStorage in Frameworks */,
 				780710382C9190130039B44C /* FirebaseAuth in Frameworks */,
 				7807103C2C9190130039B44C /* FirebaseFirestore in Frameworks */,
+				780710492C9286FB0039B44C /* Kingfisher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,6 +74,7 @@
 				78070FF32C918C1B0039B44C /* ToneDeckApp.swift */,
 				78070FF52C918C1B0039B44C /* ContentView.swift */,
 				780710052C918DFB0039B44C /* AppDelegate.swift */,
+				780710442C9285730039B44C /* Manager */,
 				7807103F2C9190A60039B44C /* ViewController */,
 				78070FF72C918C1E0039B44C /* Assets.xcassets */,
 				780710032C918D9D0039B44C /* GoogleService-Info.plist */,
@@ -88,8 +95,17 @@
 			isa = PBXGroup;
 			children = (
 				780710402C9190C00039B44C /* CardViewController.swift */,
+				780710422C91DF720039B44C /* AddCardViewController.swift */,
 			);
 			path = ViewController;
+			sourceTree = "<group>";
+		};
+		780710442C9285730039B44C /* Manager */ = {
+			isa = PBXGroup;
+			children = (
+				780710452C92859B0039B44C /* FireStoreCardManager.swift */,
+			);
+			path = Manager;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -113,6 +129,7 @@
 				780710392C9190130039B44C /* FirebaseDatabase */,
 				7807103B2C9190130039B44C /* FirebaseFirestore */,
 				7807103D2C9190130039B44C /* FirebaseStorage */,
+				780710482C9286FB0039B44C /* Kingfisher */,
 			);
 			productName = ToneDeck;
 			productReference = 78070FF02C918C1B0039B44C /* ToneDeck.app */;
@@ -144,6 +161,7 @@
 			mainGroup = 78070FE72C918C1B0039B44C;
 			packageReferences = (
 				780710362C9190130039B44C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				780710472C9286FB0039B44C /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			productRefGroup = 78070FF12C918C1B0039B44C /* Products */;
 			projectDirPath = "";
@@ -175,7 +193,9 @@
 				780710412C9190C00039B44C /* CardViewController.swift in Sources */,
 				780710062C918DFB0039B44C /* AppDelegate.swift in Sources */,
 				78070FF62C918C1B0039B44C /* ContentView.swift in Sources */,
+				780710462C92859B0039B44C /* FireStoreCardManager.swift in Sources */,
 				78070FF42C918C1B0039B44C /* ToneDeckApp.swift in Sources */,
+				780710432C91DF720039B44C /* AddCardViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -393,6 +413,14 @@
 				minimumVersion = 11.2.0;
 			};
 		};
+		780710472C9286FB0039B44C /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.12.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -415,6 +443,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 780710362C9190130039B44C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseStorage;
+		};
+		780710482C9286FB0039B44C /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 780710472C9286FB0039B44C /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

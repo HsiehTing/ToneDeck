@@ -9,75 +9,150 @@ import Foundation
 import SwiftUI
 import FirebaseFirestore
 import FirebaseStorage
+import Kingfisher
 
 struct CardViewController: View {
+    
+    @State private var path = [String]()
+    @StateObject private var firestoreService = FirestoreService()
+    
     var body: some View {
-        VStack {
-            Text("This is the Card View Controller")
-                .font(.largeTitle)
-                .padding()
+        
+        NavigationStack(path: $path){
+            VStack {
+                List {
+                    ForEach(firestoreService.cards) { card in
+                        CardRow(card: card)
+                            .padding(.vertical, 10)
+                            .onTapGesture {
+                                path.append("apply card")
+                                     }
+                    }
+                }
+                .onAppear {
+                    firestoreService.fetchCards()
+                }
+                .navigationTitle("Cards")
+            }
+            
+            
+            //.navigationTitle("Cards")
+            .navigationBarItems(trailing: Button(action: {
+                // Add action for the "+" button here
+                path.append("add card")
+            }) {
+                Image(systemName: "plus")
+            })
+            .navigationDestination(for: String.self) { value in
+                if value == "add card" {
+                    AddCardViewController(path: $path)
+                }
+            }
         }
-        .navigationTitle("Cards")
-        .navigationBarItems(trailing: Button(action: {
-            // Add action for the "+" button here
-            print("+ button tapped")
-            addCard()
-        }) {
-            Image(systemName: "plus")
-        })
+    }
+    }
+
+
+struct Card: Identifiable {
+    var id: String
+    var cardName: String
+    var imageURL: String
+}
+
+struct CardRow: View {
+    let card: Card
+    
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            // Load image using Kingfisher (or any other way you prefer)
+            KFImage(URL(string: card.imageURL))
+                .resizable()
+                .scaledToFit()
+                .frame(height: 200)
+                .overlay(
+                    // Overlay card name in the bottom left
+                    Text(card.cardName)
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .padding(8)
+                        .background(Color.black.opacity(0.5))
+                        .foregroundColor(.white),
+                    alignment: .bottomLeading
+                )
+            
+            // Option button (right top)
+            HStack {
+                Spacer()
+                VStack {
+                    OptionMenuButton(card: card)
+                    Spacer()
+                }
+            }
+            .padding(.top, 10)
+            .padding(.trailing, 10)
+            
+            // Camera button (right bottom)
+            HStack {
+                Spacer()
+                VStack {
+                    Spacer()
+                    CameraButton()
+                }
+            }
+            .padding(.bottom, 10)
+            .padding(.trailing, 10)
+        }
+        .cornerRadius(10)
+        .clipped()
     }
 }
 
-
-func addCard() {
-       // Mock data for testing
-       let userName = "User123"
-       let cardName = "New Card"
-       let timeStamp = Date()
-       let histogramData = [0.1, 0.2, 0.3] // Just an example
-       let image = UIImage(systemName: "photo") // Replace with real image
-    // 將資料儲存到 Firestore
-    let db = Firestore.firestore()
-    let cardData: [String: Any] = [
-        "userName": userName,
-        "cardName": cardName,
-        "timeStamp": timeStamp,
-        "histogramData": histogramData,
-        //"imageURL": imageURL
-    ]
+struct OptionMenuButton: View {
+    let card: Card
     
-    db.collection("cards").addDocument(data: cardData) { error in
-        if let error = error {
-            print("Error saving card: \(error)")
-        } else {
-            print("Card successfully saved!")
+    var body: some View {
+        Menu {
+            Button(action: {
+                // Add action for renaming
+                print("Rename tapped")
+            }) {
+                Label("Rename", systemImage: "pencil")
+            }
+            Button(action: {
+                // Add action for deleting
+                print("Delete tapped")
+            }) {
+                Label("Delete", systemImage: "trash")
+            }
+            Button(action: {
+                // Add action for sharing
+                print("Share tapped")
+            }) {
+                Label("Share", systemImage: "square.and.arrow.up")
+            }
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 18, weight: .bold))
+                .padding()
+                .background(Color.black.opacity(0.6))
+                .clipShape(Circle())
+                .foregroundColor(.white)
         }
     }
+}
 
-       // 儲存圖片到 Firebase Storage
-       guard let image = image,
-             let imageData = image.jpegData(compressionQuality: 0.8) else {
-           print("Unable to get image data")
-           return
-       }
-       
-       let storageRef = Storage.storage().reference().child("cards/\(UUID().uuidString).jpg")
-       
-       storageRef.putData(imageData, metadata: nil) { metadata, error in
-           if let error = error {
-               print("Error uploading image: \(error)")
-               return
-           }
-           
-           // 獲取圖片的 URL
-           storageRef.downloadURL { url, error in
-               if let error = error {
-                   print("Error getting image URL: \(error)")
-                   return
-               }
-               
-               if let imageURL = url?.absoluteString {
-               }
-           }
-       }
-   }
+struct CameraButton: View {
+    var body: some View {
+        Button(action: {
+            // Add action for camera button
+            print("Camera tapped")
+        }) {
+            Image(systemName: "camera.fill")
+                .font(.system(size: 20, weight: .bold))
+                .padding()
+                .background(Color.black.opacity(0.6))
+                .clipShape(Circle())
+                .foregroundColor(.white)
+        }
+    }
+}
