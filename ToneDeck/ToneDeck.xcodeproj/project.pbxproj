@@ -21,6 +21,8 @@
 		780710432C91DF720039B44C /* AddCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710422C91DF720039B44C /* AddCardViewController.swift */; };
 		780710462C92859B0039B44C /* FireStoreCardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710452C92859B0039B44C /* FireStoreCardManager.swift */; };
 		780710492C9286FB0039B44C /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 780710482C9286FB0039B44C /* Kingfisher */; };
+		7807104B2C9292530039B44C /* ApplyCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7807104A2C9292530039B44C /* ApplyCardViewController.swift */; };
+		780710532C93EB420039B44C /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710522C93EB410039B44C /* CameraViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +36,8 @@
 		780710402C9190C00039B44C /* CardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewController.swift; sourceTree = "<group>"; };
 		780710422C91DF720039B44C /* AddCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCardViewController.swift; sourceTree = "<group>"; };
 		780710452C92859B0039B44C /* FireStoreCardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireStoreCardManager.swift; sourceTree = "<group>"; };
+		7807104A2C9292530039B44C /* ApplyCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplyCardViewController.swift; sourceTree = "<group>"; };
+		780710522C93EB410039B44C /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +100,8 @@
 			children = (
 				780710402C9190C00039B44C /* CardViewController.swift */,
 				780710422C91DF720039B44C /* AddCardViewController.swift */,
+				7807104A2C9292530039B44C /* ApplyCardViewController.swift */,
+				780710522C93EB410039B44C /* CameraViewController.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -190,10 +196,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7807104B2C9292530039B44C /* ApplyCardViewController.swift in Sources */,
 				780710412C9190C00039B44C /* CardViewController.swift in Sources */,
 				780710062C918DFB0039B44C /* AppDelegate.swift in Sources */,
 				78070FF62C918C1B0039B44C /* ContentView.swift in Sources */,
 				780710462C92859B0039B44C /* FireStoreCardManager.swift in Sources */,
+				780710532C93EB420039B44C /* CameraViewController.swift in Sources */,
 				78070FF42C918C1B0039B44C /* ToneDeckApp.swift in Sources */,
 				780710432C91DF720039B44C /* AddCardViewController.swift in Sources */,
 			);

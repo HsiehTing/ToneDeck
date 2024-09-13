@@ -18,21 +18,25 @@ struct CardViewController: View {
     
     var body: some View {
         
-        NavigationStack(path: $path){
+        NavigationStack(path: $path) {
             VStack {
                 List {
                     ForEach(firestoreService.cards) { card in
                         CardRow(card: card)
                             .padding(.vertical, 10)
                             .onTapGesture {
-                                path.append("apply card")
-                                     }
+                                // Navigate to ApplyCardViewController with the card
+                                path.append("applyCard")
+                            }
                     }
-                }
-                .onAppear {
+                }                .onAppear {
                     firestoreService.fetchCards()
                 }
                 .navigationTitle("Cards")
+                .navigationDestination(for: String.self) { value in
+                  
+                }
+               
             }
             
             
