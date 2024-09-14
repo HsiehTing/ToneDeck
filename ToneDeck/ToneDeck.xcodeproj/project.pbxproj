@@ -21,8 +21,9 @@
 		780710432C91DF720039B44C /* AddCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710422C91DF720039B44C /* AddCardViewController.swift */; };
 		780710462C92859B0039B44C /* FireStoreCardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710452C92859B0039B44C /* FireStoreCardManager.swift */; };
 		780710492C9286FB0039B44C /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 780710482C9286FB0039B44C /* Kingfisher */; };
-		7807104B2C9292530039B44C /* ApplyCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7807104A2C9292530039B44C /* ApplyCardViewController.swift */; };
-		780710532C93EB420039B44C /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710522C93EB410039B44C /* CameraViewController.swift */; };
+		780710552C9407840039B44C /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710542C9407840039B44C /* CameraViewController.swift */; };
+		780710572C9414FD0039B44C /* ApplyCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710562C9414FC0039B44C /* ApplyCardViewController.swift */; };
+		7807105A2C9565320039B44C /* HistogramManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710592C9565320039B44C /* HistogramManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,8 +37,10 @@
 		780710402C9190C00039B44C /* CardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewController.swift; sourceTree = "<group>"; };
 		780710422C91DF720039B44C /* AddCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCardViewController.swift; sourceTree = "<group>"; };
 		780710452C92859B0039B44C /* FireStoreCardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireStoreCardManager.swift; sourceTree = "<group>"; };
-		7807104A2C9292530039B44C /* ApplyCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplyCardViewController.swift; sourceTree = "<group>"; };
-		780710522C93EB410039B44C /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
+		780710542C9407840039B44C /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
+		780710562C9414FC0039B44C /* ApplyCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplyCardViewController.swift; sourceTree = "<group>"; };
+		780710582C9442CF0039B44C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		780710592C9565320039B44C /* HistogramManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistogramManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +78,7 @@
 		78070FF22C918C1B0039B44C /* ToneDeck */ = {
 			isa = PBXGroup;
 			children = (
+				780710582C9442CF0039B44C /* Info.plist */,
 				78070FF32C918C1B0039B44C /* ToneDeckApp.swift */,
 				78070FF52C918C1B0039B44C /* ContentView.swift */,
 				780710052C918DFB0039B44C /* AppDelegate.swift */,
@@ -100,8 +104,8 @@
 			children = (
 				780710402C9190C00039B44C /* CardViewController.swift */,
 				780710422C91DF720039B44C /* AddCardViewController.swift */,
-				7807104A2C9292530039B44C /* ApplyCardViewController.swift */,
-				780710522C93EB410039B44C /* CameraViewController.swift */,
+				780710542C9407840039B44C /* CameraViewController.swift */,
+				780710562C9414FC0039B44C /* ApplyCardViewController.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -110,6 +114,7 @@
 			isa = PBXGroup;
 			children = (
 				780710452C92859B0039B44C /* FireStoreCardManager.swift */,
+				780710592C9565320039B44C /* HistogramManager.swift */,
 			);
 			path = Manager;
 			sourceTree = "<group>";
@@ -147,7 +152,7 @@
 		78070FE82C918C1B0039B44C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = 1;
+				BuildIndependentTargetsInParallel = NO;
 				LastSwiftUpdateCheck = 1540;
 				LastUpgradeCheck = 1540;
 				TargetAttributes = {
@@ -201,9 +206,11 @@
 				780710062C918DFB0039B44C /* AppDelegate.swift in Sources */,
 				78070FF62C918C1B0039B44C /* ContentView.swift in Sources */,
 				780710462C92859B0039B44C /* FireStoreCardManager.swift in Sources */,
-				780710532C93EB420039B44C /* CameraViewController.swift in Sources */,
+				780710552C9407840039B44C /* CameraViewController.swift in Sources */,
 				78070FF42C918C1B0039B44C /* ToneDeckApp.swift in Sources */,
 				780710432C91DF720039B44C /* AddCardViewController.swift in Sources */,
+				780710572C9414FD0039B44C /* ApplyCardViewController.swift in Sources */,
+				7807105A2C9565320039B44C /* HistogramManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -340,6 +347,8 @@
 				DEVELOPMENT_TEAM = 9CYNC2N5UU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ToneDeck/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "\"use camera\"";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -370,6 +379,8 @@
 				DEVELOPMENT_TEAM = 9CYNC2N5UU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ToneDeck/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "\"use camera\"";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

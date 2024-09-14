@@ -6,167 +6,84 @@
 //
 
 import SwiftUI
+import UIKit
 import AVFoundation
 
 struct CameraView: View {
-    @StateObject var cameraModel = CameraModel()
+    @State private var isFlashOn = false
+    @State private var isUsingFrontCamera = false
+    @State private var showImagePicker = false
     
     var body: some View {
         ZStack {
-            // Camera Preview
-            CameraPreview(cameraModel: cameraModel)
+            CameraPreview(isUsingFrontCamera: $isUsingFrontCamera, isFlashOn: $isFlashOn)
                 .edgesIgnoringSafeArea(.all)
-            
             VStack {
+                // 閃光燈切換按鈕
                 HStack {
-                    // Left: Album Button
-                    Button(action: {
-                        cameraModel.showPhotoPicker = true
-                    }) {
-                        Image(systemName: "photo.on.rectangle")
-                            .font(.system(size: 24))
-                            .foregroundColor(.white)
-                            .padding()
-                    }
                     Spacer()
-                    
-                    // Right: Flash Button
                     Button(action: {
-                        cameraModel.toggleFlash()
+                        isFlashOn.toggle()
                     }) {
-                        Image(systemName: cameraModel.isFlashOn ? "bolt.fill" : "bolt.slash.fill")
-                            .font(.system(size: 24))
+                        Image(systemName: isFlashOn ? "bolt.fill" : "bolt.slash.fill")
                             .foregroundColor(.white)
                             .padding()
                     }
                 }
-                
                 Spacer()
                 
                 HStack {
-                    // Right: Flip Camera Button
-                    Spacer()
+                    // 相簿檢視按鈕
                     Button(action: {
-                        cameraModel.switchCamera()
+                        showImagePicker = true
+                    }) {
+                        Image(systemName: "photo.on.rectangle")
+                            .foregroundColor(.white)
+                            .font(.system(size: 30))
+                            .padding()
+                    }
+                    
+                    Spacer()
+                    
+                    // 快門按鈕
+                    Button(action: {
+                        // 拍照功能
+                    }) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 70, height: 70)
+                            Circle()
+                                .stroke(Color.gray, lineWidth: 4)
+                                .frame(width: 80, height: 80)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    // 翻轉鏡頭按鈕
+                    Button(action: {
+                        isUsingFrontCamera.toggle()
                     }) {
                         Image(systemName: "arrow.triangle.2.circlepath.camera")
-                            .font(.system(size: 24))
                             .foregroundColor(.white)
+                            .font(.system(size: 30))
                             .padding()
                     }
                 }
-                
-                // Middle: Shutter Button
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        cameraModel.capturePhoto()
-                    }) {
-                        Circle()
-                            .stroke(Color.white, lineWidth: 5)
-                            .frame(width: 70, height: 70)
-                            .padding(.bottom)
-                    }
-                    Spacer()
-                }
+                .padding(.bottom, 30)
             }
         }
-        .sheet(isPresented: $cameraModel.showPhotoPicker) {
-            ImagePicker(sourceType: .photoLibrary, selectedImage: $cameraModel.selectedImage)
+        .sheet(isPresented: $showImagePicker) {
+            ImagePicker()
         }
     }
 }
 
-// Camera Model for managing camera interactions
-class CameraModel: ObservableObject {
-    @Published var isFlashOn = false
-    @Published var showPhotoPicker = false
-    @Published var selectedImage: UIImage?
-    
-    private var captureSession = AVCaptureSession()
-    private var currentCamera: AVCaptureDevice?
-    private var photoOutput = AVCapturePhotoOutput()
-    
-    init() {
-        setupCamera()
-    }
-    
-    func setupCamera() {
-        captureSession.beginConfiguration()
-        
-        // Setup camera device
-        if let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) {
-            currentCamera = camera
-            let input = try! AVCaptureDeviceInput(device: camera)
-            if captureSession.canAddInput(input) {
-                captureSession.addInput(input)
-            }
-        }
-        
-        if captureSession.canAddOutput(photoOutput) {
-            captureSession.addOutput(photoOutput)
-        }
-        
-        captureSession.commitConfiguration()
-        captureSession.startRunning()
-    }
-    
-    func capturePhoto() {
-        let settings = AVCapturePhotoSettings()
-        settings.flashMode = isFlashOn ? .on : .off
-        photoOutput.capturePhoto(with: settings, delegate: self)
-    }
-    
-    func toggleFlash() {
-        isFlashOn.toggle()
-    }
-    
-    func switchCamera() {
-        captureSession.beginConfiguration()
-        
-        // Remove current input
-        if let currentInput = captureSession.inputs.first {
-            captureSession.removeInput(currentInput)
-        }
-        
-        // Toggle between front and back camera
-        let newCameraPosition: AVCaptureDevice.Position = (currentCamera?.position == .back) ? .front : .back
-        if let newCamera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: newCameraPosition) {
-            currentCamera = newCamera
-            let newInput = try! AVCaptureDeviceInput(device: newCamera)
-            if captureSession.canAddInput(newInput) {
-                captureSession.addInput(newInput)
-            }
-        }
-        
-        captureSession.commitConfiguration()
-    }
-}
-
-// Camera Preview for displaying the camera feed
-struct CameraPreview: UIViewRepresentable {
-    let cameraModel: CameraModel
-    
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView(frame: UIScreen.main.bounds)
-        let previewLayer = AVCaptureVideoPreviewLayer(session: cameraModel.captureSession)
-        previewLayer.videoGravity = .resizeAspectFill
-        previewLayer.frame = view.frame
-        view.layer.addSublayer(previewLayer)
-        return view
-    }
-    
-    func updateUIView(_ uiView: UIView, context: Context) {}
-}
-
-// ImagePicker for photo library access
 struct ImagePicker: UIViewControllerRepresentable {
-    var sourceType: UIImagePickerController.SourceType
-    @Binding var selectedImage: UIImage?
-    
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
-        picker.sourceType = sourceType
+        picker.sourceType = .photoLibrary
         picker.delegate = context.coordinator
         return picker
     }
@@ -174,27 +91,97 @@ struct ImagePicker: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
     
     func makeCoordinator() -> Coordinator {
-        return Coordinator(self)
+        Coordinator(self)
     }
     
-    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
-        let parent: ImagePicker
-        
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        var parent: ImagePicker
         init(_ parent: ImagePicker) {
             self.parent = parent
         }
         
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            if let image = info[.originalImage] as? UIImage {
-                parent.selectedImage = image
-            }
             picker.dismiss(animated: true)
         }
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        CameraView()
+
+struct CameraPreview: UIViewControllerRepresentable {
+    @Binding var isUsingFrontCamera: Bool
+    @Binding var isFlashOn: Bool
+    
+    func makeUIViewController(context: Context) -> CameraViewController {
+        let controller = CameraViewController()
+        controller.setupCamera(isFront: isUsingFrontCamera, flashOn: isFlashOn)
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: CameraViewController, context: Context) {
+        uiViewController.toggleCamera(isFront: isUsingFrontCamera)
+        uiViewController.toggleFlash(flashOn: isFlashOn)
+    }
+}
+
+class CameraViewController: UIViewController {
+    private var captureSession = AVCaptureSession()
+    private var videoPreviewLayer: AVCaptureVideoPreviewLayer!
+    private var currentCamera: AVCaptureDevice?
+    private var photoOutput = AVCapturePhotoOutput()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupCamera(isFront: false, flashOn: false)
+    }
+    
+    func setupCamera(isFront: Bool, flashOn: Bool) {
+        captureSession.beginConfiguration()
+        
+        // 選擇相機
+        let camera = isFront ? getCamera(position: .front) : getCamera(position: .back)
+        currentCamera = camera
+        
+        do {
+            let input = try AVCaptureDeviceInput(device: camera!)
+            if captureSession.canAddInput(input) {
+                captureSession.addInput(input)
+            }
+        } catch {
+            print("Error setting up camera input: \(error)")
+        }
+        
+        if captureSession.canAddOutput(photoOutput) {
+            captureSession.addOutput(photoOutput)
+        }
+        
+        captureSession.commitConfiguration()
+        
+        videoPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+        videoPreviewLayer.videoGravity = .resizeAspectFill
+        videoPreviewLayer.frame = view.layer.bounds
+        view.layer.addSublayer(videoPreviewLayer)
+        
+        captureSession.startRunning()
+    }
+    
+    func getCamera(position: AVCaptureDevice.Position) -> AVCaptureDevice? {
+        return AVCaptureDevice.devices(for: .video).first { $0.position == position }
+    }
+    
+    func toggleCamera(isFront: Bool) {
+        captureSession.stopRunning()
+        setupCamera(isFront: isFront, flashOn: false)
+        captureSession.startRunning()
+    }
+    
+    func toggleFlash(flashOn: Bool) {
+        guard let currentCamera = currentCamera, currentCamera.hasFlash else { return }
+        do {
+            try currentCamera.lockForConfiguration()
+            currentCamera.flashMode = flashOn ? .on : .off
+            currentCamera.unlockForConfiguration()
+        } catch {
+            print("Error setting flash: \(error)")
+        }
     }
 }
