@@ -24,9 +24,7 @@ struct CardViewController: View {
                     ForEach(firestoreService.cards) { card in
                         CardRow(card: card)
                             .padding(.vertical, 10)
-                            .onTapGesture {
-                                path.append("apply card")
-                                     }
+
                     }
                 }
                 .onAppear {
@@ -61,51 +59,62 @@ struct Card: Identifiable {
 
 struct CardRow: View {
     let card: Card
+    @State private var showApplyCardView = false
     
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            // Load image using Kingfisher (or any other way you prefer)
-            KFImage(URL(string: card.imageURL))
-                .resizable()
-                .scaledToFit()
-                .frame(height: 200)
-                .overlay(
-                    // Overlay card name in the bottom left
-                    Text(card.cardName)
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .padding(8)
-                        .background(Color.black.opacity(0.5))
-                        .foregroundColor(.white),
-                    alignment: .bottomLeading
-                )
-            
-            // Option button (right top)
-            HStack {
-                Spacer()
-                VStack {
-                    OptionMenuButton(card: card)
+        NavigationLink(destination: ApplyCardViewControllerWrapper(card: card)){
+            ZStack(alignment: .bottomLeading) {
+                // Load image using Kingfisher (or any other way you prefer)
+                KFImage(URL(string: card.imageURL))
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 200)
+                    .cornerRadius(10)
+                    .clipped()
+                   // .contentShape(Rectangle())
+                    .overlay(
+                                        NavigationLink(destination: ApplyCardViewControllerWrapper(card: card)) {
+                                            Color.clear // 透明的可點擊區域
+                                        }
+                                        .contentShape(Rectangle()) // 使得整個區域可點擊
+                                    )
+                Text(card.cardName)
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .padding(8)
+                    .background(Color.black.opacity(0.5))
+                    .foregroundColor(.white)
+                // Option button (right top)
+                HStack {
                     Spacer()
+                    VStack {
+                        OptionMenuButton(card: card)
+                        Spacer()
+                    }
                 }
-            }
-            .padding(.top, 10)
-            .padding(.trailing, 10)
-            
-            // Camera button (right bottom)
-            HStack {
-                Spacer()
-                VStack {
+                .padding(.top, 10)
+                .padding(.trailing, 10)
+                
+                // Camera button (right bottom)
+                HStack {
                     Spacer()
-                    CameraButton()
+                    VStack {
+                        Spacer()
+                        CameraButton()
+                    }
                 }
+                .padding(.bottom, 10)
+                .padding(.trailing, 10)
             }
-            .padding(.bottom, 10)
-            .padding(.trailing, 10)
+            
+            .cornerRadius(10)
+            .clipped()
+
         }
-        .cornerRadius(10)
-        .clipped()
     }
+        
 }
+
 
 struct OptionMenuButton: View {
     let card: Card
