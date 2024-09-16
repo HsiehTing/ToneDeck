@@ -8,16 +8,14 @@
 import SwiftUI
 import UIKit
 import AVFoundation
+import Photos
 
 struct CameraView: View {
     @State private var isFlashOn = false
     @State private var isUsingFrontCamera = false
     @State private var showImagePicker = false
-    
     var body: some View {
-        ZStack {
-            CameraPreview(isUsingFrontCamera: $isUsingFrontCamera, isFlashOn: $isFlashOn)
-                .edgesIgnoringSafeArea(.all)
+        ZStack {           
             VStack {
                 // 閃光燈切換按鈕
                 HStack {
@@ -107,81 +105,167 @@ struct ImagePicker: UIViewControllerRepresentable {
 }
 
 
-struct CameraPreview: UIViewControllerRepresentable {
-    @Binding var isUsingFrontCamera: Bool
-    @Binding var isFlashOn: Bool
-    
-    func makeUIViewController(context: Context) -> CameraViewController {
-        let controller = CameraViewController()
-        controller.setupCamera(isFront: isUsingFrontCamera, flashOn: isFlashOn)
-        return controller
-    }
-    
-    func updateUIViewController(_ uiViewController: CameraViewController, context: Context) {
-        uiViewController.toggleCamera(isFront: isUsingFrontCamera)
-        uiViewController.toggleFlash(flashOn: isFlashOn)
-    }
-}
-
 class CameraViewController: UIViewController {
-    private var captureSession = AVCaptureSession()
-    private var videoPreviewLayer: AVCaptureVideoPreviewLayer!
-    private var currentCamera: AVCaptureDevice?
-    private var photoOutput = AVCapturePhotoOutput()
+    
+    var captureSession: AVCaptureSession!
+    var videoPreviewLayer: AVCaptureVideoPreviewLayer!
+    var captureDevice: AVCaptureDevice!
+    var didCapturePhoto: ((UIImage) -> Void)?
+    weak var delegate: CameraViewControllerDelegate?
+    
+    var isUsingFrontCamera = false
+
+    // 快門按鈕
+    let shutterButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("📸", for: .normal)
+        button.backgroundColor = UIColor.white
+        button.layer.cornerRadius = 35
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    // 翻轉相機按鈕
+    let flipCameraButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("🔄", for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupCamera(isFront: false, flashOn: false)
+        view.backgroundColor = .black
+        
+        setupCamera()
+        setupUI()
     }
     
-    func setupCamera(isFront: Bool, flashOn: Bool) {
-        captureSession.beginConfiguration()
+    func setupCamera() {
+        captureSession = AVCaptureSession()
+        captureSession.sessionPreset = .high
         
-        // 選擇相機
-        let camera = isFront ? getCamera(position: .front) : getCamera(position: .back)
-        currentCamera = camera
+        // 預設使用後置鏡頭
+        captureDevice = getCameraDevice(position: .back)
+        
+        guard let captureDevice = captureDevice else {
+            print("無法訪問相機")
+            return
+        }
         
         do {
-            let input = try AVCaptureDeviceInput(device: camera!)
+            let input = try AVCaptureDeviceInput(device: captureDevice)
             if captureSession.canAddInput(input) {
                 captureSession.addInput(input)
+            }
+            let output = AVCapturePhotoOutput()
+            if captureSession.canAddOutput(output) {
+                captureSession.addOutput(output)
+            }
+            videoPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+            videoPreviewLayer.videoGravity = .resizeAspectFill
+            videoPreviewLayer.frame = view.layer.bounds
+            view.layer.addSublayer(videoPreviewLayer)
+            // 在背景執行緒中啟動相機
+            DispatchQueue.global(qos: .userInitiated).async {
+                self.captureSession.startRunning()
             }
         } catch {
             print("Error setting up camera input: \(error)")
         }
+    }
+    
+    func setupUI() {
+        // 添加快門按鈕
+        view.addSubview(shutterButton)
+        shutterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        shutterButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50).isActive = true
+        shutterButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
+        shutterButton.heightAnchor.constraint(equalToConstant: 70).isActive = true
+        shutterButton.addTarget(self, action: #selector(shutterButtonTapped), for: .touchUpInside)
         
-        if captureSession.canAddOutput(photoOutput) {
-            captureSession.addOutput(photoOutput)
+        // 添加翻轉相機按鈕
+        view.addSubview(flipCameraButton)
+        flipCameraButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 50).isActive = true
+        flipCameraButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
+        flipCameraButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        flipCameraButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        flipCameraButton.addTarget(self, action: #selector(flipCameraTapped), for: .touchUpInside)
+    }
+    
+    @objc func shutterButtonTapped() {
+        let photoOutput = captureSession.outputs.first as? AVCapturePhotoOutput
+        let settings = AVCapturePhotoSettings()
+        photoOutput?.capturePhoto(with: settings, delegate: self)
+    }
+    
+    @objc func flipCameraTapped() {
+        captureSession.beginConfiguration()
+        
+        guard let currentInput = captureSession.inputs.first as? AVCaptureDeviceInput else {
+            return
+        }
+        captureSession.removeInput(currentInput)
+        
+        isUsingFrontCamera.toggle()
+        captureDevice = getCameraDevice(position: isUsingFrontCamera ? .front : .back)
+        
+        do {
+            let newInput = try AVCaptureDeviceInput(device: captureDevice)
+            if captureSession.canAddInput(newInput) {
+                captureSession.addInput(newInput)
+            }
+        } catch {
+            print("Error switching camera: \(error)")
         }
         
         captureSession.commitConfiguration()
-        
-        videoPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-        videoPreviewLayer.videoGravity = .resizeAspectFill
-        videoPreviewLayer.frame = view.layer.bounds
-        view.layer.addSublayer(videoPreviewLayer)
-        
-        captureSession.startRunning()
     }
     
-    func getCamera(position: AVCaptureDevice.Position) -> AVCaptureDevice? {
-        return AVCaptureDevice.devices(for: .video).first { $0.position == position }
+    func getCameraDevice(position: AVCaptureDevice.Position) -> AVCaptureDevice? {
+        let devices = AVCaptureDevice.devices(for: .video)
+        return devices.first { $0.position == position }
     }
     
-    func toggleCamera(isFront: Bool) {
-        captureSession.stopRunning()
-        setupCamera(isFront: isFront, flashOn: false)
-        captureSession.startRunning()
+    // 將照片保存到相簿
+    func savePhotoToLibrary(image: UIImage) {
+        PHPhotoLibrary.requestAuthorization { status in
+            if status == .authorized {
+                UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
+            }
+        }
     }
     
-    func toggleFlash(flashOn: Bool) {
-        guard let currentCamera = currentCamera, currentCamera.hasFlash else { return }
-        do {
-            try currentCamera.lockForConfiguration()
-            currentCamera.flashMode = flashOn ? .on : .off
-            currentCamera.unlockForConfiguration()
-        } catch {
-            print("Error setting flash: \(error)")
+    @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        if let error = error {
+            print("保存失敗: \(error.localizedDescription)")
+        } else {
+            print("saved to your local library")
         }
     }
 }
+
+// MARK: - AVCapturePhotoCaptureDelegate
+extension CameraViewController: AVCapturePhotoCaptureDelegate {
+    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        guard let imageData = photo.fileDataRepresentation(),
+              let image = UIImage(data: imageData) else {
+            return
+        }
+        
+        // 將照片保存到相簿
+        savePhotoToLibrary(image: image)
+
+        delegate?.didCapturePhoto(image)
+        
+        // 自動返回 applycardVC
+        dismiss(animated: true, completion: nil)
+    }
+}
+
+protocol CameraViewControllerDelegate: AnyObject {
+    func didCapturePhoto(_ image: UIImage)
+}
+    
+
+

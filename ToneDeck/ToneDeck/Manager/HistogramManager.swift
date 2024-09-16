@@ -10,15 +10,15 @@ import CoreImage
 import CoreImage.CIFilterBuiltins
 import UIKit
 
-var histogramData: [String: [Float]] = [:]
 class ImageHistogramCalculator: ObservableObject {
 
+    @Published var filterHistogramData: [String: [Float]] = [:]
 
     // 計算目標圖像的四種直方圖數據：紅、綠、藍、灰
-    func calculateHistogram(for image: UIImage) {
+    func calculateHistogram(for image: UIImage) -> [String: [Float]] {
         guard let ciImage = CIImage(image: image) else {
             print("Failed to convert UIImage to CIImage.")
-            return
+            return ["none": [0]]
         }
 
         // 計算圖像的像素數以動態調整縮放比例
@@ -37,13 +37,15 @@ class ImageHistogramCalculator: ObservableObject {
 
         DispatchQueue.main.async {
             // 將結果存儲到字典中
-            histogramData = [
+            let histogramData = [
                 "red": redHistogram,
                 "green": greenHistogram,
                 "blue": blueHistogram,
                 "gray": grayHistogram
             ]
+            self.filterHistogramData = histogramData
         }
+        return ["red": redHistogram, "green": greenHistogram, "blue": blueHistogram, "gray": grayHistogram]
     }
 
     // 計算指定顏色通道的直方圖數據
@@ -57,7 +59,8 @@ class ImageHistogramCalculator: ObservableObject {
         // 渲染每個顏色通道的直方圖數據
         let context = CIContext()
         var bitmap = [Float](repeating: 0, count: 256)
-        context.render(histogramFilter.outputImage!, toBitmap: &bitmap, rowBytes: 256 * MemoryLayout<Float>.size, bounds: CGRect(x: 0, y: colorIndex, width: 256, height: 1), format: .Rf, colorSpace: nil)
+        context.render(histogramFilter.outputImage!, toBitmap: &bitmap, rowBytes: 256 * MemoryLayout<Float>.size, bounds: CGRect(x: 0, y: colorIndex, width: 256, height: 1)
+                       , format: .Rf, colorSpace: nil)
 
         return bitmap
     }

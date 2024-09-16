@@ -77,8 +77,14 @@ struct AddCardViewController: View {
         // Mock data for testing
         let userName = "User123"
         let timeStamp = Date()
-        let histogramData = [0.1, 0.2, 0.3] // Just an example
+        let histogram = ImageHistogramCalculator()
         
+        let filterHistogramData = histogram.calculateHistogram(for: image)
+        let filterData = [calculateBrightness(from: filterHistogramData),
+                            calculateContrastFromHistogram(histogramData: filterHistogramData),
+                            calculateSaturation(from: filterHistogramData)]
+        
+      
         // Save the image to Firebase Storage
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             print("Unable to get image data")
@@ -103,11 +109,14 @@ struct AddCardViewController: View {
                 if let imageURL = url?.absoluteString {
                     // Save the card data to Firestore
                     let db = Firestore.firestore()
+                    let cards = Firestore.firestore().collection("cards")
+                    let document = cards.document()
                     let cardData: [String: Any] = [
-                        "userName": userName,
+                        "id": document.documentID,
+                        "userID": userName,
                         "cardName": cardName,
-                        "timeStamp": timeStamp,
-                        "histogramData": histogramData,
+                        "createdTime": timeStamp,
+                        "filterData": filterData,
                         "imageURL": imageURL
                     ]
                     

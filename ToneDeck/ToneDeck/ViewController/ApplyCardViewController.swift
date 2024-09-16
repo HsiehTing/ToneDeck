@@ -8,6 +8,7 @@
 import SwiftUI
 import UIKit
 import PhotosUI
+import CoreImage
 
 struct ApplyCardViewControllerWrapper: UIViewControllerRepresentable {
     let card: Card
@@ -22,15 +23,20 @@ struct ApplyCardViewControllerWrapper: UIViewControllerRepresentable {
 }
 
 // UIKit ViewController (ApplyCardViewController)
-class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CameraViewControllerDelegate {
     
     var card: Card?
     let imageView = UIImageView()
     let targetImageView = UIImageView()
+    var filterImage = UIImage()
     let applyButton = UIButton()
     let cameraButton = UIButton(type: .system)
     let histogram = ImageHistogramCalculator()
     var targetImage: UIImage? // 用來保存選取的圖片
+    var tBrightness: Float = 0.3  // 較平滑的亮度變化
+    var tContrast: Float = 0.6    // 中等強度的對比度變化
+    var tSaturation: Float = 0.8  // 更強的飽和度變化
+   
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,6 +46,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         // Configure the card imageView and label
         if let card = card {
             imageView.kf.setImage(with: URL(string: card.imageURL))
+            filterImage = imageView.image ?? UIImage()
             let nameLabel = UILabel()
             nameLabel.text = card.cardName
             nameLabel.textColor = .white
@@ -66,7 +73,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         
         // Configure the target imageView for photo selection
         targetImageView.backgroundColor = UIColor(white: 0.1, alpha: 1)
-        targetImageView.contentMode = .center
+        targetImageView.contentMode = .scaleAspectFit
         targetImageView.image = UIImage(systemName: "camera")
         targetImageView.tintColor = .white
         targetImageView.isUserInteractionEnabled = true
@@ -88,9 +95,10 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         applyButton.translatesAutoresizingMaskIntoConstraints = false
         applyButton.layer.cornerRadius = 10
         applyButton.backgroundColor = .white
+        applyButton.setTitleColor(.black, for: .normal)
         let applyTapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapApply))
         applyButton.addGestureRecognizer(applyTapGesture)
-        applyButton.titleLabel?.text = "Apply Card"
+        applyButton.setTitle("Apply Card", for: .normal)
         
         NSLayoutConstraint.activate([
             applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 50),
@@ -98,32 +106,104 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             applyButton.widthAnchor.constraint(equalToConstant: 100),
             applyButton.heightAnchor.constraint(equalToConstant: 40)
         ])
+        
+        
     }
     
     @objc func didTapApply() {
         print("tap apply button")
         
-        guard let targetImage = targetImage else {
-                    print("No image selected from photo library.")
-                    return
+        if applyButton.title(for: .normal) == "Apply Card" {
+            guard let targetImage = targetImage else {
+                print("No image selected from photo library.")
+                return
+            }
+            
+            // 確保 UIImage 能成功轉換為 CIImage
+            guard let ciImage = CIImage(image: targetImage) else {
+                print("Failed to convert UIImage to CIImage.")
+                return
+            }
+            
+            //        // 計算直方圖
+            let targetHistogramData = histogram.calculateHistogram(for: targetImage)
+            let filterHistogramData = histogram.calculateHistogram(for: filterImage)
+            //
+            //        // 確認是否成功計算
+            if let redHistogram = targetHistogramData["red"], !redHistogram.allSatisfy({ $0 == 0 }) {
+                print("Red channel histogram calculated successfully.")
+            } else {
+                print("Failed to calculate valid histogram data.")
+                return
+            }
+            let targetValues = [calculateBrightness(from: targetHistogramData),
+                                calculateContrastFromHistogram(histogramData: targetHistogramData),
+                                calculateSaturation(from: targetHistogramData)]
+            let filterValues = [calculateBrightness(from: filterHistogramData),
+                                calculateContrastFromHistogram(histogramData: filterHistogramData),
+                                calculateSaturation(from: filterHistogramData)]
+            let tValues = [tBrightness, tContrast, tSaturation]
+            print("targetValues: \(targetValues)")
+            print("filterValues: \(filterValues)")
+            let smoothTargetValues = applySmoothFilterWithDifferentT(targetValues: targetValues, filterValues: filterValues, tValues: tValues)
+            
+            print(smoothTargetValues)
+            
+            targetImageView.image = applyImageAdjustments(image: targetImage, smoothValues: smoothTargetValues)
+            applyButton.setTitle("Save Image", for: .normal)
+            
+        } else if applyButton.title(for: .normal) == "Save Image" {
+            // 保存圖片邏輯
+            saveFilteredImageToLibrary()
+            applyButton.setTitle("Apply Card", for: .normal)
+            
+        }
+
+    }
+    
+    func saveFilteredImageToLibrary() {
+        PHPhotoLibrary.requestAuthorization { status in
+            if status == .authorized {
+                DispatchQueue.main.async {
+                    guard let image = self.targetImageView.image else { return }
+                    UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
                 }
-        
-        // 確保 UIImage 能成功轉換為 CIImage
-        guard let ciImage = CIImage(image: targetImage) else {
-            print("Failed to convert UIImage to CIImage.")
-            return
+            }
         }
-        
-//        // 計算直方圖
-        histogram.calculateHistogram(for: targetImage)
-//
-//        // 確認是否成功計算
-        if let redHistogram = histogramData["red"], !redHistogram.allSatisfy({ $0 == 0 }) {
-            print("Red channel histogram calculated successfully.")
-        } else {
-            print("Failed to calculate valid histogram data.")
-            return
+    }
+    
+    @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+            if let error = error {
+                print("保存失敗: \(error.localizedDescription)")
+            } else {
+                print("照片已保存到相簿")
+            }
         }
+    
+    func applySmoothFilterWithDifferentT(targetValues: [Float], filterValues: [Float], tValues: [Float]) -> [Float] {
+        var result = [Float]()
+        for targetValue in 0..<targetValues.count {
+            let newValue = targetValues[targetValue] + (filterValues[targetValue] - targetValues[targetValue]) * tValues[targetValue]
+            result.append(newValue)
+        }
+        return result
+    }
+    
+    func applyImageAdjustments(image: UIImage, smoothValues: [Float]) -> UIImage? {
+        guard let ciImage = CIImage(image: image) else { return nil }
+        // 創建 CIFilter
+        let filter = CIFilter(name: "CIColorControls")
+        filter?.setValue(ciImage, forKey: kCIInputImageKey)
+        // 設置亮度、對比度、飽和度
+        filter?.setValue(smoothValues[0], forKey: kCIInputBrightnessKey)
+        filter?.setValue(smoothValues[1], forKey: kCIInputContrastKey)
+        filter?.setValue(smoothValues[2], forKey: kCIInputSaturationKey)
+        // 取得過濾後的圖像
+        guard let outputImage = filter?.outputImage else { return nil }
+        // 創建上下文來渲染 CIFilter 的結果
+        let context = CIContext(options: nil)
+        guard let cgImage = context.createCGImage(outputImage, from: outputImage.extent) else { return nil }
+        return UIImage(cgImage: cgImage)
     }
     @objc func targetImageTapped() {
         let alert = UIAlertController(title: "Select Image", message: "Choose from photo library or camera", preferredStyle: .actionSheet)
@@ -136,6 +216,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         // Camera option
         let cameraAction = UIAlertAction(title: "Camera", style: .default) { _ in
             let cameraVC = CameraViewController()
+            cameraVC.delegate = self
             self.present(cameraVC, animated: true, completion: nil)
         }
         
@@ -159,10 +240,18 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
            if let selectedImage = info[.originalImage] as? UIImage {
                targetImage = selectedImage // 保存選取的圖片
+               
                targetImageView.image = selectedImage
-               targetImageView.contentMode = .scaleAspectFill
+               targetImageView.contentMode = .scaleAspectFit
            }
            dismiss(animated: true, completion: nil)
        }
+    
+    func didCapturePhoto(_ image: UIImage) {
+            // 接收到照片後處理
+            targetImage = image
+            targetImageView.image = image
+            applyButton.setTitle("Apply Card", for: .normal) // Reset button after capturing photo
+        }
 }
 

@@ -15,9 +15,7 @@ struct CardViewController: View {
     
     @State private var path = [String]()
     @StateObject private var firestoreService = FirestoreService()
-    
     var body: some View {
-        
         NavigationStack(path: $path) {
             VStack {
                 List {
@@ -29,13 +27,7 @@ struct CardViewController: View {
                     firestoreService.fetchCards()
                 }
                 .navigationTitle("Cards")
-                .navigationDestination(for: String.self) { value in
-                  
-                }
-               
             }
-            
-            
             //.navigationTitle("Cards")
             .navigationBarItems(trailing: Button(action: {
                 // Add action for the "+" button here
@@ -108,19 +100,15 @@ struct CardRow: View {
                 .padding(.bottom, 10)
                 .padding(.trailing, 10)
             }
-            
             .cornerRadius(10)
             .clipped()
 
         }
     }
-        
 }
-
 
 struct OptionMenuButton: View {
     let card: Card
-    
     var body: some View {
         Menu {
             Button(action: {
