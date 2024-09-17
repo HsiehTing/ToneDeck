@@ -25,6 +25,11 @@
 		780710572C9414FD0039B44C /* ApplyCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710562C9414FC0039B44C /* ApplyCardViewController.swift */; };
 		7807105A2C9565320039B44C /* HistogramManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710592C9565320039B44C /* HistogramManager.swift */; };
 		7807105C2C9605430039B44C /* FilterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7807105B2C9605430039B44C /* FilterManager.swift */; };
+		787DB7CF2C998F5300350DEC /* ProfilePageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */; };
+		78BAF0522C97F61500A5B418 /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BAF0512C97F61500A5B418 /* FeedViewController.swift */; };
+		78BAF0542C980B0900A5B418 /* PhotoGridViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */; };
+		78BAF0562C980B4500A5B418 /* TextInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BAF0552C980B4500A5B418 /* TextInputViewController.swift */; };
+		78BAF0592C980FF300A5B418 /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 78BAF0582C980FF300A5B418 /* IQKeyboardManagerSwift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +48,10 @@
 		780710582C9442CF0039B44C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		780710592C9565320039B44C /* HistogramManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistogramManager.swift; sourceTree = "<group>"; };
 		7807105B2C9605430039B44C /* FilterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterManager.swift; sourceTree = "<group>"; };
+		787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePageViewController.swift; sourceTree = "<group>"; };
+		78BAF0512C97F61500A5B418 /* FeedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
+		78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGridViewController.swift; sourceTree = "<group>"; };
+		78BAF0552C980B4500A5B418 /* TextInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,6 +64,7 @@
 				780710382C9190130039B44C /* FirebaseAuth in Frameworks */,
 				7807103C2C9190130039B44C /* FirebaseFirestore in Frameworks */,
 				780710492C9286FB0039B44C /* Kingfisher in Frameworks */,
+				78BAF0592C980FF300A5B418 /* IQKeyboardManagerSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -108,6 +118,10 @@
 				780710422C91DF720039B44C /* AddCardViewController.swift */,
 				780710542C9407840039B44C /* CameraViewController.swift */,
 				780710562C9414FC0039B44C /* ApplyCardViewController.swift */,
+				78BAF0512C97F61500A5B418 /* FeedViewController.swift */,
+				78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */,
+				787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */,
+				78BAF0552C980B4500A5B418 /* TextInputViewController.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -145,6 +159,7 @@
 				7807103B2C9190130039B44C /* FirebaseFirestore */,
 				7807103D2C9190130039B44C /* FirebaseStorage */,
 				780710482C9286FB0039B44C /* Kingfisher */,
+				78BAF0582C980FF300A5B418 /* IQKeyboardManagerSwift */,
 			);
 			productName = ToneDeck;
 			productReference = 78070FF02C918C1B0039B44C /* ToneDeck.app */;
@@ -177,6 +192,7 @@
 			packageReferences = (
 				780710362C9190130039B44C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				780710472C9286FB0039B44C /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				78BAF0572C980FF300A5B418 /* XCRemoteSwiftPackageReference "IQKeyboardManager" */,
 			);
 			productRefGroup = 78070FF12C918C1B0039B44C /* Products */;
 			projectDirPath = "";
@@ -225,16 +241,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				78BAF0562C980B4500A5B418 /* TextInputViewController.swift in Sources */,
 				780710412C9190C00039B44C /* CardViewController.swift in Sources */,
 				780710062C918DFB0039B44C /* AppDelegate.swift in Sources */,
 				78070FF62C918C1B0039B44C /* ContentView.swift in Sources */,
 				780710462C92859B0039B44C /* FireStoreCardManager.swift in Sources */,
+				787DB7CF2C998F5300350DEC /* ProfilePageViewController.swift in Sources */,
 				780710552C9407840039B44C /* CameraViewController.swift in Sources */,
 				7807105C2C9605430039B44C /* FilterManager.swift in Sources */,
 				78070FF42C918C1B0039B44C /* ToneDeckApp.swift in Sources */,
+				78BAF0522C97F61500A5B418 /* FeedViewController.swift in Sources */,
 				780710432C91DF720039B44C /* AddCardViewController.swift in Sources */,
 				780710572C9414FD0039B44C /* ApplyCardViewController.swift in Sources */,
 				7807105A2C9565320039B44C /* HistogramManager.swift in Sources */,
+				78BAF0542C980B0900A5B418 /* PhotoGridViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -366,7 +386,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"ToneDeck/Preview Content\"";
 				DEVELOPMENT_TEAM = 9CYNC2N5UU;
 				ENABLE_PREVIEWS = YES;
@@ -384,7 +404,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.StingHsieh.ToneDeck;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -399,7 +419,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"ToneDeck/Preview Content\"";
 				DEVELOPMENT_TEAM = 9CYNC2N5UU;
 				ENABLE_PREVIEWS = YES;
@@ -417,7 +437,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.StingHsieh.ToneDeck;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -466,6 +486,14 @@
 				minimumVersion = 7.12.0;
 			};
 		};
+		78BAF0572C980FF300A5B418 /* XCRemoteSwiftPackageReference "IQKeyboardManager" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hackiftekhar/IQKeyboardManager.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.1.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -493,6 +521,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 780710472C9286FB0039B44C /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		78BAF0582C980FF300A5B418 /* IQKeyboardManagerSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 78BAF0572C980FF300A5B418 /* XCRemoteSwiftPackageReference "IQKeyboardManager" */;
+			productName = IQKeyboardManagerSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

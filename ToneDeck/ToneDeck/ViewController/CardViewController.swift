@@ -12,7 +12,6 @@ import FirebaseStorage
 import Kingfisher
 
 struct CardViewController: View {
-    
     @State private var path = [String]()
     @StateObject private var firestoreService = FirestoreService()
     var body: some View {
@@ -23,7 +22,8 @@ struct CardViewController: View {
                         CardRow(card: card)
                             .padding(.vertical, 10)
                     }
-                }                .onAppear {
+                }            
+                .onAppear {
                     firestoreService.fetchCards()
                 }
                 .navigationTitle("Cards")
@@ -43,18 +43,9 @@ struct CardViewController: View {
         }
     }
     }
-
-
-struct Card: Identifiable {
-    var id: String
-    var cardName: String
-    var imageURL: String
-}
-
 struct CardRow: View {
     let card: Card
     @State private var showApplyCardView = false
-    
     var body: some View {
         NavigationLink(destination: ApplyCardViewControllerWrapper(card: card)){
             ZStack(alignment: .bottomLeading) {
@@ -88,7 +79,6 @@ struct CardRow: View {
                 }
                 .padding(.top, 10)
                 .padding(.trailing, 10)
-                
                 // Camera button (right bottom)
                 HStack {
                     Spacer()

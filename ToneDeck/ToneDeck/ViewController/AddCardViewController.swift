@@ -11,12 +11,10 @@ import Firebase
 import FirebaseStorage
 
 struct AddCardViewController: View {
-    
     @Binding var path: [String]
     @State private var cardName: String = ""
     @State private var selectedImage: UIImage?
     @State private var pickerImage: PhotosPickerItem?
-    
     var body: some View {
         VStack {
             // TextField for Card Name
@@ -66,46 +64,37 @@ struct AddCardViewController: View {
         .padding()
         .navigationTitle("Add Card")
     }
-    
     // MARK: - Add Card Action
     func addCard() {
         guard let image = selectedImage, !cardName.isEmpty else {
             print("Card name or image is missing")
             return
         }
-        
         // Mock data for testing
         let userName = "User123"
         let timeStamp = Date()
         let histogram = ImageHistogramCalculator()
-        
         let filterHistogramData = histogram.calculateHistogram(for: image)
         let filterData = [calculateBrightness(from: filterHistogramData),
                             calculateContrastFromHistogram(histogramData: filterHistogramData),
                             calculateSaturation(from: filterHistogramData)]
-        
-      
         // Save the image to Firebase Storage
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             print("Unable to get image data")
             return
         }
-        
         let storageRef = Storage.storage().reference().child("cards/\(UUID().uuidString).jpg")
-        
         storageRef.putData(imageData, metadata: nil) { metadata, error in
             if let error = error {
                 print("Error uploading image: \(error)")
                 return
             }
-            
             // Get the image URL
             storageRef.downloadURL { url, error in
                 if let error = error {
                     print("Error getting image URL: \(error)")
                     return
                 }
-                
                 if let imageURL = url?.absoluteString {
                     // Save the card data to Firestore
                     let db = Firestore.firestore()
@@ -118,14 +107,17 @@ struct AddCardViewController: View {
                         "createdTime": timeStamp,
                         "filterData": filterData,
                         "imageURL": imageURL
-                    ]
-                    
-                    db.collection("cards").addDocument(data: cardData) { error in
+                    ]        
+                    document.setData(cardData) { error in
                         if let error = error {
                             print("Error saving card: \(error)")
                         } else {
                             print("Card successfully saved!")
-                            path.removeLast()
+                            if !path.isEmpty {
+                                path.removeLast() // Remove last only if the path array is not empty
+                            } else {
+                                print("Path is already empty, cannot remove last.")
+                            }
                         }
                     }
                 }

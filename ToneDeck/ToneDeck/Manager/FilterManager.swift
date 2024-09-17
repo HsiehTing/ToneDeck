@@ -18,9 +18,9 @@ func calculateBrightness(from histogramData: [String: [Float]]) -> Float {
     }
 
     // 調整權重：讓各個區間的權重更均衡
-    let darkWeight: Float = 1.0
+    let darkWeight: Float = 0.5
     let midWeight: Float = 1.0
-    let lightWeight: Float = 1.0
+    let lightWeight: Float = 0.7
 
     // 定義亮度區間
     let darkRange = 0...85
@@ -75,17 +75,18 @@ func calculateContrastFromHistogram(histogramData: [String: [Float]]) -> Float {
         return 0.0
     }
 
-    // 計算亮度的平均值
+    // 計算亮度的平均值，亮度範圍是 0 到 255，我們應該對其進行正規化到 0 到 1
     var brightnessSum: Float = 0.0
     for intensity in 0..<256 {
-        brightnessSum += Float(grayHistogram[intensity]) * Float(intensity)
+        brightnessSum += Float(grayHistogram[intensity]) * (Float(intensity) / 255.0)
     }
     let meanBrightness = brightnessSum / Float(totalPixels)
 
     // 計算亮度的方差
     var varianceSum: Float = 0.0
     for intensity in 0..<256 {
-        let difference = Float(intensity) - meanBrightness
+        let normalizedIntensity = Float(intensity) / 255.0
+        let difference = normalizedIntensity - meanBrightness
         varianceSum += Float(grayHistogram[intensity]) * difference * difference
     }
     let variance = varianceSum / Float(totalPixels)
@@ -93,12 +94,9 @@ func calculateContrastFromHistogram(histogramData: [String: [Float]]) -> Float {
     // 標準差（即對比度的測量值）
     let standardDeviation = sqrt(variance)
 
-    // 根據應用場景，調整對比度範圍。例如映射到 0 到 4 的範圍。
-    // 若你想將標準差映射到 0.25 至 4 的範圍，可以這樣做：
-    let contrast = max(0.25, min(4.0, standardDeviation / 64.0)) // 調整標準化範圍
-
-    return contrast
+    return standardDeviation
 }
+
 
 
 func calculateSaturation(from histogramData: [String: [Float]]) -> Float {

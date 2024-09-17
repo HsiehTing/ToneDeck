@@ -140,19 +140,15 @@ class CameraViewController: UIViewController {
         setupCamera()
         setupUI()
     }
-    
     func setupCamera() {
         captureSession = AVCaptureSession()
         captureSession.sessionPreset = .high
-        
         // 預設使用後置鏡頭
         captureDevice = getCameraDevice(position: .back)
-        
         guard let captureDevice = captureDevice else {
             print("無法訪問相機")
             return
         }
-        
         do {
             let input = try AVCaptureDeviceInput(device: captureDevice)
             if captureSession.canAddInput(input) {
@@ -173,8 +169,7 @@ class CameraViewController: UIViewController {
         } catch {
             print("Error setting up camera input: \(error)")
         }
-    }
-    
+    }    
     func setupUI() {
         // 添加快門按鈕
         view.addSubview(shutterButton)

@@ -11,7 +11,6 @@ struct ContentView: View {
     var body: some View {
         TabView {
             // First Tab
-          
             VStack {
                 NavigationView {
                     CardViewController()
@@ -20,7 +19,6 @@ struct ContentView: View {
             .tabItem {
                 Label("", systemImage: "square.stack")
             }
-            
             // Second Tab
             VStack {
 
@@ -28,25 +26,25 @@ struct ContentView: View {
             .tabItem {
                 Label("", systemImage: "bell")
             }
-            
             // Third Tab
             VStack {
-               
+                NavigationView {
+                    FeedView()
+                }
             }
             .tabItem {
                 Label("", systemImage: "square.text.square")
             }
-            
             // Fourth Tab
             VStack {
-                Image(systemName: "person")
-                    .imageScale(.large)
-                    .foregroundStyle(.tint)
-                Text("Profile")
+                NavigationView {
+                   ProfilePageView(userID: "HU31meYbVzbXDGKcqV8i")
+                }
             }
             .tabItem {
                 Label("", systemImage: "person.crop.circle")
             }
+            
         }
     }
 }
