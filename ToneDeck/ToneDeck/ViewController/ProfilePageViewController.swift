@@ -81,12 +81,4 @@ struct ProfilePageView: View {
     }
 }
 
-//struct User: Identifiable, Codable {
-//    @DocumentID var id: String?
-//    var userName: String
-//    var avatarURL: String?
-//    var followingArray: [String]
-//    var followerArray: [String]
-//    var postIDArray: [String]
-//}
 

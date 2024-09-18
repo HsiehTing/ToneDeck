@@ -45,6 +45,7 @@ struct CardViewController: View {
     }
 struct CardRow: View {
     let card: Card
+    
     @State private var showApplyCardView = false
     var body: some View {
         NavigationLink(destination: ApplyCardViewControllerWrapper(card: card)){
@@ -98,23 +99,29 @@ struct CardRow: View {
 }
 
 struct OptionMenuButton: View {
+    @State private var showRenameAlert = false
+    @State private var newName = ""
+    let db = Firestore.firestore()
+
     let card: Card
+
     var body: some View {
         Menu {
             Button(action: {
-                // Add action for renaming
-                print("Rename tapped")
+                // 顯示改名彈出框
+                showRenameAlert = true
             }) {
                 Label("Rename", systemImage: "pencil")
             }
             Button(action: {
-                // Add action for deleting
+                // 添加刪除操作
                 print("Delete tapped")
+                deleteCard()
             }) {
                 Label("Delete", systemImage: "trash")
             }
             Button(action: {
-                // Add action for sharing
+                // 添加分享操作
                 print("Share tapped")
             }) {
                 Label("Share", systemImage: "square.and.arrow.up")
@@ -127,9 +134,34 @@ struct OptionMenuButton: View {
                 .clipShape(Circle())
                 .foregroundColor(.white)
         }
+        .alert("Rename Card", isPresented: $showRenameAlert) {
+            TextField("Enter new name", text: $newName)
+            Button("Cancel", role: .cancel) { }
+            Button("Save") {
+                renameCard()
+            }
+        } message: {
+            Text("Please enter a new name for the card.")
+        }
+    }
+
+    private func renameCard() {
+        let cardID = card.id
+            db.collection("cards").document(cardID).updateData([
+                "cardName": newName
+            ]) { error in
+                if let error = error {
+                    print("Error updating card name: \(error)")
+                } else {
+                    print("Card name successfully updated")
+                }
+            }
+    }
+    private func deleteCard() {
+        let cardID = card.id
+            db.collection("cards").document(cardID).delete()
     }
 }
-
 struct CameraButton: View {
     var body: some View {
         Button(action: {

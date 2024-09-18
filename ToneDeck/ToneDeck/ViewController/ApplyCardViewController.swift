@@ -32,10 +32,11 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     let cameraButton = UIButton(type: .system)
     let histogram = ImageHistogramCalculator()
     var targetImage: UIImage? // 用來保存選取的圖片
-    var tBrightness: Float = 0.3  // 較平滑的亮度變化
-    var tContrast: Float = 0.6    // 中等強度的對比度變化
-    var tSaturation: Float = 0.8  // 更強的飽和度變化
+    var tBrightness: Float = 1  // 較平滑的亮度變化
+    var tContrast: Float = 1    // 中等強度的對比度變化
+    var tSaturation: Float = 1  // 更強的飽和度變化
     var scaledValues: [Float]?
+    var colorVector: [Float] = []
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
@@ -128,7 +129,12 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             print("filterValues: \(filterValues)")
             let smoothTargetValues = applySmoothFilterWithDifferentT(targetValues: targetValues, filterValues: filterValues, tValues: tValues)
             print(smoothTargetValues)
-            targetImageView.image = applyImageAdjustments(image: targetImage, smoothValues: scaledValues ?? [0, 0, 0])
+            let targetCIVector = calculateColor(from: targetHistogramData)
+            print("targetColor\(targetCIVector)")
+            let filterCIVector = calculateColor(from: filterHistogramData)
+            print("filterColor\(filterCIVector)")
+            colorVector = calculateColorAdjustments(targetValues: targetCIVector, filterValues: filterCIVector)
+            targetImageView.image = applyImageAdjustments(image: targetImage, smoothValues: scaledValues ?? [0, 0, 0], colorVector: colorVector)
             applyButton.setTitle("Save Image", for: .normal)
         } else if applyButton.title(for: .normal) == "Save Image" {
             // 保存圖片邏輯
@@ -137,6 +143,15 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             applyButton.setTitle("Apply Card", for: .normal)
         }
 
+    }
+    func calculateColorAdjustments(targetValues: [Float], filterValues: [Float]) -> [Float] {
+
+        for targetValue in 0..<targetValues.count {
+            let newValue = (targetValues[targetValue] - filterValues[targetValue]) / 255
+            colorVector.append(newValue)
+        }
+        print(colorVector)
+        return colorVector
     }
     func addPhotoData() {
         guard let image = targetImageView.image else {
@@ -185,8 +200,8 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
                 }
             }
         }
-        
     }
+    
     func saveFilteredImageToLibrary() {
         PHPhotoLibrary.requestAuthorization { status in
             if status == .authorized {
@@ -197,6 +212,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             }
         }
     }
+    
     @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
             if let error = error {
                 print("保存失敗: \(error.localizedDescription)")
@@ -204,6 +220,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
                 print("照片已保存到相簿")
             }
         }
+    
     func applySmoothFilterWithDifferentT(targetValues: [Float], filterValues: [Float], tValues: [Float]) {
         var result = [Float]()
         for targetValue in 0..<targetValues.count {
@@ -212,28 +229,46 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         }
         scaleFactor(newValue: result, brightnessScale: 1, contrastScale: 1, saturationScale: 1)
     }
+    
     func scaleFactor(newValue: [Float], brightnessScale: Float, contrastScale: Float, saturationScale: Float) {
 
         let scaledBrightness = newValue[0] * brightnessScale
         let scaledContrast = (newValue[1] + 1) * contrastScale
-        let scaledSaturation = newValue[2] * saturationScale
+        let scaledSaturation = (newValue[2] + 1) * saturationScale
         scaledValues = [scaledBrightness, scaledContrast, scaledSaturation]
         print("scaled value\(scaledValues)")
     }
-    func applyImageAdjustments(image: UIImage, smoothValues: [Float]) -> UIImage? {
+    
+    func applyImageAdjustments(image: UIImage, smoothValues: [Float], colorVector: [Float]) -> UIImage? {
         guard let ciImage = CIImage(image: image) else { return nil }
-        // 創建 CIFilter
-        let filter = CIFilter(name: "CIColorControls")
-        filter?.setValue(ciImage, forKey: kCIInputImageKey)
-        // 設置亮度、對比度、飽和度
-        filter?.setValue(smoothValues[0], forKey: kCIInputBrightnessKey)
-        filter?.setValue(smoothValues[1] , forKey: kCIInputContrastKey)
-        //filter?.setValue(smoothValues[2], forKey: kCIInputSaturationKey)
-        // 取得過濾後的圖像
-        guard let outputImage = filter?.outputImage else { return nil }
-        // 創建上下文來渲染 CIFilter 的結果
+        // 確保 colorVector 是在 0 到 1 之間的浮點數
+        let rAdjustment = max(0, min(0.1, colorVector[0]))   // 正規化顏色值
+        let gAdjustment = max(0, min(0.1, colorVector[1]))
+        let bAdjustment = max(0, min(0.1, colorVector[2]))
+        print("after adjustment \(rAdjustment), \(gAdjustment), \(bAdjustment)")
+        let rVector = CIVector(x: CGFloat(rAdjustment), y: 0.0, z: 0.0, w: 0.0)
+        let gVector = CIVector(x: 0.0, y: CGFloat(gAdjustment), z: 0.0, w: 0.0)
+        let bVector = CIVector(x: 0.0, y: 0.0, z: CGFloat(bAdjustment), w: 0.0)
+        let aVector = CIVector(x: 0.0, y: 0.0, z: 0.0, w: 1.0) // 透明度保持不變
+        // 使用 CIColorControls 濾鏡調整亮度、對比度、飽和度
+        let colorControlsFilter = CIFilter(name: "CIColorControls")
+        colorControlsFilter?.setValue(ciImage, forKey: kCIInputImageKey)
+        colorControlsFilter?.setValue(smoothValues[0], forKey: kCIInputBrightnessKey)
+        colorControlsFilter?.setValue(smoothValues[1], forKey: kCIInputContrastKey)
+        colorControlsFilter?.setValue(smoothValues[2], forKey: kCIInputSaturationKey)
+        guard let colorControlsOutput = colorControlsFilter?.outputImage else { return nil }
+        // 使用 CIColorMatrix 濾鏡應用顏色調整
+        let colorMatrixFilter = CIFilter(name: "CIColorMatrix")
+        colorMatrixFilter?.setDefaults()
+        colorMatrixFilter?.setValue(colorControlsOutput, forKey: kCIInputImageKey)
+        colorMatrixFilter?.setValue(rVector, forKey: "inputRVector")
+        colorMatrixFilter?.setValue(gVector, forKey: "inputGVector")
+        colorMatrixFilter?.setValue(bVector, forKey: "inputBVector")
+        colorMatrixFilter?.setValue(aVector, forKey: "inputAVector")
+        guard let colorMatrixOutput = colorMatrixFilter?.outputImage else { return nil }
+        // 將處理過的圖片轉換為 UIImage
         let context = CIContext(options: nil)
-        guard let cgImage = context.createCGImage(outputImage, from: outputImage.extent) else { return nil }
+        guard let cgImage = context.createCGImage(colorMatrixOutput, from: colorMatrixOutput.extent) else { return nil }
         return UIImage(cgImage: cgImage)
     }
     @objc func targetImageTapped() {
@@ -254,17 +289,18 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         alert.addAction(cancelAction)
         present(alert, animated: true)
     }
+    
     func presentPhotoLibrary() {
         let picker = UIImagePickerController()
         picker.delegate = self
         picker.sourceType = .photoLibrary
         present(picker, animated: true, completion: nil)
     }
+    
     // Handle selected image from the photo library
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
            if let selectedImage = info[.originalImage] as? UIImage {
                targetImage = selectedImage // 保存選取的圖片
-               
                targetImageView.image = selectedImage
                targetImageView.contentMode = .scaleAspectFit
            }
@@ -278,4 +314,3 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             applyButton.setTitle("Apply Card", for: .normal) // Reset button after capturing photo
         }
 }
-

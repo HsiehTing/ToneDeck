@@ -57,7 +57,6 @@ class FirestoreService: ObservableObject {
             }
         }
     }
-
     func fetchCardDetails(for cardID: String, completion: @escaping () -> Void) {
         let cardRef = db.collection("cards").document(cardID)
         cardRef.getDocument { snapshot, error in
@@ -102,7 +101,6 @@ class FirestoreService: ObservableObject {
             if let document = document, document.exists {
                 do {
                     self.user = try document.data(as: User.self)
-                  
                     self.fetchPosts(postIDs: self.user?.postIDArray ?? [])
                 } catch {
                     print("Error decoding user: \(error)")

@@ -50,19 +50,31 @@ class ImageHistogramCalculator: ObservableObject {
 
     // 計算指定顏色通道的直方圖數據
     private func calculateColorChannelHistogram(for ciImage: CIImage, extent: CGRect, scale: Float, colorIndex: Int) -> [Float] {
+        // 創建 histogram filter 並設置參數
         let histogramFilter = CIFilter.areaHistogram()
         histogramFilter.inputImage = ciImage
         histogramFilter.count = 256
         histogramFilter.extent = extent
         histogramFilter.scale = scale
 
-        // 渲染每個顏色通道的直方圖數據
+        // 渲染出直方圖圖像
         let context = CIContext()
-        var bitmap = [Float](repeating: 0, count: 256)
-        context.render(histogramFilter.outputImage!, toBitmap: &bitmap, rowBytes: 256 * MemoryLayout<Float>.size, bounds: CGRect(x: 0, y: colorIndex, width: 256, height: 1)
-                       , format: .Rf, colorSpace: nil)
+        var bitmap = [Float](repeating: 0, count: 256 * 4) // 每個像素有 4 個通道 (RGBA)
 
-        return bitmap
+        // 渲染輸出的直方圖到 bitmap 中，保存所有的 RGBA 數據
+        context.render(histogramFilter.outputImage!,
+                       toBitmap: &bitmap,
+                       rowBytes: 256 * MemoryLayout<Float>.size * 4, // 4 通道
+                       bounds: CGRect(x: 0, y: 0, width: 256, height: 1),
+                       format: .Rf, colorSpace: nil)
+
+        // 從 RGBA 數據中提取對應的顏色通道數據
+        var channelData = [Float](repeating: 0, count: 256)
+        for index in 0..<256 {
+            channelData[index] = bitmap[index * 4 + colorIndex] // colorIndex 對應 R, G, B 或 A 通道
+        }
+
+        return channelData
     }
 
     // 計算灰階直方圖數據

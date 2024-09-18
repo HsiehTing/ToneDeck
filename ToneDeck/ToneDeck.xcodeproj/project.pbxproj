@@ -11,7 +11,6 @@
 		78070FF62C918C1B0039B44C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78070FF52C918C1B0039B44C /* ContentView.swift */; };
 		78070FF82C918C1E0039B44C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 78070FF72C918C1E0039B44C /* Assets.xcassets */; };
 		78070FFB2C918C1E0039B44C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 78070FFA2C918C1E0039B44C /* Preview Assets.xcassets */; };
-		780710042C918D9D0039B44C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 780710032C918D9D0039B44C /* GoogleService-Info.plist */; };
 		780710062C918DFB0039B44C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710052C918DFB0039B44C /* AppDelegate.swift */; };
 		780710382C9190130039B44C /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 780710372C9190130039B44C /* FirebaseAuth */; };
 		7807103A2C9190130039B44C /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 780710392C9190130039B44C /* FirebaseDatabase */; };
@@ -25,6 +24,7 @@
 		780710572C9414FD0039B44C /* ApplyCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710562C9414FC0039B44C /* ApplyCardViewController.swift */; };
 		7807105A2C9565320039B44C /* HistogramManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710592C9565320039B44C /* HistogramManager.swift */; };
 		7807105C2C9605430039B44C /* FilterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7807105B2C9605430039B44C /* FilterManager.swift */; };
+		784E6BE72C9A773D004533C0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 784E6BE62C9A773D004533C0 /* GoogleService-Info.plist */; };
 		787DB7CF2C998F5300350DEC /* ProfilePageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */; };
 		78BAF0522C97F61500A5B418 /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BAF0512C97F61500A5B418 /* FeedViewController.swift */; };
 		78BAF0542C980B0900A5B418 /* PhotoGridViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */; };
@@ -38,7 +38,6 @@
 		78070FF52C918C1B0039B44C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		78070FF72C918C1E0039B44C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		78070FFA2C918C1E0039B44C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		780710032C918D9D0039B44C /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../GoogleService-Info.plist"; sourceTree = "<group>"; };
 		780710052C918DFB0039B44C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		780710402C9190C00039B44C /* CardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewController.swift; sourceTree = "<group>"; };
 		780710422C91DF720039B44C /* AddCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCardViewController.swift; sourceTree = "<group>"; };
@@ -48,6 +47,7 @@
 		780710582C9442CF0039B44C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		780710592C9565320039B44C /* HistogramManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistogramManager.swift; sourceTree = "<group>"; };
 		7807105B2C9605430039B44C /* FilterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterManager.swift; sourceTree = "<group>"; };
+		784E6BE62C9A773D004533C0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePageViewController.swift; sourceTree = "<group>"; };
 		78BAF0512C97F61500A5B418 /* FeedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
 		78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGridViewController.swift; sourceTree = "<group>"; };
@@ -97,7 +97,7 @@
 				780710442C9285730039B44C /* Manager */,
 				7807103F2C9190A60039B44C /* ViewController */,
 				78070FF72C918C1E0039B44C /* Assets.xcassets */,
-				780710032C918D9D0039B44C /* GoogleService-Info.plist */,
+				784E6BE62C9A773D004533C0 /* GoogleService-Info.plist */,
 				78070FF92C918C1E0039B44C /* Preview Content */,
 			);
 			path = ToneDeck;
@@ -209,8 +209,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				78070FFB2C918C1E0039B44C /* Preview Assets.xcassets in Resources */,
-				780710042C918D9D0039B44C /* GoogleService-Info.plist in Resources */,
 				78070FF82C918C1E0039B44C /* Assets.xcassets in Resources */,
+				784E6BE72C9A773D004533C0 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
