@@ -147,7 +147,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     func calculateColorAdjustments(targetValues: [Float], filterValues: [Float]) -> [Float] {
 
         for targetValue in 0..<targetValues.count {
-            let newValue = (targetValues[targetValue] - filterValues[targetValue]) / 255
+            let newValue = (filterValues[targetValue] - targetValues[targetValue]) / 255
             colorVector.append(newValue)
         }
         print(colorVector)
