@@ -68,8 +68,11 @@ class FirestoreService: ObservableObject {
             // Extract cardName and imageURL directly from the document data
             let cardName = data["cardName"] as? String ?? "Unknown Card"
             let imageURL = data["imageURL"] as? String ?? ""
+            let createdTIme = data["createdTime"] as? Timestamp ?? Timestamp()
+            let userID = data["userID"] as? String ?? ""
+            let filterData = data["filterData"] as? [Float] ?? [0]
             // Create a simple Card struct or dictionary to store these two fields
-            let card = Card(id: cardID, cardName: cardName, imageURL: imageURL)
+            let card = Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, userID: userID)
             // Store the card in the dictionary
             DispatchQueue.main.async {
                 self.cardsDict[cardID] = card
@@ -86,11 +89,13 @@ class FirestoreService: ObservableObject {
                 if let snapshot = snapshot {
                     self.cards = snapshot.documents.compactMap { document -> Card? in
                         let data = document.data()
-                        guard let cardName = data["cardName"] as? String,
-                              let imageURL = data["imageURL"] as? String else {
-                            return nil
-                        }
-                        return Card(id: document.documentID, cardName: cardName, imageURL: imageURL)
+                        let cardID = data["id"] as? String ?? "Unknown Card"
+                        let cardName = data["cardName"] as? String ?? "Unknown Card"
+                        let imageURL = data["imageURL"] as? String ?? ""
+                        let createdTIme = data["createdTime"] as? Timestamp ?? Timestamp()
+                        let userID = data["userID"] as? String ?? ""
+                        let filterData = data["filterData"] as? [Float] ?? [0]
+                        return Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, userID: userID)
                     }
                 }
             }
@@ -224,15 +229,13 @@ func saveNewUser(userName: String, avatar: String, postIDArray: [String], follow
             defaults.set(document.documentID, forKey: "userDocumentID")
         }
     }
-    
-    
 }
 struct CardDetail: Identifiable, Decodable {
     var id: String
     var cardName: String
     var imageURL: String
     var createdTime: Timestamp
-    var filterData: [String]
+    var filterData: [Float]
     var userID: String
 }
 
@@ -240,6 +243,9 @@ struct Card: Identifiable, Decodable, Hashable, Equatable {
     var id: String
     var cardName: String
     var imageURL: String
+    var createdTime: Timestamp
+    var filterData: [Float]
+    var userID: String
 }
 
 struct User: Identifiable, Codable {

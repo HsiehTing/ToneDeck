@@ -13,7 +13,7 @@ import FirebaseStorage
 import Firebase
 
 struct ApplyCardViewControllerWrapper: UIViewControllerRepresentable {
-    let card: Card
+    let card: Card?
     func makeUIViewController(context: Context) -> ApplyCardViewController {
         let viewController = ApplyCardViewController()
         viewController.card = card
@@ -36,6 +36,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     var tContrast: Float = 1    // 中等強度的對比度變化
     var tSaturation: Float = 1  // 更強的飽和度變化
     var scaledValues: [Float]?
+    var filterColorValue: Float?
     var colorVector: [Float] = []
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -95,6 +96,8 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             applyButton.widthAnchor.constraint(equalToConstant: 100),
             applyButton.heightAnchor.constraint(equalToConstant: 40)
         ])
+        filterColorValue = card?.filterData[3]
+        print(filterColorValue)
     }
     @objc func didTapApply() {
         print("tap apply button")
@@ -110,14 +113,10 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             }
             //        // 計算直方圖
             let targetHistogramData = histogram.calculateHistogram(for: targetImage)
+            let targetColorValue = getDominantColor(from: targetImage)
             let filterHistogramData = histogram.calculateHistogram(for: filterImage)
+
             //        // 確認是否成功計算
-            if let redHistogram = targetHistogramData["red"], !redHistogram.allSatisfy({ $0 == 0 }) {
-                print("Red channel histogram calculated successfully.")
-            } else {
-                print("Failed to calculate valid histogram data.")
-                return
-            }
             let targetValues = [calculateBrightness(from: targetHistogramData),
                                 calculateContrastFromHistogram(histogramData: targetHistogramData),
                                 calculateSaturation(from: targetHistogramData)]
@@ -129,12 +128,10 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             print("filterValues: \(filterValues)")
             let smoothTargetValues = applySmoothFilterWithDifferentT(targetValues: targetValues, filterValues: filterValues, tValues: tValues)
             print(smoothTargetValues)
-            let targetCIVector = calculateColor(from: targetHistogramData)
-            print("targetColor\(targetCIVector)")
-            let filterCIVector = calculateColor(from: filterHistogramData)
-            print("filterColor\(filterCIVector)")
-            colorVector = calculateColorAdjustments(targetValues: targetCIVector, filterValues: filterCIVector)
-            targetImageView.image = applyImageAdjustments(image: targetImage, smoothValues: scaledValues ?? [0, 0, 0], colorVector: colorVector)
+            print("targetColor\(targetColorValue)")
+
+            let hueColor = fabsf((filterColorValue ?? 0) - targetColorValue) * 0.15
+            targetImageView.image = applyImageAdjustments(image: targetImage, smoothValues: scaledValues ?? [0, 0, 0], hueAdjustment: hueColor)
             applyButton.setTitle("Save Image", for: .normal)
         } else if applyButton.title(for: .normal) == "Save Image" {
             // 保存圖片邏輯
@@ -142,16 +139,6 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             addPhotoData()
             applyButton.setTitle("Apply Card", for: .normal)
         }
-
-    }
-    func calculateColorAdjustments(targetValues: [Float], filterValues: [Float]) -> [Float] {
-
-        for targetValue in 0..<targetValues.count {
-            let newValue = (filterValues[targetValue] - targetValues[targetValue]) / 255
-            colorVector.append(newValue)
-        }
-        print(colorVector)
-        return colorVector
     }
     func addPhotoData() {
         guard let image = targetImageView.image else {
@@ -220,57 +207,43 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
                 print("照片已保存到相簿")
             }
         }
-    
     func applySmoothFilterWithDifferentT(targetValues: [Float], filterValues: [Float], tValues: [Float]) {
         var result = [Float]()
         for targetValue in 0..<targetValues.count {
             let newValue = /*targetValues[targetValue] + */(filterValues[targetValue] - targetValues[targetValue]) * tValues[targetValue]
             result.append(newValue)
         }
-        scaleFactor(newValue: result, brightnessScale: 1, contrastScale: 1, saturationScale: 1)
+        scaleFactor(newValue: result, brightnessScale: 1, contrastScale: 1.1, saturationScale: 1)
     }
-    
     func scaleFactor(newValue: [Float], brightnessScale: Float, contrastScale: Float, saturationScale: Float) {
-
         let scaledBrightness = newValue[0] * brightnessScale
         let scaledContrast = (newValue[1] + 1) * contrastScale
         let scaledSaturation = (newValue[2] + 1) * saturationScale
         scaledValues = [scaledBrightness, scaledContrast, scaledSaturation]
         print("scaled value\(scaledValues)")
     }
-    
-    func applyImageAdjustments(image: UIImage, smoothValues: [Float], colorVector: [Float]) -> UIImage? {
+    func applyImageAdjustments(image: UIImage, smoothValues: [Float], hueAdjustment: Float) -> UIImage? {
         guard let ciImage = CIImage(image: image) else { return nil }
-        // 確保 colorVector 是在 0 到 1 之間的浮點數
-        let rAdjustment = max(0, min(0.1, colorVector[0]))   // 正規化顏色值
-        let gAdjustment = max(0, min(0.1, colorVector[1]))
-        let bAdjustment = max(0, min(0.1, colorVector[2]))
-        print("after adjustment \(rAdjustment), \(gAdjustment), \(bAdjustment)")
-        let rVector = CIVector(x: CGFloat(rAdjustment), y: 0.0, z: 0.0, w: 0.0)
-        let gVector = CIVector(x: 0.0, y: CGFloat(gAdjustment), z: 0.0, w: 0.0)
-        let bVector = CIVector(x: 0.0, y: 0.0, z: CGFloat(bAdjustment), w: 0.0)
-        let aVector = CIVector(x: 0.0, y: 0.0, z: 0.0, w: 1.0) // 透明度保持不變
         // 使用 CIColorControls 濾鏡調整亮度、對比度、飽和度
         let colorControlsFilter = CIFilter(name: "CIColorControls")
         colorControlsFilter?.setValue(ciImage, forKey: kCIInputImageKey)
         colorControlsFilter?.setValue(smoothValues[0], forKey: kCIInputBrightnessKey)
         colorControlsFilter?.setValue(smoothValues[1], forKey: kCIInputContrastKey)
         colorControlsFilter?.setValue(smoothValues[2], forKey: kCIInputSaturationKey)
+        // 获取 CIColorControls 滤镜的输出图像
         guard let colorControlsOutput = colorControlsFilter?.outputImage else { return nil }
-        // 使用 CIColorMatrix 濾鏡應用顏色調整
-        let colorMatrixFilter = CIFilter(name: "CIColorMatrix")
-        colorMatrixFilter?.setDefaults()
-        colorMatrixFilter?.setValue(colorControlsOutput, forKey: kCIInputImageKey)
-        colorMatrixFilter?.setValue(rVector, forKey: "inputRVector")
-        colorMatrixFilter?.setValue(gVector, forKey: "inputGVector")
-        colorMatrixFilter?.setValue(bVector, forKey: "inputBVector")
-        colorMatrixFilter?.setValue(aVector, forKey: "inputAVector")
-        guard let colorMatrixOutput = colorMatrixFilter?.outputImage else { return nil }
-        // 將處理過的圖片轉換為 UIImage
-        let context = CIContext(options: nil)
-        guard let cgImage = context.createCGImage(colorMatrixOutput, from: colorMatrixOutput.extent) else { return nil }
+        // 使用 CIHueAdjust 濾鏡應用色调调整，使用 colorControlsOutput 作为输入
+        let hueAdjustFilter = CIFilter(name: "CIHueAdjust")
+        hueAdjustFilter?.setDefaults()
+        hueAdjustFilter?.setValue(colorControlsOutput, forKey: kCIInputImageKey) // 将 colorControlsOutput 作为输入
+        hueAdjustFilter?.setValue(hueAdjustment, forKey: kCIInputAngleKey)
+        guard let hueAdjustOutput = hueAdjustFilter?.outputImage else { return nil }
+        // 将处理过的图像转换为 UIImage
+        let context = CIContext(options: [CIContextOption.useSoftwareRenderer: false])
+        guard let cgImage = context.createCGImage(hueAdjustOutput, from: hueAdjustOutput.extent) else { return nil }
         return UIImage(cgImage: cgImage)
     }
+
     @objc func targetImageTapped() {
         let alert = UIAlertController(title: "Select Image", message: "Choose from photo library or camera", preferredStyle: .actionSheet)
         // Photo library option

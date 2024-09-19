@@ -38,7 +38,6 @@ struct AddCardViewController: View {
                     }
                 }
             }
-            
             // Display the selected image
             if let selectedImage = selectedImage {
                 Image(uiImage: selectedImage)
@@ -46,7 +45,6 @@ struct AddCardViewController: View {
                     .scaledToFit()
                     .frame(width: 200, height: 200)
             }
-            
             // Button to submit the card data
             Button(action: {
                 addCard()
@@ -77,7 +75,8 @@ struct AddCardViewController: View {
         let filterHistogramData = histogram.calculateHistogram(for: image)
         let filterData = [calculateBrightness(from: filterHistogramData),
                             calculateContrastFromHistogram(histogramData: filterHistogramData),
-                            calculateSaturation(from: filterHistogramData)]
+                            calculateSaturation(from: filterHistogramData),
+                          getDominantColor(from: image)]
         // Save the image to Firebase Storage
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             print("Unable to get image data")

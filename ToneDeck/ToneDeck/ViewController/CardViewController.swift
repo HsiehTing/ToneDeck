@@ -45,7 +45,7 @@ struct CardViewController: View {
     }
 struct CardRow: View {
     let card: Card
-    
+
     @State private var showApplyCardView = false
     var body: some View {
         NavigationLink(destination: ApplyCardViewControllerWrapper(card: card)){

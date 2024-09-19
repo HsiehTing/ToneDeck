@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreImage
+import UIKit
 
 func calculateBrightness(from histogramData: [String: [Float]]) -> Float {
     guard let grayHistogram = histogramData["gray"] else {
@@ -104,7 +105,6 @@ func calculateSaturation(from histogramData: [String: [Float]]) -> Float {
 
         // 計算彩色距離
         let colorDistance = sqrt(pow(red - gray, 2) + pow(green - gray, 2) + pow(blue - gray, 2))
-        
         // 累計每個像素的飽和度值
         saturationSum += colorDistance
     }
@@ -127,4 +127,61 @@ func calculateColor(from histogramData: [String: [Float]]) -> [Float] {
 
     let collorVectorArray = [redAverage, greenAverage, blueAverage]
     return collorVectorArray
+}
+
+func getDominantColor(from image: UIImage) -> Float {
+    guard let cgImage = image.cgImage else { return 0 }
+    let width = cgImage.width
+    let height = cgImage.height
+    let bytesPerPixel = 4
+    let bytesPerRow = bytesPerPixel * width
+    let bitsPerComponent = 8
+    let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
+    var pixelData = [UInt8](repeating: 0, count: width * height * bytesPerPixel)
+    guard let context = CGContext(
+        data: &pixelData,
+        width: width,
+        height: height,
+        bitsPerComponent: bitsPerComponent,
+        bytesPerRow: bytesPerRow,
+        space: CGColorSpaceCreateDeviceRGB(),
+        bitmapInfo: bitmapInfo
+    ) else { return 0 }
+
+    context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+
+    var colorCount: [UIColor: Int] = [:]
+    for xvalue in 0..<width {
+        for yvalue in 0..<height {
+            let pixelIndex = (yvalue * width + xvalue) * bytesPerPixel
+            let red = CGFloat(pixelData[pixelIndex]) / 255.0
+            let green = CGFloat(pixelData[pixelIndex + 1]) / 255.0
+            let blue = CGFloat(pixelData[pixelIndex + 2]) / 255.0
+            let alpha = CGFloat(pixelData[pixelIndex + 3]) / 255.0
+            let color = UIColor(red: red, green: green, blue: blue, alpha: alpha)
+
+            colorCount[color, default: 0] += 1
+        }
+    }
+
+    let dominantColor = colorCount.max { $0.value < $1.value }?.key
+    print("finish get dominant color")
+    var hue: CGFloat = 0
+    var saturation: CGFloat = 0
+    var brightness: CGFloat = 0
+    var alpha: CGFloat = 0
+    dominantColor?.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
+    return Float(hue * .pi * 2)
+}
+
+func hueValue(from color: UIColor) -> Float {
+    var hue: CGFloat = 0
+    var saturation: CGFloat = 0
+    var brightness: CGFloat = 0
+    var alpha: CGFloat = 0
+    color.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
+
+    // 返回 Hue 值，范围为 0 到 2π
+    print("finish get hue")
+    return Float(hue * .pi * 2)
 }

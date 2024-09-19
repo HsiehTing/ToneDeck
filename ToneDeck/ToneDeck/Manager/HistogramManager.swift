@@ -27,12 +27,10 @@ class ImageHistogramCalculator: ObservableObject {
 
         let extent = ciImage.extent
 
-        // 分別計算紅、綠、藍通道的直方圖
-        let redHistogram = calculateColorChannelHistogram(for: ciImage, extent: extent, scale: scale, colorIndex: 0)
-        let greenHistogram = calculateColorChannelHistogram(for: ciImage, extent: extent, scale: scale, colorIndex: 1)
-        let blueHistogram = calculateColorChannelHistogram(for: ciImage, extent: extent, scale: scale, colorIndex: 2)
-
-        // 計算灰階直方圖
+        // 計算 RGB 和灰階直方圖
+        let redHistogram = calculateRGBHistogram(for: ciImage, extent: extent, scale: scale, channel: "red")
+        let greenHistogram = calculateRGBHistogram(for: ciImage, extent: extent, scale: scale, channel: "green")
+        let blueHistogram = calculateRGBHistogram(for: ciImage, extent: extent, scale: scale, channel: "blue")
         let grayHistogram = calculateGrayScaleHistogram(for: ciImage, extent: extent, scale: scale)
 
         DispatchQueue.main.async {
@@ -48,33 +46,41 @@ class ImageHistogramCalculator: ObservableObject {
         return ["red": redHistogram, "green": greenHistogram, "blue": blueHistogram, "gray": grayHistogram]
     }
 
-    // 計算指定顏色通道的直方圖數據
-    private func calculateColorChannelHistogram(for ciImage: CIImage, extent: CGRect, scale: Float, colorIndex: Int) -> [Float] {
-        // 創建 histogram filter 並設置參數
+    // 計算RGB直方圖數據
+    private func calculateRGBHistogram(for ciImage: CIImage, extent: CGRect, scale: Float, channel: String) -> [Float] {
+        // 根據選擇的顏色通道應用不同的篩選器
+        let channelFilter = CIFilter.colorMatrix()
+        channelFilter.inputImage = ciImage
+
+        switch channel {
+        case "red":
+            channelFilter.rVector = CIVector(x: 1, y: 0, z: 0, w: 0)
+            channelFilter.gVector = CIVector(x: 0, y: 0, z: 0, w: 0)
+            channelFilter.bVector = CIVector(x: 0, y: 0, z: 0, w: 0)
+        case "green":
+            channelFilter.rVector = CIVector(x: 0, y: 0, z: 0, w: 0)
+            channelFilter.gVector = CIVector(x: 0, y: 1, z: 0, w: 0)
+            channelFilter.bVector = CIVector(x: 0, y: 0, z: 0, w: 0)
+        case "blue":
+            channelFilter.rVector = CIVector(x: 0, y: 0, z: 0, w: 0)
+            channelFilter.gVector = CIVector(x: 0, y: 0, z: 0, w: 0)
+            channelFilter.bVector = CIVector(x: 0, y: 0, z: 1, w: 0)
+        default:
+            return [Float](repeating: 0, count: 256)
+        }
+
+        // 計算所選顏色通道的直方圖
         let histogramFilter = CIFilter.areaHistogram()
-        histogramFilter.inputImage = ciImage
+        histogramFilter.inputImage = channelFilter.outputImage
         histogramFilter.count = 256
         histogramFilter.extent = extent
         histogramFilter.scale = scale
 
-        // 渲染出直方圖圖像
         let context = CIContext()
-        var bitmap = [Float](repeating: 0, count: 256 * 4) // 每個像素有 4 個通道 (RGBA)
+        var bitmap = [Float](repeating: 0, count: 256)
+        context.render(histogramFilter.outputImage!, toBitmap: &bitmap, rowBytes: 256 * MemoryLayout<Float>.size, bounds: CGRect(x: 0, y: 0, width: 256, height: 1), format: .Rf, colorSpace: nil)
 
-        // 渲染輸出的直方圖到 bitmap 中，保存所有的 RGBA 數據
-        context.render(histogramFilter.outputImage!,
-                       toBitmap: &bitmap,
-                       rowBytes: 256 * MemoryLayout<Float>.size * 4, // 4 通道
-                       bounds: CGRect(x: 0, y: 0, width: 256, height: 1),
-                       format: .Rf, colorSpace: nil)
-
-        // 從 RGBA 數據中提取對應的顏色通道數據
-        var channelData = [Float](repeating: 0, count: 256)
-        for index in 0..<256 {
-            channelData[index] = bitmap[index * 4 + colorIndex] // colorIndex 對應 R, G, B 或 A 通道
-        }
-
-        return channelData
+        return bitmap
     }
 
     // 計算灰階直方圖數據
@@ -105,5 +111,6 @@ class ImageHistogramCalculator: ObservableObject {
         return Int(width * height)
     }
 }
+
 
 
