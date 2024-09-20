@@ -52,16 +52,13 @@ struct TextInputView: View {
             "imageURL": photo.imageURL,
             "text": postText,
             "creatorID": photo.creatorID,
-            "createdTime": Date(),
+            "createdTime": Timestamp(),
             "cardID": photo.cardID,
             "photoIDArray": [photo.id],
-            "isPrivate": "false",
+            "isPrivate": false,
             "likerIDArray": [],
             "id": postID,
-            "commentArray": ["userID" : [],
-                             "text": "",
-                             "createdTime": "",
-                            ]
+            "commentArray": []
         ]
         document.setData(postData) { error in
             if let error = error {

@@ -138,6 +138,7 @@ func getDominantColor(from image: UIImage) -> Float {
     let bitsPerComponent = 8
     let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
     var pixelData = [UInt8](repeating: 0, count: width * height * bytesPerPixel)
+    //////
     guard let context = CGContext(
         data: &pixelData,
         width: width,
@@ -149,6 +150,7 @@ func getDominantColor(from image: UIImage) -> Float {
     ) else { return 0 }
 
     context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+    /////
 
     var colorCount: [UIColor: Int] = [:]
     for xvalue in 0..<width {

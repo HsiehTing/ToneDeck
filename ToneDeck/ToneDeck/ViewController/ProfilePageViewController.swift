@@ -49,6 +49,15 @@ struct ProfilePageView: View {
                                     .font(.subheadline)
                                     .foregroundColor(.gray)
                             }
+                            Button (action:{
+
+
+                            }) {
+                                Text("follow")
+                                
+                            }
+
+
                         }
                     }
                 }

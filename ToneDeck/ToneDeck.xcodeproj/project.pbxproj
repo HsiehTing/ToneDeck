@@ -26,6 +26,7 @@
 		7807105C2C9605430039B44C /* FilterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7807105B2C9605430039B44C /* FilterManager.swift */; };
 		784E6BE72C9A773D004533C0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 784E6BE62C9A773D004533C0 /* GoogleService-Info.plist */; };
 		787DB7CF2C998F5300350DEC /* ProfilePageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */; };
+		78AC68E22C9D1BE000260BB3 /* CommentViewCOntroller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AC68E12C9D1BE000260BB3 /* CommentViewCOntroller.swift */; };
 		78BAF0522C97F61500A5B418 /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BAF0512C97F61500A5B418 /* FeedViewController.swift */; };
 		78BAF0542C980B0900A5B418 /* PhotoGridViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */; };
 		78BAF0562C980B4500A5B418 /* TextInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BAF0552C980B4500A5B418 /* TextInputViewController.swift */; };
@@ -49,6 +50,7 @@
 		7807105B2C9605430039B44C /* FilterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterManager.swift; sourceTree = "<group>"; };
 		784E6BE62C9A773D004533C0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePageViewController.swift; sourceTree = "<group>"; };
+		78AC68E12C9D1BE000260BB3 /* CommentViewCOntroller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewCOntroller.swift; sourceTree = "<group>"; };
 		78BAF0512C97F61500A5B418 /* FeedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
 		78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGridViewController.swift; sourceTree = "<group>"; };
 		78BAF0552C980B4500A5B418 /* TextInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputViewController.swift; sourceTree = "<group>"; };
@@ -120,8 +122,9 @@
 				780710562C9414FC0039B44C /* ApplyCardViewController.swift */,
 				78BAF0512C97F61500A5B418 /* FeedViewController.swift */,
 				78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */,
-				787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */,
+				78AC68E12C9D1BE000260BB3 /* CommentViewCOntroller.swift */,
 				78BAF0552C980B4500A5B418 /* TextInputViewController.swift */,
+				787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -251,6 +254,7 @@
 				7807105C2C9605430039B44C /* FilterManager.swift in Sources */,
 				78070FF42C918C1B0039B44C /* ToneDeckApp.swift in Sources */,
 				78BAF0522C97F61500A5B418 /* FeedViewController.swift in Sources */,
+				78AC68E22C9D1BE000260BB3 /* CommentViewCOntroller.swift in Sources */,
 				780710432C91DF720039B44C /* AddCardViewController.swift in Sources */,
 				780710572C9414FD0039B44C /* ApplyCardViewController.swift in Sources */,
 				7807105A2C9565320039B44C /* HistogramManager.swift in Sources */,

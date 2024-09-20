@@ -38,6 +38,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     var scaledValues: [Float]?
     var filterColorValue: Float?
     var colorVector: [Float] = []
+    var hueColor: Float?
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
@@ -113,7 +114,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             }
             //        // 計算直方圖
             let targetHistogramData = histogram.calculateHistogram(for: targetImage)
-            let targetColorValue = getDominantColor(from: targetImage)
+
             let filterHistogramData = histogram.calculateHistogram(for: filterImage)
 
             //        // 確認是否成功計算
@@ -128,13 +129,21 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             print("filterValues: \(filterValues)")
             let smoothTargetValues = applySmoothFilterWithDifferentT(targetValues: targetValues, filterValues: filterValues, tValues: tValues)
             print(smoothTargetValues)
-            print("targetColor\(targetColorValue)")
+            sleep(UInt32(0.5))
+            let targetColorValue = getDominantColor(from: targetImage)
 
-            let hueColor = fabsf((filterColorValue ?? 0) - targetColorValue) * 0.15
-            targetImageView.image = applyImageAdjustments(image: targetImage, smoothValues: scaledValues ?? [0, 0, 0], hueAdjustment: hueColor)
+            if let filterColorValue = filterColorValue, targetColorValue != 0 {
+                self.hueColor = fabsf(filterColorValue - targetColorValue) * 0.15
+                print("hueColor: \(hueColor)")
+            } else {
+                print("One or both color values are missing or targetColorValue is 0. Skipping calculation.")
+            }
+            print("targetColor\(targetColorValue)")
+            print("filterColor\(filterColorValue)")
+//            let hueColor = fabsf((filterColorValue ?? 0) - targetColorValue) * 0.15
+            targetImageView.image = applyImageAdjustments(image: targetImage, smoothValues: scaledValues ?? [0, 0, 0], hueAdjustment: hueColor ?? 10)
             applyButton.setTitle("Save Image", for: .normal)
         } else if applyButton.title(for: .normal) == "Save Image" {
-            // 保存圖片邏輯
             saveFilteredImageToLibrary()
             addPhotoData()
             applyButton.setTitle("Apply Card", for: .normal)
@@ -213,7 +222,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             let newValue = /*targetValues[targetValue] + */(filterValues[targetValue] - targetValues[targetValue]) * tValues[targetValue]
             result.append(newValue)
         }
-        scaleFactor(newValue: result, brightnessScale: 1, contrastScale: 1.1, saturationScale: 1)
+        scaleFactor(newValue: result, brightnessScale: 1, contrastScale: 1, saturationScale: 1)
     }
     func scaleFactor(newValue: [Float], brightnessScale: Float, contrastScale: Float, saturationScale: Float) {
         let scaledBrightness = newValue[0] * brightnessScale
@@ -224,21 +233,17 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     }
     func applyImageAdjustments(image: UIImage, smoothValues: [Float], hueAdjustment: Float) -> UIImage? {
         guard let ciImage = CIImage(image: image) else { return nil }
-        // 使用 CIColorControls 濾鏡調整亮度、對比度、飽和度
         let colorControlsFilter = CIFilter(name: "CIColorControls")
         colorControlsFilter?.setValue(ciImage, forKey: kCIInputImageKey)
         colorControlsFilter?.setValue(smoothValues[0], forKey: kCIInputBrightnessKey)
         colorControlsFilter?.setValue(smoothValues[1], forKey: kCIInputContrastKey)
         colorControlsFilter?.setValue(smoothValues[2], forKey: kCIInputSaturationKey)
-        // 获取 CIColorControls 滤镜的输出图像
         guard let colorControlsOutput = colorControlsFilter?.outputImage else { return nil }
-        // 使用 CIHueAdjust 濾鏡應用色调调整，使用 colorControlsOutput 作为输入
         let hueAdjustFilter = CIFilter(name: "CIHueAdjust")
         hueAdjustFilter?.setDefaults()
-        hueAdjustFilter?.setValue(colorControlsOutput, forKey: kCIInputImageKey) // 将 colorControlsOutput 作为输入
+        hueAdjustFilter?.setValue(colorControlsOutput, forKey: kCIInputImageKey)
         hueAdjustFilter?.setValue(hueAdjustment, forKey: kCIInputAngleKey)
         guard let hueAdjustOutput = hueAdjustFilter?.outputImage else { return nil }
-        // 将处理过的图像转换为 UIImage
         let context = CIContext(options: [CIContextOption.useSoftwareRenderer: false])
         guard let cgImage = context.createCGImage(hueAdjustOutput, from: hueAdjustOutput.extent) else { return nil }
         return UIImage(cgImage: cgImage)
