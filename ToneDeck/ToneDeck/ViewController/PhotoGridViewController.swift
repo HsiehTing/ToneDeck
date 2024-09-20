@@ -76,8 +76,4 @@ struct PhotoGridView: View {
             )
         }
     }
-
 }
-
-
-

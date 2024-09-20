@@ -78,7 +78,7 @@ class ImageHistogramCalculator: ObservableObject {
 
         let context = CIContext()
         var bitmap = [Float](repeating: 0, count: 256)
-        context.render(histogramFilter.outputImage!, toBitmap: &bitmap, rowBytes: 256 * MemoryLayout<Float>.size, bounds: CGRect(x: 0, y: 0, width: 256, height: 1), format: .Rf, colorSpace: nil)
+        context.render(histogramFilter.outputImage!, toBitmap: &bitmap, rowBytes: 256 * MemoryLayout<Float>.size, bounds: CGRect(x: 0, y: 0, width: 256, height: 1), format: .rgbXf, colorSpace: nil)
 
         return bitmap
     }
@@ -111,6 +111,3 @@ class ImageHistogramCalculator: ObservableObject {
         return Int(width * height)
     }
 }
-
-
-

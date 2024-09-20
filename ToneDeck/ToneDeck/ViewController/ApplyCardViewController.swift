@@ -97,7 +97,8 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             applyButton.widthAnchor.constraint(equalToConstant: 100),
             applyButton.heightAnchor.constraint(equalToConstant: 40)
         ])
-        filterColorValue = card?.filterData[3]
+        guard let card = card else {print("did not find card"); return}
+        filterColorValue = card.filterData[3]
         print(filterColorValue)
     }
     @objc func didTapApply() {
@@ -129,9 +130,8 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             print("filterValues: \(filterValues)")
             let smoothTargetValues = applySmoothFilterWithDifferentT(targetValues: targetValues, filterValues: filterValues, tValues: tValues)
             print(smoothTargetValues)
-            sleep(UInt32(0.5))
+            sleep(UInt32(1))
             let targetColorValue = getDominantColor(from: targetImage)
-
             if let filterColorValue = filterColorValue, targetColorValue != 0 {
                 self.hueColor = fabsf(filterColorValue - targetColorValue) * 0.15
                 print("hueColor: \(hueColor)")
@@ -144,8 +144,16 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             targetImageView.image = applyImageAdjustments(image: targetImage, smoothValues: scaledValues ?? [0, 0, 0], hueAdjustment: hueColor ?? 10)
             applyButton.setTitle("Save Image", for: .normal)
         } else if applyButton.title(for: .normal) == "Save Image" {
-            saveFilteredImageToLibrary()
-            addPhotoData()
+            guard let targetImage = targetImageView.image else { return }
+
+                // Wrap ImageAdjustmentView in a UIHostingController
+            let imageAdjustmentView = ImageAdjustmentView(card: card, originalImage: targetImage)
+                let hostingController = UIHostingController(rootView: imageAdjustmentView)
+
+                // Present the UIHostingController modally
+                self.present(hostingController, animated: true, completion: nil)
+//            saveFilteredImageToLibrary()
+//            addPhotoData()
             applyButton.setTitle("Apply Card", for: .normal)
         }
     }
@@ -197,7 +205,6 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             }
         }
     }
-    
     func saveFilteredImageToLibrary() {
         PHPhotoLibrary.requestAuthorization { status in
             if status == .authorized {
@@ -208,7 +215,6 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             }
         }
     }
-    
     @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
             if let error = error {
                 print("保存失敗: \(error.localizedDescription)")
@@ -248,7 +254,6 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         guard let cgImage = context.createCGImage(hueAdjustOutput, from: hueAdjustOutput.extent) else { return nil }
         return UIImage(cgImage: cgImage)
     }
-
     @objc func targetImageTapped() {
         let alert = UIAlertController(title: "Select Image", message: "Choose from photo library or camera", preferredStyle: .actionSheet)
         // Photo library option
@@ -267,14 +272,12 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         alert.addAction(cancelAction)
         present(alert, animated: true)
     }
-    
     func presentPhotoLibrary() {
         let picker = UIImagePickerController()
         picker.delegate = self
         picker.sourceType = .photoLibrary
         present(picker, animated: true, completion: nil)
     }
-    
     // Handle selected image from the photo library
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
            if let selectedImage = info[.originalImage] as? UIImage {
@@ -284,7 +287,6 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
            }
            dismiss(animated: true, completion: nil)
        }
-    
     func didCapturePhoto(_ image: UIImage) {
             // 接收到照片後處理
             targetImage = image
