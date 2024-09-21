@@ -144,7 +144,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             targetImageView.image = applyImageAdjustments(image: targetImage, smoothValues: scaledValues ?? [0, 0, 0], hueAdjustment: hueColor ?? 10)
             applyButton.setTitle("Save Image", for: .normal)
         } else if applyButton.title(for: .normal) == "Save Image" {
-            guard let targetImage = targetImageView.image else { return }
+            guard let targetImage = targetImageView.image, let card = card else { return }
 
                 // Wrap ImageAdjustmentView in a UIHostingController
             let imageAdjustmentView = ImageAdjustmentView(card: card, originalImage: targetImage)
@@ -157,71 +157,6 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             applyButton.setTitle("Apply Card", for: .normal)
         }
     }
-    func addPhotoData() {
-        guard let image = targetImageView.image else {
-            print("cant find target image")
-            return
-        }
-        let cardID = card?.id
-        let createdTime = Date()
-        let defaults = UserDefaults.standard
-        let creatorID = defaults.string(forKey: "userDocumentID")
-        guard let imageData = image.jpegData(compressionQuality: 0.8)
-        else {
-            print("Unable to get image data")
-            return
-        }
-        let storageRef = Storage.storage().reference().child("photo/\(UUID().uuidString).jpg")
-        storageRef.putData(imageData, metadata: nil) { metaData, error in
-            if let error = error {
-                print("Error uploading image: \(error)")
-                return
-            }
-            storageRef.downloadURL { url, error in
-                if let error = error {
-                    print("Error getting image URL: \(error)")
-                    return
-                }
-                if let imageURL = url?.absoluteString {
-                    let db = Firestore.firestore()
-                    let photos = Firestore.firestore().collection("photos")
-                    let document = photos.document()
-                    let photoData: [String: Any] = [
-                        "id": document.documentID,
-                        "cardID": cardID ?? "",
-                        "createdTime": createdTime,
-                        "imageURL": imageURL,
-                        "creatorID": creatorID ?? ""
-                    ]
-                   document.setData(photoData) {error in
-                        if let error = error {
-                            print("error saving photo data \(error)")
-                        } else {
-                            print("photo successfully saved!")
-                            self.navigationController?.popViewController(animated: true)
-                        }
-                    }
-                }
-            }
-        }
-    }
-    func saveFilteredImageToLibrary() {
-        PHPhotoLibrary.requestAuthorization { status in
-            if status == .authorized {
-                DispatchQueue.main.async {
-                    guard let image = self.targetImageView.image else { return }
-                    UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
-                }
-            }
-        }
-    }
-    @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
-            if let error = error {
-                print("保存失敗: \(error.localizedDescription)")
-            } else {
-                print("照片已保存到相簿")
-            }
-        }
     func applySmoothFilterWithDifferentT(targetValues: [Float], filterValues: [Float], tValues: [Float]) {
         var result = [Float]()
         for targetValue in 0..<targetValues.count {
