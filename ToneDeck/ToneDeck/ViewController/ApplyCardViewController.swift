@@ -130,7 +130,6 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             print("filterValues: \(filterValues)")
             let smoothTargetValues = applySmoothFilterWithDifferentT(targetValues: targetValues, filterValues: filterValues, tValues: tValues)
             print(smoothTargetValues)
-            sleep(UInt32(1))
             let targetColorValue = getDominantColor(from: targetImage)
             if let filterColorValue = filterColorValue, targetColorValue != 0 {
                 self.hueColor = fabsf(filterColorValue - targetColorValue) * 0.15

@@ -10,8 +10,11 @@ import Kingfisher
 
 struct ProfilePageView: View {
     @StateObject private var firestoreService = FirestoreService()
+    @State var isFollowed: Bool = false
     let userID: String
     let defaultAvatarURL = "https://example.com/default_avatar.png"  // Set a default image
+    let db = Firestore.firestore()
+    let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
 
     var body: some View {
         ScrollView {
@@ -50,14 +53,10 @@ struct ProfilePageView: View {
                                     .foregroundColor(.gray)
                             }
                             Button (action:{
-
-
+                                toggleFollow()
                             }) {
-                                Text("follow")
-                                
+                                Text(isFollowed ?"follow" : "unfollow")
                             }
-
-
                         }
                     }
                 }
@@ -85,9 +84,74 @@ struct ProfilePageView: View {
             .padding()
         }
         .onAppear {
-            firestoreService.fetchUserData(userID: userID)  // Fetch user data when the view appears
+            firestoreService.fetchUserData(userID: userID ?? "")  // Fetch user data when the view appears
+        }
+    }
+    private func toggleFollow() {
+
+        if isFollowed {
+            // If already starred, remove the user's ID from the likerIDArray
+            addUserToFollowingArray()
+        } else {
+            // If not starred, add the user's ID to the likerIDArray
+            removeUserFromFollowingArray()
+        }
+        isFollowed.toggle()
+    }
+    private func removeUserFromFollowingArray() {
+
+        let followRef = Firestore.firestore().collection("followRequests").whereField("from", isEqualTo: fromUserID).whereField("to", isEqualTo: userID)
+        followRef.getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {return}
+                    for document in documents {
+                        document.reference.delete()
+                    }
+        }
+
+        let followerRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: userID)
+        let followingRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: fromUserID)
+        followerRef.getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {return}
+            for document in  documents {
+                document.reference.updateData(["followerArray": FieldValue.arrayRemove([fromUserID])])
+            }
+        }
+        followingRef.getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {return}
+            for document in  documents {
+                document.reference.updateData(["followingArray": FieldValue.arrayRemove([userID])])
+            }
+        }
+
+    }
+    private func addUserToFollowingArray() {
+
+        let followRequestData: [String: Any] = [
+                    "from": fromUserID,
+                    "to": userID,
+                    "createdTime": Timestamp(),
+                    "status": "pending"
+                ]
+        db.collection("followRequests").addDocument(data: followRequestData) { error in
+            if let error = error {
+                print("Error sending follow request: \(error.localizedDescription)")
+            } else {
+                print("Follow request sent successfully.")
+            }
+        }
+        let followerRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: userID)
+        let followingRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: fromUserID)
+        followerRef.getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {return}
+            for document in  documents {
+                document.reference.updateData(["followerArray": FieldValue.arrayUnion([fromUserID])])
+            }
+        }
+        followingRef.getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {return}
+            for document in  documents {
+                document.reference.updateData(["followingArray": FieldValue.arrayUnion([userID])])
+            }
         }
     }
 }
-
-

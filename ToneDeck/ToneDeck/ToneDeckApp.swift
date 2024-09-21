@@ -16,6 +16,10 @@ struct ToneDeckApp: App {
         NavigationView {
           ContentView()
                 .onAppear(perform: {
+                    let defaults = UserDefaults.standard
+                   defaults.set("pb2odgkt1PB1lSgb2IY7", forKey: "userDocumentID")
+                    //defaults.removeObject(forKey: "userDocumentID")
+
                     checkUserData()
                 })
         }

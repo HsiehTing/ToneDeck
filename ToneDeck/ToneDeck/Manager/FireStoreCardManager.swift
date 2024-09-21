@@ -102,7 +102,7 @@ class FirestoreService: ObservableObject {
         }
     }
     func fetchUserData(userID: String) {
-        db.collection("users").document(userID).getDocument { document, error in
+        db.collection("users").document(userID).addSnapshotListener { document, error in
             if let document = document, document.exists {
                 do {
                     self.user = try document.data(as: User.self)
@@ -120,12 +120,10 @@ class FirestoreService: ObservableObject {
     func fetchPosts(postIDs: [String]) {
         // Filter out any empty or invalid document IDs
         let validPostIDs = postIDs.filter { !$0.isEmpty }
-        
         guard !validPostIDs.isEmpty else {
             print("No valid post IDs to fetch.")
             return
         }
-        
         let postsRef = db.collection("posts").whereField(FieldPath.documentID(), in: validPostIDs)
         postsRef.getDocuments { snapshot, error in
             if let snapshot = snapshot {
@@ -138,7 +136,9 @@ class FirestoreService: ObservableObject {
 
     func fetchPhotos() {
         let db = Firestore.firestore()
-        db.collection("photos").getDocuments { snapshot, error in
+        let defaults = UserDefaults.standard
+        let userID = defaults.string(forKey: "userDocumentID")
+        db.collection("photos").whereField("creatorID", isEqualTo: userID).getDocuments { snapshot, error in
             if let error = error {
                 print("Error fetching photos: \(error)")
                 return

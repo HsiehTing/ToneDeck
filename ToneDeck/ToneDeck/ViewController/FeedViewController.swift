@@ -12,9 +12,8 @@ import Kingfisher
 enum FeedDestination: Hashable {
     case addPost
     case applyCard(card: Card)
+    case visitProfile(userID: String)
 }
-
-
 struct Post: Identifiable, Codable {
     var id: String
     var text: String
@@ -36,6 +35,7 @@ struct Comment: Codable {
 struct FeedView: View {
     @StateObject private var firestoreService = FirestoreService()
     @State private var path = [FeedDestination]()
+    let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -45,6 +45,7 @@ struct FeedView: View {
                         if let cardID = post.cardID,
                            let card = firestoreService.cardsDict[cardID] {
                             PostView(post: post, card: card, path: $path)// Pass path to child views
+
                         } else {
                             PostView(post: post, card: nil, path: $path)  // Handle missing card case
                         }
@@ -63,9 +64,11 @@ struct FeedView: View {
                 .navigationDestination(for: FeedDestination.self) { destination in
                     switch destination {
                     case .addPost:
-                        PhotoGridView()  // Ensure PhotoGridView is initialized correctly
+                        PhotoGridView()  
                     case .applyCard(let card):
                         ApplyCardViewControllerWrapper(card: card)
+                    case .visitProfile(let postCreatorID):
+                        ProfilePageView(userID: postCreatorID)
                     }
                 }
             }
@@ -75,7 +78,7 @@ struct FeedView: View {
 struct PostView: View {
     let post: Post
     let card: Card? // Optional card
-    let userID: String = "HU31meYbVzbXDGKcqV8i"
+    let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     @Binding var path: [FeedDestination]
     @State private var isStarred: Bool = false
     @State private var isCommentViewPresented: Bool = false
@@ -107,7 +110,7 @@ struct PostView: View {
                 .padding([.top, .leading, .trailing])
 
             // Display Creator ID and Time
-            PostInfoView(post: post)
+            PostInfoView(post: post, path: $path)
         }
         .background(Color.black)
         .frame(maxWidth: .infinity, maxHeight: 800)
@@ -138,14 +141,14 @@ struct PostView: View {
                 }
                 .padding(4)
                 .sheet(isPresented: $isCommentViewPresented) {
-                    CommentView(postID: post.id, userID: userID, userAvatarURL: userAvatarURL)
+                    CommentView(postID: post.id, userID: fromUserID ?? "", userAvatarURL: userAvatarURL)
                 }
             }
         }
-        .cornerRadius(10)
-        .shadow(radius: 5)
-        .padding([.leading, .trailing])
-    )
+            .cornerRadius(10)
+            .shadow(radius: 5)
+            .padding([.leading, .trailing])
+        )
     }
     private func toggleLike() {
         if isStarred {
@@ -158,46 +161,50 @@ struct PostView: View {
         isStarred.toggle()
     }
     private func checkIfStarred() {
-           // Assume we get the likerIDArray from the post
-        if post.likerIDArray.contains(userID) {
-                   isStarred = true
-               } else {
-                   isStarred = false
-               }
-       }
+        // Assume we get the likerIDArray from the post
+        guard let fromUserID = fromUserID else {return}
+        if post.likerIDArray.contains(fromUserID) {
+            isStarred = true
+        } else {
+            isStarred = false
+        }
+    }
 
-       // Function to add the user to the likerIDArray in the posts collection
-       private func addUserToLikerArray() {
-           // Add your Firestore or database code here
-           // Example: Firestore logic to update likerIDArray
-           let postRef = Firestore.firestore().collection("posts").document(post.id)
-           postRef.updateData([
-               "likerIDArray": FieldValue.arrayUnion([userID])
-           ]) { error in
-               if let error = error {
-                   print("Error adding user to likerIDArray: \(error)")
-               } else {
-                   print("User added to likerIDArray successfully.")
-               }
-           }
-       }
+    // Function to add the user to the likerIDArray in the posts collection
+    private func addUserToLikerArray() {
 
-       // Function to remove the user from the likerIDArray in the posts collection
-       private func removeUserFromLikerArray() {
-           // Firestore logic to update likerIDArray
-           let postRef = Firestore.firestore().collection("posts").document(post.id)
-           postRef.updateData([
-               "likerIDArray": FieldValue.arrayRemove([userID])
-           ]) { error in
-               if let error = error {
-                   print("Error removing user from likerIDArray: \(error)")
-               } else {
-                   print("User removed from likerIDArray successfully.")
-               }
-           }
-       }
+        guard let fromUserID = fromUserID else {return}
+        let postRef = Firestore.firestore().collection("posts").document(post.id)
+        postRef.updateData([
+            "likerIDArray": FieldValue.arrayUnion([fromUserID])
+        ]) { error in
+            if let error = error {
+                print("Error adding user to likerIDArray: \(error)")
+            } else {
+                print("User added to likerIDArray successfully.")
+            }
+        }
+    }
+
+    // Function to remove the user from the likerIDArray in the posts collection
+    private func removeUserFromLikerArray() {
+        // Firestore logic to update likerIDArray
+        guard let fromUserID = fromUserID else {return}
+
+        let postRef = Firestore.firestore().collection("posts").document(post.id)
+        postRef.updateData([
+            "likerIDArray": FieldValue.arrayRemove([fromUserID])
+        ]) { error in
+            if let error = error {
+                print("Error removing user from likerIDArray: \(error)")
+            } else {
+                print("User removed from likerIDArray successfully.")
+            }
+        }
+    }
     private func loadUserAvatar() {
-        let userRef = Firestore.firestore().collection("users").document(userID)
+        guard let fromUserID = fromUserID else {return}
+        let userRef = Firestore.firestore().collection("users").document(fromUserID)
         userRef.getDocument { document, error in
             if let document = document, document.exists {
                 self.userAvatarURL = document.data()?["avatarURL"] as? String ?? ""
@@ -239,37 +246,49 @@ struct PostButtonsView: View {
         }
         .padding()
     }
+
 }
 
 struct PostInfoView: View {
     let post: Post
+    @Binding var path: [FeedDestination]
 
     var body: some View {
-        HStack {
-            Text("by \(post.creatorID)")
-                .font(.caption)
-                .foregroundColor(.gray)
 
-            Spacer()
+            HStack {
+                Button {
+                    path.append(.visitProfile(userID: post.creatorID))
+                } label: {
+                    Text("by \(post.creatorID)")
+                        .font(.caption)
+                        .foregroundColor(.black) // 顯示為可點擊的藍色
+                
 
-            Text("\(post.createdTime, formatter: postDateFormatter)")
-                .font(.caption)
-                .foregroundColor(.gray)
+                Spacer()
+
+                Text("\(post.createdTime, formatter: postDateFormatter)")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+
+
+                    .padding([.leading, .trailing, .bottom])
+            }
         }
-        .padding([.leading, .trailing, .bottom])
+
     }
-}
 
-// Date Formatter for displaying time
-private let postDateFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .medium
-    formatter.timeStyle = .short
-    return formatter
-}()
+    // Date Formatter for displaying time
+    private let postDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter
+    }()
 
-struct FeedView_Previews: PreviewProvider {
-    static var previews: some View {
-        FeedView()
+    struct FeedView_Previews: PreviewProvider {
+        static var previews: some View {
+            FeedView()
+        }
+
     }
 }

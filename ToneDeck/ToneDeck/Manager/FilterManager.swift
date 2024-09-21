@@ -130,48 +130,43 @@ func calculateColor(from histogramData: [String: [Float]]) -> [Float] {
 }
 
 func getDominantColor(from image: UIImage) -> Float {
-    guard let cgImage = image.cgImage else { return 0 }
-    let width = cgImage.width
-    let height = cgImage.height
-    let bytesPerPixel = 4
-    let bytesPerRow = bytesPerPixel * width
-    let bitsPerComponent = 8
-    let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
-    var pixelData = [UInt8](repeating: 0, count: width * height * bytesPerPixel)
-    guard let context = CGContext(
-        data: &pixelData,
-        width: width,
-        height: height,
-        bitsPerComponent: bitsPerComponent,
-        bytesPerRow: bytesPerRow,
-        space: CGColorSpaceCreateDeviceRGB(),
-        bitmapInfo: bitmapInfo
-    ) else { return 0 }
+    guard let ciImage = CIImage(image: image) else { return 0 }
 
-        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+    // 創建 CIFilter 來生成圖像縮略圖以加速處理
+    let scaleFilter = CIFilter(name: "CILanczosScaleTransform")!
+    scaleFilter.setValue(ciImage, forKey: kCIInputImageKey)
+    scaleFilter.setValue(0.1, forKey: kCIInputScaleKey) // 將圖像縮小到原來的 10%
+    scaleFilter.setValue(1.0, forKey: kCIInputAspectRatioKey)
+    let scaledImage = scaleFilter.outputImage!
 
+    // 使用 CIAreaAverage 來計算圖像的平均顏色
+    let extent = scaledImage.extent
+    let filter = CIFilter(name: "CIAreaAverage", parameters: [
+        kCIInputImageKey: scaledImage,
+        kCIInputExtentKey: CIVector(cgRect: extent)
+    ])!
 
-    var colorCount: [UIColor: Int] = [:]
-    for xvalue in 0..<width {
-        for yvalue in 0..<height {
-            let pixelIndex = (yvalue * width + xvalue) * bytesPerPixel
-            let red = CGFloat(pixelData[pixelIndex]) / 255.0
-            let green = CGFloat(pixelData[pixelIndex + 1]) / 255.0
-            let blue = CGFloat(pixelData[pixelIndex + 2]) / 255.0
-            let alpha = CGFloat(pixelData[pixelIndex + 3]) / 255.0
-            let color = UIColor(red: red, green: green, blue: blue, alpha: alpha)
+    guard let outputImage = filter.outputImage else { return 0 }
 
-            colorCount[color, default: 0] += 1
-        }
-    }
+    // 創建一個 1x1 像素的位圖來保存平均顏色
+    let context = CIContext()
+    var pixel = [UInt8](repeating: 0, count: 4)
+    context.render(outputImage, toBitmap: &pixel, rowBytes: 4, bounds: CGRect(x: 0, y: 0, width: 1, height: 1), format: .RGBA8, colorSpace: CGColorSpaceCreateDeviceRGB())
 
-    let dominantColor = colorCount.max { $0.value < $1.value }?.key
-    print("finish get dominant color")
+    // 將 RGBA 數據轉換為 UIColor
+    let red = CGFloat(pixel[0]) / 255.0
+    let green = CGFloat(pixel[1]) / 255.0
+    let blue = CGFloat(pixel[2]) / 255.0
+    let alpha = CGFloat(pixel[3]) / 255.0
+    let dominantColor = UIColor(red: red, green: green, blue: blue, alpha: alpha)
+
+    // 獲取顏色的 Hue 值
     var hue: CGFloat = 0
     var saturation: CGFloat = 0
     var brightness: CGFloat = 0
-    var alpha: CGFloat = 0
-    dominantColor?.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
+    dominantColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: nil)
+
+    print("finish get dominant color")
     return Float(hue * .pi * 2)
 }
 
@@ -182,7 +177,6 @@ func hueValue(from color: UIColor) -> Float {
     var alpha: CGFloat = 0
     color.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
 
-    // 返回 Hue 值，范围为 0 到 2π
     print("finish get hue")
     return Float(hue * .pi * 2)
 }

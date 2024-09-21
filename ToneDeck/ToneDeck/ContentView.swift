@@ -38,7 +38,7 @@ struct ContentView: View {
             // Fourth Tab
             VStack {
                 NavigationView {
-                   ProfilePageView(userID: "HU31meYbVzbXDGKcqV8i")
+                    ProfilePageView(userID: UserDefaults.standard.string(forKey: "userDocumentID") ?? "")
                 }
             }
             .tabItem {
