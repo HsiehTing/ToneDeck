@@ -69,7 +69,8 @@ struct AddCardViewController: View {
             return
         }
         // Mock data for testing
-        let userName = "User123"
+        //let userName = "User123"
+        let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
         let timeStamp = Date()
         let histogram = ImageHistogramCalculator()
         let filterHistogramData = histogram.calculateHistogram(for: image)
@@ -101,7 +102,7 @@ struct AddCardViewController: View {
                     let document = cards.document()
                     let cardData: [String: Any] = [
                         "id": document.documentID,
-                        "userID": userName,
+                        "creatorID": fromUserID ?? "",
                         "cardName": cardName,
                         "createdTime": timeStamp,
                         "filterData": filterData,

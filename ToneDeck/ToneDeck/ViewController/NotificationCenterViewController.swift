@@ -7,28 +7,34 @@
 
 import SwiftUI
 import Kingfisher
+import Firebase
 
-struct Notification: Identifiable {
-    var id: String
-    var fromUserPhoto: String
-    var fromUserName: String
-    var postImage: String
-    var notificationType: NotificationType
+enum NotificationType: String, Codable {
+    case like = "like"
+    case comment = "comment"
+    case useCard = "useCard"
+    case follow = "follow"
 }
-
-enum NotificationType {
-    case like
-    case comment
-    case useCard
-    case follow
+struct NotificationPageView: View {
+    @StateObject private var firestoreService = FirestoreService()
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                ForEach(firestoreService.notifications) { notification in
+                    NotificationRow(notification: notification)
+                        .padding(.horizontal)
+                }
+            }
+            .onAppear {
+                firestoreService.fetchNotifications()
+            }
+        }
+        .navigationTitle("Notifications")
+    }
 }
 struct NotificationsView: View {
-    let notifications: [Notification] = [
-        Notification(id: "1", fromUserPhoto: "https://example.com/photo1.png", fromUserName: "User1", postImage: "https://example.com/post1.png", notificationType: .like),
-        Notification(id: "2", fromUserPhoto: "https://example.com/photo2.png", fromUserName: "User2", postImage: "https://example.com/post2.png", notificationType: .useCard),
-        Notification(id: "3", fromUserPhoto: "https://example.com/photo3.png", fromUserName: "User3", postImage: "https://example.com/post3.png", notificationType: .comment),
-        Notification(id: "4", fromUserPhoto: "https://example.com/photo4.png", fromUserName: "User4", postImage: "https://example.com/post3.png", notificationType: .follow)
-    ]
+    let notifications: [Notification] = [ ]
+    let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
 
     var body: some View {
         ScrollView {
@@ -44,41 +50,38 @@ struct NotificationsView: View {
 }
 struct NotificationRow: View {
     let notification: Notification
-
+    @State private var user: User?
+    @State var isFollowed: Bool = false
     var body: some View {
         HStack(spacing: 16) {
-            // 發送者的頭像
+            // 顯示來自使用者的頭像
             KFImage(URL(string: notification.fromUserPhoto))
                 .resizable()
-                .scaledToFit()
+                .scaledToFill()
                 .frame(width: 50, height: 50)
                 .clipShape(Circle())
-
+                .overlay(Circle().stroke(Color.gray, lineWidth: 2))
+            // 通知的文字和圖片
             VStack(alignment: .leading, spacing: 4) {
-                // 動態顯示根據通知類型的訊息
-                if notification.notificationType == .like {
-                    Text("\(notification.fromUserName) just liked your post")
-                        .font(.subheadline)
-                        .fontWeight(.bold)
-                } else if notification.notificationType == .comment {
-                    Text("\(notification.fromUserName) commented on your post")
-                        .font(.subheadline)
-                        .fontWeight(.bold)
-                } else if notification.notificationType == .useCard {
-                    Text("\(notification.fromUserName) used your card")
-                        .font(.subheadline)
-                        .fontWeight(.bold)
-                } else if notification.notificationType == .follow {
-                    Text("\(notification.fromUserName) started following you")
-                        .font(.subheadline)
-                        .fontWeight(.bold)
+                Text(getNotificationText(notification: notification))
+                    .font(.body)
+                    .fontWeight(.medium)
 
-                    // Follow back button for follow notifications
+                // 如果通知包含圖片
+                if notification.type == .like || notification.type == .useCard || notification.type == .comment {
+                    KFImage(URL(string: notification.postImage))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 60, height: 60)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                } else if notification.type == .follow {
+                    // 如果通知是 "follow"，顯示追蹤按鈕
                     Button(action: {
-                        // Handle follow back action
+                        guard let user = user else {return}
+                        toggleFollow(user: user)
                     }) {
-                        Text("Follow Back")
-                            .font(.caption)
+                        Text(isFollowed ?"follow" : "unfollow")
+                            .font(.subheadline)
                             .fontWeight(.bold)
                             .padding(6)
                             .background(Color.blue)
@@ -87,18 +90,56 @@ struct NotificationRow: View {
                     }
                 }
             }
-            Spacer()
 
-            // 顯示 postImage（如果有的話）
-//            if let postImageURL = notification.postImage {
-//                KFImage(URL(string: postImageURL))
-//                    .resizable()
-//                    .scaledToFit()
-//                    .frame(width: 50, height: 50)
-//                    .clipShape(RoundedRectangle(cornerRadius: 8))
-//            }
+            Spacer()
         }
-        .padding(.vertical, 8)
+        .onAppear {
+                    fetchUser(fromUserID: notification.from)  // 根據 fromUserID 取得對應的 User
+                }
+    }
+
+    // 使用 enum 來處理不同類型的通知
+    func getNotificationText(notification: Notification) -> String {
+        switch notification.type {
+        case .like:
+            return "\(notification.from) just liked your post"
+        case .comment:
+            return "\(notification.from) commented on your post"
+        case .useCard:
+            return "\(notification.from) used your card"
+        case .follow:
+            return "\(notification.from) started following you"
+        }
+    }
+    private func toggleFollow(user: User) {
+let firestoreService = FirestoreService()
+
+        if isFollowed {
+            // If already starred, remove the user's ID from the likerIDArray
+            firestoreService.addUserToFollowingArray(userID: user.id)
+            firestoreService.addFollowNotification(user: user)
+        } else {
+            // If not starred, add the user's ID to the likerIDArray
+            firestoreService.removeUserFromFollowingArray(userID: user.id)
+            firestoreService.removeFollowNotification(user: user)
+        }
+        isFollowed.toggle()
+    }
+    func fetchUser(fromUserID: String) {
+        let db = Firestore.firestore()
+        let userRef = db.collection("users").document(fromUserID)
+
+        userRef.getDocument { document, error in
+            if let document = document, document.exists {
+                do {
+                    // 嘗試將 Firestore 的資料轉換成 User 結構
+                    self.user = try document.data(as: User.self)
+                } catch {
+                    print("Error decoding user: \(error)")
+                }
+            } else {
+                print("User not found")
+            }
+        }
     }
 }
-

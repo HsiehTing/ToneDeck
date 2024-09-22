@@ -15,7 +15,7 @@ struct ProfilePageView: View {
     let defaultAvatarURL = "https://example.com/default_avatar.png"  // Set a default image
     let db = Firestore.firestore()
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
-
+    let fireStoreService = FirestoreService()
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
@@ -52,10 +52,12 @@ struct ProfilePageView: View {
                                     .font(.subheadline)
                                     .foregroundColor(.gray)
                             }
-                            Button (action:{
-                                toggleFollow()
-                            }) {
-                                Text(isFollowed ?"follow" : "unfollow")
+                            if userID != fromUserID {
+                                Button (action:{
+                                    toggleFollow(user: user)
+                                }) {
+                                    Text(isFollowed ?"follow" : "unfollow")
+                                }
                             }
                         }
                     }
@@ -85,73 +87,32 @@ struct ProfilePageView: View {
         }
         .onAppear {
             firestoreService.fetchUserData(userID: userID ?? "")  // Fetch user data when the view appears
+            guard let user = firestoreService.user else {return}
+            checkIfFollowed(user: user)
         }
     }
-    private func toggleFollow() {
+    private func toggleFollow(user: User) {
+
 
         if isFollowed {
             // If already starred, remove the user's ID from the likerIDArray
-            addUserToFollowingArray()
+            firestoreService.addUserToFollowingArray(userID: userID)
+            firestoreService.addFollowNotification(user: user)
         } else {
             // If not starred, add the user's ID to the likerIDArray
-            removeUserFromFollowingArray()
+            firestoreService.removeUserFromFollowingArray(userID: userID)
+            firestoreService.removeFollowNotification(user: user)
         }
         isFollowed.toggle()
     }
-    private func removeUserFromFollowingArray() {
-
-        let followRef = Firestore.firestore().collection("followRequests").whereField("from", isEqualTo: fromUserID).whereField("to", isEqualTo: userID)
-        followRef.getDocuments { querySnapshot, error in
-            guard let documents = querySnapshot?.documents else {return}
-                    for document in documents {
-                        document.reference.delete()
-                    }
-        }
-
-        let followerRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: userID)
-        let followingRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: fromUserID)
-        followerRef.getDocuments { querySnapshot, error in
-            guard let documents = querySnapshot?.documents else {return}
-            for document in  documents {
-                document.reference.updateData(["followerArray": FieldValue.arrayRemove([fromUserID])])
-            }
-        }
-        followingRef.getDocuments { querySnapshot, error in
-            guard let documents = querySnapshot?.documents else {return}
-            for document in  documents {
-                document.reference.updateData(["followingArray": FieldValue.arrayRemove([userID])])
-            }
-        }
-
-    }
-    private func addUserToFollowingArray() {
-
-        let followRequestData: [String: Any] = [
-                    "from": fromUserID,
-                    "to": userID,
-                    "createdTime": Timestamp(),
-                    "status": "pending"
-                ]
-        db.collection("followRequests").addDocument(data: followRequestData) { error in
-            if let error = error {
-                print("Error sending follow request: \(error.localizedDescription)")
-            } else {
-                print("Follow request sent successfully.")
-            }
-        }
-        let followerRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: userID)
-        let followingRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: fromUserID)
-        followerRef.getDocuments { querySnapshot, error in
-            guard let documents = querySnapshot?.documents else {return}
-            for document in  documents {
-                document.reference.updateData(["followerArray": FieldValue.arrayUnion([fromUserID])])
-            }
-        }
-        followingRef.getDocuments { querySnapshot, error in
-            guard let documents = querySnapshot?.documents else {return}
-            for document in  documents {
-                document.reference.updateData(["followingArray": FieldValue.arrayUnion([userID])])
-            }
+    private func checkIfFollowed(user: User) {
+        // Assume we get the likerIDArray from the post
+        guard let fromUserID = fromUserID else {return}
+        if user.followerArray.contains(fromUserID) {
+            isFollowed = true
+        } else {
+            isFollowed = false
         }
     }
+
 }

@@ -39,12 +39,15 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     var filterColorValue: Float?
     var colorVector: [Float] = []
     var hueColor: Float?
+    let fireStoreService = FirestoreService()
+    let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
         // Configure the card imageView and label
+        fireStoreService.fetchUserData(userID: fromUserID ?? "")
         if let card = card {
-            imageView.kf.setImage(with: URL(string: card.imageURL))
+            imageView.kf.setImage(with: URL(string: card.avatar))
             filterImage = imageView.image ?? UIImage()
             let nameLabel = UILabel()
             nameLabel.text = card.cardName
@@ -103,6 +106,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     }
     @objc func didTapApply() {
         print("tap apply button")
+        
         if applyButton.title(for: .normal) == "Apply Card" {
             guard let targetImage = targetImage else {
                 print("No image selected from photo library.")
@@ -142,6 +146,10 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
 //            let hueColor = fabsf((filterColorValue ?? 0) - targetColorValue) * 0.15
             targetImageView.image = applyImageAdjustments(image: targetImage, smoothValues: scaledValues ?? [0, 0, 0], hueAdjustment: hueColor ?? 10)
             applyButton.setTitle("Save Image", for: .normal)
+            guard let card = card else {return}
+            if fromUserID != card.creatorID{
+                sendNotification(card: card)
+            }
         } else if applyButton.title(for: .normal) == "Save Image" {
             guard let targetImage = targetImageView.image, let card = card else { return }
 
@@ -227,4 +235,20 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             targetImageView.image = image
             applyButton.setTitle("Apply Card", for: .normal) // Reset button after capturing photo
         }
+    func sendNotification(card: Card) {
+        let notifications = Firestore.firestore().collection("notifications")
+        let user = fireStoreService.user
+        let document = notifications.document()
+        guard let user = user else {return}
+        let data: [String: Any] = [
+             "id": document.documentID,
+             "fromUserPhoto": user.avatar,
+             "from": fromUserID,
+             "to": card.id,
+             "postImage": card.avatar,
+             "type": NotificationType.useCard.rawValue,
+             "createdTime": Timestamp()
+        ]
+        document.setData(data)
+    }
 }

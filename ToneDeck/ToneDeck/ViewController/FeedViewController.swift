@@ -40,7 +40,7 @@ struct FeedView: View {
     var body: some View {
         NavigationStack(path: $path) {
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 16) {
+                LazyVStack(alignment: .leading, spacing: 40) {
                     ForEach(firestoreService.posts) { post in
                         if let cardID = post.cardID,
                            let card = firestoreService.cardsDict[cardID] {
@@ -90,19 +90,19 @@ struct PostView: View {
             KFImage(URL(string: post.imageURL))
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .frame(maxWidth: .infinity, maxHeight: 800)
+                .frame(maxWidth: .infinity, maxHeight: 600)
                 .clipped()
 
             // Display card buttons if the card exists
             if let card = card {
                 PostButtonsView(card: card, path: $path)
-                    .padding(.vertical, 4)
+                    .padding(.vertical, 8)
             } else {
                 // Display loading placeholder if card is nil
                 Text("Loading card...")
                     .font(.caption)
                     .foregroundColor(.gray)
-                    .padding(.vertical, 4)
+                    .padding(.vertical, 8)
             }
 
             // Display Post Text
@@ -152,6 +152,7 @@ struct PostView: View {
         )
         .onAppear {
             fireStoreService.fetchUserData(userID: fromUserID ?? "")
+            checkIfStarred()
         }
     }
     private func toggleLike() {
@@ -195,11 +196,11 @@ struct PostView: View {
         let data: [String: Any] = [
              "id": document.documentID,
              "fromUserPhoto": user.avatar,
-             "from": user.userName,
+             "from": fromUserID,
              "to": post.creatorID,
              "postImage": post.imageURL,
-             "type": "like",
-             "createdTIme": Timestamp()
+             "type": NotificationType.like.rawValue,
+             "createdTime": Timestamp()
         ]
         document.setData(data)
     }
@@ -221,7 +222,7 @@ struct PostView: View {
         }
         let user = fireStoreService.user
         guard let user = user else {return}
-        let likeRef = Firestore.firestore().collection("notifications").whereField("from", isEqualTo: user.id).whereField("to", isEqualTo: "post.creatorID").whereField("type", isEqualTo: "like")
+        let likeRef = Firestore.firestore().collection("notifications").whereField("from", isEqualTo: user.id).whereField("to", isEqualTo: post.creatorID).whereField("type", isEqualTo: "like")
         likeRef.getDocuments { query, error in
             guard let documents = query?.documents else {return}
             for document in documents {
@@ -265,7 +266,7 @@ struct PostButtonsView: View {
                 path.append(.applyCard(card: card))  // Navigate to applyCard view
                 print("Navigating to applyCard with image for card \(card.cardName)")  // Debugging print
             }) {
-                KFImage(URL(string: card.imageURL))
+                KFImage(URL(string: card.avatar))
                     .resizable()
                     .frame(width: 40, height: 40)
                     .clipShape(Circle())
@@ -273,7 +274,6 @@ struct PostButtonsView: View {
         }
         .padding()
     }
-
 }
 
 struct PostInfoView: View {

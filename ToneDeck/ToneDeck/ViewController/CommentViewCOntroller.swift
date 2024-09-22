@@ -115,11 +115,11 @@ struct CommentView: View {
         let data: [String: Any] = [
              "id": document.documentID,
              "fromUserPhoto": user.avatar,
-             "from": user.userName,
+             "from": fromUserID,
              "to": post.creatorID,
              "postImage": post.imageURL,
-             "type": "comment",
-             "createdTIme": Timestamp()
+             "type":  NotificationType.comment.rawValue,
+             "createdTime": Timestamp()
         ]
         document.setData(data)
     }

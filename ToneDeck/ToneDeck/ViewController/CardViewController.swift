@@ -51,7 +51,7 @@ struct CardRow: View {
         NavigationLink(destination: ApplyCardViewControllerWrapper(card: card)){
             ZStack(alignment: .bottomLeading) {
                 // Load image using Kingfisher (or any other way you prefer)
-                KFImage(URL(string: card.imageURL))
+                KFImage(URL(string: card.avatar))
                     .resizable()
                     .scaledToFill()
                     .frame(height: 200)

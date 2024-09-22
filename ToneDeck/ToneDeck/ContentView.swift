@@ -22,7 +22,7 @@ struct ContentView: View {
             // Second Tab
             VStack {
                 NavigationView {
-                    NotificationsView()
+                    NotificationPageView()
                 }
             }
             .tabItem {

@@ -14,9 +14,11 @@ class FirestoreService: ObservableObject {
     @Published var photos: [Photo] = []
     @Published var posts: [Post] = []
     @Published var users: [User] = []
+    @Published var notifications: [Notification] = []
     @Published var user: User? = nil
     let db = Firestore.firestore()
-
+    let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
+    
     func fetchPosts() {
         db.collection("posts").getDocuments { snapshot, error in
             if let error = error {
@@ -72,7 +74,7 @@ class FirestoreService: ObservableObject {
             let userID = data["userID"] as? String ?? ""
             let filterData = data["filterData"] as? [Float] ?? [0]
             // Create a simple Card struct or dictionary to store these two fields
-            let card = Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, userID: userID)
+            let card = Card(id: cardID, cardName: cardName, avatar: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID)
             // Store the card in the dictionary
             DispatchQueue.main.async {
                 self.cardsDict[cardID] = card
@@ -95,12 +97,31 @@ class FirestoreService: ObservableObject {
                         let createdTIme = data["createdTime"] as? Timestamp ?? Timestamp()
                         let userID = data["userID"] as? String ?? ""
                         let filterData = data["filterData"] as? [Float] ?? [0]
-                        return Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, userID: userID)
+                        return Card(id: cardID, cardName: cardName, avatar: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID)
                     }
                 }
             }
         }
     }
+    func fetchNotifications() {
+            db.collection("notifications").whereField("to", isEqualTo: fromUserID).getDocuments { querySnapshot, error in
+                if let error = error {
+                    print("Error fetching notifications: \(error)")
+                    return
+                }
+
+                guard let documents = querySnapshot?.documents else { return }
+                self.notifications = documents.compactMap { document -> Notification? in
+                    do {
+                        let notification = try document.data(as: Notification.self)
+                        return notification
+                    } catch {
+                        print("Error decoding notification: \(error)")
+                        return nil
+                    }
+                }
+            }
+        }
     func fetchUserData(userID: String) {
         db.collection("users").document(userID).addSnapshotListener { document, error in
             if let document = document, document.exists {
@@ -161,6 +182,84 @@ class FirestoreService: ObservableObject {
             }
         }
     }
+    func removeUserFromFollowingArray(userID: String) {
+
+        let followRef = Firestore.firestore().collection("followRequests").whereField("from", isEqualTo: fromUserID).whereField("to", isEqualTo: userID)
+        followRef.getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {return}
+                    for document in documents {
+                        document.reference.delete()
+                    }
+        }
+        let followerRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: userID)
+        let followingRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: fromUserID)
+        followerRef.getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {return}
+            for document in  documents {
+                document.reference.updateData(["followerArray": FieldValue.arrayRemove([self.fromUserID ?? ""])])
+            }
+        }
+        followingRef.getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {return}
+            for document in  documents {
+                document.reference.updateData(["followingArray": FieldValue.arrayRemove([userID])])
+            }
+        }
+
+    }
+    func addUserToFollowingArray(userID: String) {
+
+        let followRequestData: [String: Any] = [
+                    "from": fromUserID,
+                    "to": userID,
+                    "createdTime": Timestamp(),
+                    "status": "pending"
+                ]
+        db.collection("followRequests").addDocument(data: followRequestData) { error in
+            if let error = error {
+                print("Error sending follow request: \(error.localizedDescription)")
+            } else {
+                print("Follow request sent successfully.")
+            }
+        }
+        let followerRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: userID)
+        let followingRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: fromUserID)
+        followerRef.getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {return}
+            for document in  documents {
+                document.reference.updateData(["followerArray": FieldValue.arrayUnion([self.fromUserID])])
+            }
+        }
+        followingRef.getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {return}
+            for document in  documents {
+                document.reference.updateData(["followingArray": FieldValue.arrayUnion([userID])])
+            }
+        }
+    }
+     func addFollowNotification(user: User) {
+        let notifications = Firestore.firestore().collection("notifications")
+        let document = notifications.document()
+        let data: [String: Any] = [
+             "id": document.documentID,
+             "fromUserPhoto": user.avatar,
+             "from": fromUserID ?? "",
+             "to": user.id,
+             "postImage": user.avatar,
+             "type":  NotificationType.follow.rawValue,
+             "createdTime": Timestamp()
+        ]
+        document.setData(data)
+    }
+     func removeFollowNotification(user: User){
+         let likeRef = Firestore.firestore().collection("notifications").whereField("from", isEqualTo: user.id).whereField("to", isEqualTo: user.id).whereField("type", isEqualTo: "follow")
+        likeRef.getDocuments { query, error in
+            guard let documents = query?.documents else {return}
+            for document in documents {
+                document.reference.delete()
+            }
+        }
+    }
 
 }
 
@@ -168,7 +267,7 @@ func checkUserData() {
     let mockUserName = "Sting"
     let userName = mockUserName
     let timeStamp = Date()
-    let avatar = ""
+    let avatar = "https://firebasestorage.googleapis.com:443/v0/b/tonedecksting.appspot.com/o/cards%2F30146645-392C-45D3-8D60-A7638D035496.jpg?alt=media&token=76f33c1b-ddd0-4e78-beb4-7b573bdcf06d"
     let postIDArray = [""]
     let followingIDArray = [""]
     let followerIDArray = [""]
@@ -218,7 +317,7 @@ func saveNewUser(userName: String, avatar: String, postIDArray: [String], follow
         "photoIDArray": photoIDArray,
         "createdTime": timeStamp
     ]
-    
+
     document.setData(userData) { error in
         if let error = error {
             print("Error saving card: \(error)")
@@ -229,7 +328,9 @@ func saveNewUser(userName: String, avatar: String, postIDArray: [String], follow
             defaults.set(document.documentID, forKey: "userDocumentID")
         }
     }
+    
 }
+
 struct CardDetail: Identifiable, Decodable {
     var id: String
     var cardName: String
@@ -242,10 +343,10 @@ struct CardDetail: Identifiable, Decodable {
 struct Card: Identifiable, Decodable, Hashable, Equatable {
     var id: String
     var cardName: String
-    var imageURL: String
+    var avatar: String
     var createdTime: Timestamp
     var filterData: [Float]
-    var userID: String
+    var creatorID: String
 }
 
 struct User: Identifiable, Codable {
@@ -265,4 +366,14 @@ struct Photo: Identifiable, Decodable {
     var creatorID: String
     var createdTime: Timestamp
 
+}
+
+struct Notification: Identifiable, Decodable {
+    var id: String
+    var fromUserPhoto: String
+    var from: String
+    var postImage: String
+    var to: String
+    var type: NotificationType
+    var createdTime: Timestamp
 }
