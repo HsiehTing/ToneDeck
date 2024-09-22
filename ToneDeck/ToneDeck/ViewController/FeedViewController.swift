@@ -79,6 +79,7 @@ struct PostView: View {
     let post: Post
     let card: Card? // Optional card
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
+    let fireStoreService = FirestoreService()
     @Binding var path: [FeedDestination]
     @State private var isStarred: Bool = false
     @State private var isCommentViewPresented: Bool = false
@@ -141,7 +142,7 @@ struct PostView: View {
                 }
                 .padding(4)
                 .sheet(isPresented: $isCommentViewPresented) {
-                    CommentView(postID: post.id, userID: fromUserID ?? "", userAvatarURL: userAvatarURL)
+                    CommentView(post: post, postID: post.id, userID: fromUserID ?? "", userAvatarURL: userAvatarURL)
                 }
             }
         }
@@ -149,6 +150,9 @@ struct PostView: View {
             .shadow(radius: 5)
             .padding([.leading, .trailing])
         )
+        .onAppear {
+            fireStoreService.fetchUserData(userID: fromUserID ?? "")
+        }
     }
     private func toggleLike() {
         if isStarred {
@@ -184,6 +188,20 @@ struct PostView: View {
                 print("User added to likerIDArray successfully.")
             }
         }
+        let notifications = Firestore.firestore().collection("notifications")
+        let user = fireStoreService.user
+        let document = notifications.document()
+        guard let user = user else {return}
+        let data: [String: Any] = [
+             "id": document.documentID,
+             "fromUserPhoto": user.avatar,
+             "from": user.userName,
+             "to": post.creatorID,
+             "postImage": post.imageURL,
+             "type": "like",
+             "createdTIme": Timestamp()
+        ]
+        document.setData(data)
     }
 
     // Function to remove the user from the likerIDArray in the posts collection
@@ -199,6 +217,15 @@ struct PostView: View {
                 print("Error removing user from likerIDArray: \(error)")
             } else {
                 print("User removed from likerIDArray successfully.")
+            }
+        }
+        let user = fireStoreService.user
+        guard let user = user else {return}
+        let likeRef = Firestore.firestore().collection("notifications").whereField("from", isEqualTo: user.id).whereField("to", isEqualTo: "post.creatorID").whereField("type", isEqualTo: "like")
+        likeRef.getDocuments { query, error in
+            guard let documents = query?.documents else {return}
+            for document in documents {
+                document.reference.delete()
             }
         }
     }
@@ -252,7 +279,6 @@ struct PostButtonsView: View {
 struct PostInfoView: View {
     let post: Post
     @Binding var path: [FeedDestination]
-
     var body: some View {
 
             HStack {
@@ -262,18 +288,14 @@ struct PostInfoView: View {
                     Text("by \(post.creatorID)")
                         .font(.caption)
                         .foregroundColor(.black) // 顯示為可點擊的藍色
-                
-
                 Spacer()
-
                 Text("\(post.createdTime, formatter: postDateFormatter)")
                     .font(.caption)
                     .foregroundColor(.gray)
-
-
                     .padding([.leading, .trailing, .bottom])
             }
         }
+
 
     }
 

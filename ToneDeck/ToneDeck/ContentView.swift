@@ -21,7 +21,9 @@ struct ContentView: View {
             }
             // Second Tab
             VStack {
-
+                NavigationView {
+                    NotificationsView()
+                }
             }
             .tabItem {
                 Label("", systemImage: "bell")

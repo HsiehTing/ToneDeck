@@ -28,6 +28,7 @@
 		787DB7CF2C998F5300350DEC /* ProfilePageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */; };
 		78AC68E22C9D1BE000260BB3 /* CommentViewCOntroller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AC68E12C9D1BE000260BB3 /* CommentViewCOntroller.swift */; };
 		78AC68E62C9D79E800260BB3 /* ImageAdjustmentVIewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AC68E52C9D79E800260BB3 /* ImageAdjustmentVIewController.swift */; };
+		78AC68E82C9EF90800260BB3 /* NotificationCenterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AC68E72C9EF90800260BB3 /* NotificationCenterViewController.swift */; };
 		78BAF0522C97F61500A5B418 /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BAF0512C97F61500A5B418 /* FeedViewController.swift */; };
 		78BAF0542C980B0900A5B418 /* PhotoGridViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */; };
 		78BAF0562C980B4500A5B418 /* TextInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BAF0552C980B4500A5B418 /* TextInputViewController.swift */; };
@@ -53,6 +54,7 @@
 		787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePageViewController.swift; sourceTree = "<group>"; };
 		78AC68E12C9D1BE000260BB3 /* CommentViewCOntroller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewCOntroller.swift; sourceTree = "<group>"; };
 		78AC68E52C9D79E800260BB3 /* ImageAdjustmentVIewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAdjustmentVIewController.swift; sourceTree = "<group>"; };
+		78AC68E72C9EF90800260BB3 /* NotificationCenterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCenterViewController.swift; sourceTree = "<group>"; };
 		78BAF0512C97F61500A5B418 /* FeedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
 		78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGridViewController.swift; sourceTree = "<group>"; };
 		78BAF0552C980B4500A5B418 /* TextInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputViewController.swift; sourceTree = "<group>"; };
@@ -128,6 +130,7 @@
 				78AC68E12C9D1BE000260BB3 /* CommentViewCOntroller.swift */,
 				78BAF0552C980B4500A5B418 /* TextInputViewController.swift */,
 				787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */,
+				78AC68E72C9EF90800260BB3 /* NotificationCenterViewController.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -248,6 +251,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				78BAF0562C980B4500A5B418 /* TextInputViewController.swift in Sources */,
+				78AC68E82C9EF90800260BB3 /* NotificationCenterViewController.swift in Sources */,
 				780710412C9190C00039B44C /* CardViewController.swift in Sources */,
 				780710062C918DFB0039B44C /* AppDelegate.swift in Sources */,
 				78070FF62C918C1B0039B44C /* ContentView.swift in Sources */,

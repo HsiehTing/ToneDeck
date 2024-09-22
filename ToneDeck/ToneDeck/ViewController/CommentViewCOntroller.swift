@@ -12,9 +12,12 @@ import Kingfisher
 struct CommentView: View {
     @State private var comments: [Comment] = []  // Local state to store comments
     @State private var newCommentText: String = ""
+    let post: Post
     let postID: String
     let userID: String
     let userAvatarURL: String  // URL for the avatar from the "users" collection
+    let fireStoreService = FirestoreService()
+    let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
 
     var body: some View {
         VStack {
@@ -60,6 +63,7 @@ struct CommentView: View {
         }
         .onAppear {
             loadComments()  // Fetch comments when the view appears
+            fireStoreService.fetchUserData(userID: fromUserID ?? "")
         }
         .navigationTitle("comments")
     }
@@ -104,6 +108,20 @@ struct CommentView: View {
                 loadComments()  // Refresh comments
             }
         }
+        let notifications = Firestore.firestore().collection("notifications")
+        let user = fireStoreService.user
+        let document = notifications.document()
+        guard let user = user else {return}
+        let data: [String: Any] = [
+             "id": document.documentID,
+             "fromUserPhoto": user.avatar,
+             "from": user.userName,
+             "to": post.creatorID,
+             "postImage": post.imageURL,
+             "type": "comment",
+             "createdTIme": Timestamp()
+        ]
+        document.setData(data)
     }
 }
 
