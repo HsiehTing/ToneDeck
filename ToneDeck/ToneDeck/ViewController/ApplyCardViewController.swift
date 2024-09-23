@@ -206,7 +206,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         let cameraAction = UIAlertAction(title: "Camera", style: .default) { _ in
             let cameraVC = CameraViewController()
             cameraVC.delegate = self
-            self.present(cameraVC, animated: true, completion: nil)
+            self.navigationController?.pushViewController(cameraVC, animated: true)
         }
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)        
         alert.addAction(photoLibraryAction)

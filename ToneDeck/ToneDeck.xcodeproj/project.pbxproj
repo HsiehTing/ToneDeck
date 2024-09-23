@@ -29,6 +29,8 @@
 		78AC68E22C9D1BE000260BB3 /* CommentViewCOntroller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AC68E12C9D1BE000260BB3 /* CommentViewCOntroller.swift */; };
 		78AC68E62C9D79E800260BB3 /* ImageAdjustmentVIewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AC68E52C9D79E800260BB3 /* ImageAdjustmentVIewController.swift */; };
 		78AC68E82C9EF90800260BB3 /* NotificationCenterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AC68E72C9EF90800260BB3 /* NotificationCenterViewController.swift */; };
+		78AC68EB2CA1137A00260BB3 /* CustomCameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AC68EA2CA1137A00260BB3 /* CustomCameraViewController.swift */; };
+		78AC68EE2CA135B400260BB3 /* MijickCameraView in Frameworks */ = {isa = PBXBuildFile; productRef = 78AC68ED2CA135B400260BB3 /* MijickCameraView */; };
 		78BAF0522C97F61500A5B418 /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BAF0512C97F61500A5B418 /* FeedViewController.swift */; };
 		78BAF0542C980B0900A5B418 /* PhotoGridViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */; };
 		78BAF0562C980B4500A5B418 /* TextInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BAF0552C980B4500A5B418 /* TextInputViewController.swift */; };
@@ -55,6 +57,8 @@
 		78AC68E12C9D1BE000260BB3 /* CommentViewCOntroller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewCOntroller.swift; sourceTree = "<group>"; };
 		78AC68E52C9D79E800260BB3 /* ImageAdjustmentVIewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAdjustmentVIewController.swift; sourceTree = "<group>"; };
 		78AC68E72C9EF90800260BB3 /* NotificationCenterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCenterViewController.swift; sourceTree = "<group>"; };
+		78AC68E92CA00C2300260BB3 /* ToneDeck.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ToneDeck.entitlements; sourceTree = "<group>"; };
+		78AC68EA2CA1137A00260BB3 /* CustomCameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCameraViewController.swift; sourceTree = "<group>"; };
 		78BAF0512C97F61500A5B418 /* FeedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
 		78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGridViewController.swift; sourceTree = "<group>"; };
 		78BAF0552C980B4500A5B418 /* TextInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputViewController.swift; sourceTree = "<group>"; };
@@ -69,6 +73,7 @@
 				7807103E2C9190130039B44C /* FirebaseStorage in Frameworks */,
 				780710382C9190130039B44C /* FirebaseAuth in Frameworks */,
 				7807103C2C9190130039B44C /* FirebaseFirestore in Frameworks */,
+				78AC68EE2CA135B400260BB3 /* MijickCameraView in Frameworks */,
 				780710492C9286FB0039B44C /* Kingfisher in Frameworks */,
 				78BAF0592C980FF300A5B418 /* IQKeyboardManagerSwift in Frameworks */,
 			);
@@ -96,6 +101,7 @@
 		78070FF22C918C1B0039B44C /* ToneDeck */ = {
 			isa = PBXGroup;
 			children = (
+				78AC68E92CA00C2300260BB3 /* ToneDeck.entitlements */,
 				780710582C9442CF0039B44C /* Info.plist */,
 				78070FF32C918C1B0039B44C /* ToneDeckApp.swift */,
 				78070FF52C918C1B0039B44C /* ContentView.swift */,
@@ -123,6 +129,7 @@
 				780710402C9190C00039B44C /* CardViewController.swift */,
 				780710422C91DF720039B44C /* AddCardViewController.swift */,
 				780710542C9407840039B44C /* CameraViewController.swift */,
+				78AC68EA2CA1137A00260BB3 /* CustomCameraViewController.swift */,
 				780710562C9414FC0039B44C /* ApplyCardViewController.swift */,
 				78AC68E52C9D79E800260BB3 /* ImageAdjustmentVIewController.swift */,
 				78BAF0512C97F61500A5B418 /* FeedViewController.swift */,
@@ -169,6 +176,7 @@
 				7807103D2C9190130039B44C /* FirebaseStorage */,
 				780710482C9286FB0039B44C /* Kingfisher */,
 				78BAF0582C980FF300A5B418 /* IQKeyboardManagerSwift */,
+				78AC68ED2CA135B400260BB3 /* MijickCameraView */,
 			);
 			productName = ToneDeck;
 			productReference = 78070FF02C918C1B0039B44C /* ToneDeck.app */;
@@ -202,6 +210,7 @@
 				780710362C9190130039B44C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				780710472C9286FB0039B44C /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				78BAF0572C980FF300A5B418 /* XCRemoteSwiftPackageReference "IQKeyboardManager" */,
+				78AC68EC2CA135B400260BB3 /* XCRemoteSwiftPackageReference "CameraView" */,
 			);
 			productRefGroup = 78070FF12C918C1B0039B44C /* Products */;
 			projectDirPath = "";
@@ -250,6 +259,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				78AC68EB2CA1137A00260BB3 /* CustomCameraViewController.swift in Sources */,
 				78BAF0562C980B4500A5B418 /* TextInputViewController.swift in Sources */,
 				78AC68E82C9EF90800260BB3 /* NotificationCenterViewController.swift in Sources */,
 				780710412C9190C00039B44C /* CardViewController.swift in Sources */,
@@ -397,6 +407,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ToneDeck/ToneDeck.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"ToneDeck/Preview Content\"";
@@ -405,6 +416,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ToneDeck/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "\"use camera\"";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "\"use microphone\"";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "\"use library\"";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -430,6 +442,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ToneDeck/ToneDeck.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"ToneDeck/Preview Content\"";
@@ -438,6 +451,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ToneDeck/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "\"use camera\"";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "\"use microphone\"";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "\"use library\"";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -498,6 +512,14 @@
 				minimumVersion = 7.12.0;
 			};
 		};
+		78AC68EC2CA135B400260BB3 /* XCRemoteSwiftPackageReference "CameraView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Mijick/CameraView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.0;
+			};
+		};
 		78BAF0572C980FF300A5B418 /* XCRemoteSwiftPackageReference "IQKeyboardManager" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/hackiftekhar/IQKeyboardManager.git";
@@ -533,6 +555,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 780710472C9286FB0039B44C /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		78AC68ED2CA135B400260BB3 /* MijickCameraView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 78AC68EC2CA135B400260BB3 /* XCRemoteSwiftPackageReference "CameraView" */;
+			productName = MijickCameraView;
 		};
 		78BAF0582C980FF300A5B418 /* IQKeyboardManagerSwift */ = {
 			isa = XCSwiftPackageProductDependency;
