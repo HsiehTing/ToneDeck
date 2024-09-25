@@ -54,22 +54,22 @@ struct CameraView: View {
             }
             .onCloseController {
                 print("CLOSE THE CONTROLLER")
-
-
             }
     }
 }
 func createFilters(from filterData: [Float?]) -> [CIFilter] {
     // First filter: Color Controls (Brightness, Contrast, Saturation)
     let colorFilter = CIFilter(name: "CIColorControls")!
-    colorFilter.setValue(filterData[0] ?? 0.0, forKey: kCIInputBrightnessKey)  // Try lowering brightness
-    colorFilter.setValue(filterData[1] ?? 1.0, forKey: kCIInputContrastKey)    // Keep contrast at default (1.0)
-    colorFilter.setValue(filterData[2] ?? 1.0, forKey: kCIInputSaturationKey)  // Keep saturation at default (1.0)
-
+    let brightnessValue = filterData[0] ?? 0.0
+    let contrastValue = filterData[1] ?? 1.0
+    let saturationValue = filterData[2] ?? 1.0
+    let colorValue = filterData[3] ?? 0.0
+    colorFilter.setValue(brightnessValue * 0.7 , forKey: kCIInputBrightnessKey)  // Try lowering brightness
+    colorFilter.setValue(contrastValue * 0.7, forKey: kCIInputContrastKey)    // Keep contrast at default (1.0)
+    colorFilter.setValue(saturationValue * 0.7, forKey: kCIInputSaturationKey)  // Keep saturation at default (1.0)
     // Second filter: Hue Adjust
     let hueFilter = CIFilter(name: "CIHueAdjust")!
-    hueFilter.setValue(filterData[3] ?? 0.0, forKey: kCIInputAngleKey)         // Default hue adjustment to 0.0
-
+    hueFilter.setValue(colorValue * 0.7, forKey: kCIInputAngleKey)         // Default hue adjustment to 0.0
     return [hueFilter]
 }
 class PhotoSaver: NSObject {

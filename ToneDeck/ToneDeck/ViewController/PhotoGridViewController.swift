@@ -23,9 +23,9 @@ struct PhotoGridView: View {
                 if let selectedImageURL = selectedImageURL, let url = URL(string: selectedImageURL) {
                     KFImage(url)
                         .resizable()
-                        .aspectRatio(1, contentMode: .fit)
-                        .frame(width: 300, height: 300)
                         .padding()
+                        .scaledToFill()
+                        .frame(height: 500)
                 } else {
                     Text("Select an Image")
                         .font(.headline)
@@ -45,6 +45,7 @@ struct PhotoGridView: View {
                                     .aspectRatio(1, contentMode: .fit)
                                     .frame(width: 100, height: 100)
                                     .clipped()
+                                    .scaledToFill()
                             }
                         }
                     }
