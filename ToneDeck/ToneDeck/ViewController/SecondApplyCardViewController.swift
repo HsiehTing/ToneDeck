@@ -1,8 +1,8 @@
 //
-//  ApplyCardViewController.swift
+//  SecondApplyCardViewController.swift
 //  ToneDeck
 //
-//  Created by 謝霆 on 2024/9/13.
+//  Created by 謝霆 on 2024/9/24.
 //
 
 import SwiftUI
@@ -12,19 +12,18 @@ import CoreImage
 import FirebaseStorage
 import Firebase
 
-struct ApplyCardViewControllerWrapper: UIViewControllerRepresentable {
+struct SecondApplyCardViewControllerWrapper: UIViewControllerRepresentable {
     let card: Card?
-    func makeUIViewController(context: Context) -> ApplyCardViewController {
-        let viewController = ApplyCardViewController()
+    func makeUIViewController(context: Context) -> SecondApplyCardViewController {
+        let viewController = SecondApplyCardViewController()
         viewController.card = card
         return viewController
     }
-    func updateUIViewController(_ uiViewController: ApplyCardViewController, context: Context) {}
+    func updateUIViewController(_ uiViewController: SecondApplyCardViewController, context: Context) {}
 }
 
-
 // UIKit ViewController (ApplyCardViewController)
-class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CameraViewControllerDelegate {
+class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CameraViewControllerDelegate {
     var card: Card?
     let imageView = UIImageView()
     let targetImageView = UIImageView()
@@ -34,7 +33,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     let histogram = ImageHistogramCalculator()
     var targetImage: UIImage? // 用來保存選取的圖片
     var tBrightness: Float = 1  // 較平滑的亮度變化
-    var tContrast: Float = 1.1    // 中等強度的對比度變化
+    var tContrast: Float = 1    // 中等強度的對比度變化
     var tSaturation: Float = 1  // 更強的飽和度變化
     var scaledValues: [Float]?
     var filterColorValue: Float?
@@ -107,12 +106,12 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     }
     @objc func didTapApply() {
         print("tap apply button")
-        
+
         if applyButton.title(for: .normal) == "Apply Card" {
             guard let targetImage = targetImage else {
                 print("No image selected from photo library.")
                 return
-            }            
+            }
             // 確保 UIImage 能成功轉換為 CIImage
             guard CIImage(image: targetImage) != nil else {
                 print("Failed to convert UIImage to CIImage.")
@@ -137,7 +136,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             print(smoothTargetValues)
             let targetColorValue = getDominantColor(from: targetImage)
             if let filterColorValue = filterColorValue, targetColorValue != 0 {
-                self.hueColor = fabsf(filterColorValue - targetColorValue) * 0.25
+                self.hueColor = fabsf(filterColorValue - targetColorValue) * 0.15
                 print("hueColor: \(hueColor)")
             } else {
                 print("One or both color values are missing or targetColorValue is 0. Skipping calculation.")
@@ -171,7 +170,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             let newValue = /*targetValues[targetValue] + */(filterValues[targetValue] - targetValues[targetValue]) * tValues[targetValue]
             result.append(newValue)
         }
-        scaleFactor(newValue: result, brightnessScale: 1, contrastScale: 1, saturationScale: 1)
+        scaleFactor(newValue: result, brightnessScale: 1, contrastScale: 1.1, saturationScale: 1)
     }
     func scaleFactor(newValue: [Float], brightnessScale: Float, contrastScale: Float, saturationScale: Float) {
         let scaledBrightness = newValue[0] * brightnessScale
@@ -182,8 +181,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     }
     func applyImageAdjustments(image: UIImage, smoothValues: [Float], hueAdjustment: Float) -> UIImage? {
         let orientation = image.imageOrientation
-        guard let ciImage = CIImage(image: image)else { return nil }
-        ciImage.oriented(CGImagePropertyOrientation(image.imageOrientation))
+        guard let ciImage = CIImage(image: image) else { return nil }
         let colorControlsFilter = CIFilter(name: "CIColorControls")
         colorControlsFilter?.setValue(ciImage, forKey: kCIInputImageKey)
         colorControlsFilter?.setValue(smoothValues[0], forKey: kCIInputBrightnessKey)
@@ -213,7 +211,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
                 let hostingController = UIHostingController(rootView: cameraVC)
             self.navigationController?.pushViewController(hostingController, animated: true)
         }
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
         alert.addAction(photoLibraryAction)
         alert.addAction(cameraAction)
         alert.addAction(cancelAction)
@@ -255,21 +253,5 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
              "createdTime": Timestamp()
         ]
         document.setData(data)
-    }
-}
-extension CGImagePropertyOrientation {
-    init(_ uiOrientation: UIImage.Orientation) {
-        switch uiOrientation {
-            case .up: self = .up
-            case .upMirrored: self = .upMirrored
-            case .down: self = .down
-            case .downMirrored: self = .downMirrored
-            case .left: self = .left
-            case .leftMirrored: self = .leftMirrored
-            case .right: self = .right
-            case .rightMirrored: self = .rightMirrored
-        @unknown default:
-            self = .up
-        }
     }
 }

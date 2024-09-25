@@ -132,7 +132,7 @@ func calculateColor(from histogramData: [String: [Float]]) -> [Float] {
 func getDominantColor(from image: UIImage) -> Float {
     guard let ciImage = CIImage(image: image) else { return 0 }
 
-    // 創建 CIFilter 來生成圖像縮略圖以加速處理
+    // 使用 CIFilter 創建縮略圖以加速處理
     let scaleFilter = CIFilter(name: "CILanczosScaleTransform")!
     scaleFilter.setValue(ciImage, forKey: kCIInputImageKey)
     scaleFilter.setValue(0.1, forKey: kCIInputScaleKey) // 將圖像縮小到原來的 10%
@@ -166,8 +166,10 @@ func getDominantColor(from image: UIImage) -> Float {
     var brightness: CGFloat = 0
     dominantColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: nil)
 
-    print("finish get dominant color")
-    return Float(hue * .pi * 2)
+    // 返回弧度值 (0 到 2π)
+    let hueInRadians = Float(hue * .pi * 2)
+    print("Dominant color hue in radians: \(hueInRadians)")
+    return hueInRadians
 }
 
 func hueValue(from color: UIColor) -> Float {
@@ -177,6 +179,20 @@ func hueValue(from color: UIColor) -> Float {
     var alpha: CGFloat = 0
     color.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
 
-    print("finish get hue")
+    // 将色相值从 0-1 转换为 0 到 2π 的弧度
     return Float(hue * .pi * 2)
+}
+extension UIImage.Orientation {
+    var exifOrientation: Int32 {
+        switch self {
+        case .up: return 1
+        case .down: return 3
+        case .left: return 8
+        case .right: return 6
+        case .upMirrored: return 2
+        case .downMirrored: return 4
+        case .leftMirrored: return 5
+        case .rightMirrored: return 7
+        }
+    }
 }
