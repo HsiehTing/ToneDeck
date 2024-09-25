@@ -66,6 +66,12 @@ struct CommentView: View {
             fireStoreService.fetchUserData(userID: fromUserID ?? "")
         }
         .navigationTitle("comments")
+        .background(
+            Color.black
+                        .onTapGesture {
+                            UIApplication.shared.endEditing()
+                        }
+                )
     }
 
     // Function to load comments from Firestore

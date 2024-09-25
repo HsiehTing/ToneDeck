@@ -39,6 +39,12 @@ struct TextInputView: View {
             .padding()
         }
         .navigationTitle("Add Post")
+        .background(
+            Color.black
+                        .onTapGesture {
+                            UIApplication.shared.endEditing()
+                        }
+                )
     }
     
     // 將貼文儲存到 Firebase Firestore

@@ -35,7 +35,7 @@ struct PhotoGridView: View {
                 // 下半部分：顯示照片網格
                 ScrollView {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 10) {
-                        ForEach(firestoreService.photos, id: \.id) { photo in
+                        ForEach(firestoreService.photos.sorted(by: {  ($0.createdTime.dateValue()) > ($1.createdTime.dateValue())  }), id: \.id) { photo in
                             Button(action: {
                                 selectedPhoto = photo
                                 selectedImageURL = photo.imageURL // Set the selected image URL

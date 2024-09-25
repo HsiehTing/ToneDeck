@@ -1,8 +1,8 @@
 //
-//  ApplyCardViewController.swift
+//  SecondApplyCardViewController.swift
 //  ToneDeck
 //
-//  Created by 謝霆 on 2024/9/13.
+//  Created by 謝霆 on 2024/9/24.
 //
 
 import SwiftUI
@@ -12,19 +12,18 @@ import CoreImage
 import FirebaseStorage
 import Firebase
 
-struct ApplyCardViewControllerWrapper: UIViewControllerRepresentable {
+struct SecondApplyCardViewControllerWrapper: UIViewControllerRepresentable {
     let card: Card?
-    func makeUIViewController(context: Context) -> ApplyCardViewController {
-        let viewController = ApplyCardViewController()
+    func makeUIViewController(context: Context) -> SecondApplyCardViewController {
+        let viewController = SecondApplyCardViewController()
         viewController.card = card
         return viewController
     }
-    func updateUIViewController(_ uiViewController: ApplyCardViewController, context: Context) {}
+    func updateUIViewController(_ uiViewController: SecondApplyCardViewController, context: Context) {}
 }
 
-
 // UIKit ViewController (ApplyCardViewController)
-class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CameraViewControllerDelegate {
+class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CameraViewControllerDelegate {
     var card: Card?
     let imageView = UIImageView()
     let targetImageView = UIImageView()
@@ -107,12 +106,12 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     }
     @objc func didTapApply() {
         print("tap apply button")
-        
+
         if applyButton.title(for: .normal) == "Apply Card" {
             guard let targetImage = targetImage else {
                 print("No image selected from photo library.")
                 return
-            }            
+            }
             // 確保 UIImage 能成功轉換為 CIImage
             guard CIImage(image: targetImage) != nil else {
                 print("Failed to convert UIImage to CIImage.")
@@ -182,7 +181,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     }
     func applyImageAdjustments(image: UIImage, smoothValues: [Float], hueAdjustment: Float) -> UIImage? {
         let orientation = image.imageOrientation
-        guard let ciImage = CIImage(image: image)else { return nil }
+        guard let ciImage = CIImage(image: image) else { return nil }
         let colorControlsFilter = CIFilter(name: "CIColorControls")
         colorControlsFilter?.setValue(ciImage, forKey: kCIInputImageKey)
         colorControlsFilter?.setValue(smoothValues[0], forKey: kCIInputBrightnessKey)
@@ -212,7 +211,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
                 let hostingController = UIHostingController(rootView: cameraVC)
             self.navigationController?.pushViewController(hostingController, animated: true)
         }
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
         alert.addAction(photoLibraryAction)
         alert.addAction(cameraAction)
         alert.addAction(cancelAction)

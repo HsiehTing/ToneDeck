@@ -8,6 +8,7 @@
 import SwiftUI
 import CoreImage
 import CoreImage.CIFilterBuiltins
+import Accelerate
 import UIKit
 
 class ImageHistogramCalculator: ObservableObject {
@@ -69,9 +70,18 @@ class ImageHistogramCalculator: ObservableObject {
             return [Float](repeating: 0, count: 256)
         }
 
+        // 設置 Alpha 通道
+        channelFilter.aVector = CIVector(x: 0, y: 0, z: 0, w: 1)
+
+        // 確保 colorMatrix 的 outputImage 正常
+        guard let outputImage = channelFilter.outputImage else {
+            print("ColorMatrix filter output is nil")
+            return [Float](repeating: 0, count: 256)
+        }
+
         // 計算所選顏色通道的直方圖
         let histogramFilter = CIFilter.areaHistogram()
-        histogramFilter.inputImage = channelFilter.outputImage
+        histogramFilter.inputImage = outputImage
         histogramFilter.count = 256
         histogramFilter.extent = extent
         histogramFilter.scale = scale

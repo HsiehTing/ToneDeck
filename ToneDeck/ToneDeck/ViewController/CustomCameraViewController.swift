@@ -13,12 +13,18 @@ import Photos
 
 struct CameraView: View {
     let filterData: [Float?]
+    @Binding var path: [CardDestination]
     @ObservedObject private var manager: CameraManager
+    weak var delegate: CameraViewControllerDelegate?
 
-    init(filterData: [Float?]) {
+    // 更新 init 方法，將 path 參數也加入初始化
+    init(filterData: [Float?], path: Binding<[CardDestination]>) {
         self.filterData = filterData
+        self._path = path  // 使用 `_` 來直接初始化 @Binding 變數
+
         let filters = createFilters(from: filterData)
         print(filters)
+
         self.manager = CameraManager(
             outputType: .photo,
             cameraPosition: .back,
@@ -31,13 +37,13 @@ struct CameraView: View {
             focusImageSize: 92
         )
     }
-
     var body: some View {
         MCameraController(manager: manager)
             .onImageCaptured { image in
                 print("IMAGE CAPTURED")
 
                 PhotoSaver().savePhotoToLibrary(image: image)
+                delegate?.didCapturePhoto(image)
             }
             .onVideoCaptured { url in
                 print("VIDEO CAPTURED")
@@ -48,6 +54,7 @@ struct CameraView: View {
             }
             .onCloseController {
                 print("CLOSE THE CONTROLLER")
+
 
             }
     }

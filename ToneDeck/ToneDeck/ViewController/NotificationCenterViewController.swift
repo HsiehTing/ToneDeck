@@ -20,7 +20,7 @@ struct NotificationPageView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                ForEach(firestoreService.notifications) { notification in
+                ForEach(firestoreService.notifications.sorted(by: {  ($0.createdTime.dateValue()) > ($1.createdTime.dateValue())  })) { notification in
                     NotificationRow(notification: notification)
                         .padding(.horizontal)
                 }
