@@ -35,6 +35,7 @@ struct ImageAdjustmentView: View {
                     .frame(maxWidth: .infinity, maxHeight: 300)
                     .padding()
 
+
             }
 
             // Sliders for adjusting brightness, contrast, and saturation
@@ -105,16 +106,16 @@ struct ImageAdjustmentView: View {
 
 // Function to apply filters to the image
 func applyImageAdjustments(image: UIImage, smoothValues: [Float], hueAdjustment: Float) -> UIImage? {
+    let orientation = image.imageOrientation
     guard let ciImage = CIImage(image: image) else { return nil }
-
+    let rotateciImage = ciImage.oriented(CGImagePropertyOrientation(image.imageOrientation))
     // Apply brightness, contrast, and saturation adjustments
     let colorControlsFilter = CIFilter(name: "CIColorControls")
-    colorControlsFilter?.setValue(ciImage, forKey: kCIInputImageKey)
+    colorControlsFilter?.setValue(rotateciImage, forKey: kCIInputImageKey)
     colorControlsFilter?.setValue(smoothValues[0], forKey: kCIInputBrightnessKey)
     colorControlsFilter?.setValue(smoothValues[1], forKey: kCIInputContrastKey)
     colorControlsFilter?.setValue(smoothValues[2], forKey: kCIInputSaturationKey)
     guard let colorControlsOutput = colorControlsFilter?.outputImage else { return nil }
-
     // Apply hue adjustment
     let hueAdjustFilter = CIFilter(name: "CIHueAdjust")
     hueAdjustFilter?.setDefaults()

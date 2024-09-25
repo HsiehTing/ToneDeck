@@ -41,7 +41,7 @@ struct FeedView: View {
         NavigationStack(path: $path) {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 40) {
-                    ForEach(firestoreService.posts) { post in
+                    ForEach(firestoreService.posts.sorted(by: {  ($0.createdTime.dateValue()) > ($1.createdTime.dateValue())  })) { post in
                         if let cardID = post.cardID,
                            let card = firestoreService.cardsDict[cardID] {
                             PostView(post: post, card: card, path: $path)// Pass path to child views
@@ -66,7 +66,7 @@ struct FeedView: View {
                     case .addPost:
                         PhotoGridView()  
                     case .applyCard(let card):
-                        ApplyCardViewControllerWrapper(card: card)
+                        SecondApplyCardViewControllerWrapper(card: card)
                     case .visitProfile(let postCreatorID):
                         ProfilePageView(userID: postCreatorID)
                     }

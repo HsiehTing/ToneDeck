@@ -11,7 +11,7 @@ import Firebase
 import FirebaseStorage
 
 struct AddCardViewController: View {
-    @Binding var path: [String]
+    @Binding var path: [CardDestination]
     @State private var cardName: String = ""
     @State private var selectedImage: UIImage?
     @State private var pickerImage: PhotosPickerItem?
@@ -21,7 +21,6 @@ struct AddCardViewController: View {
             TextField("Enter Card Name", text: $cardName)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
-            
             // Picker for selecting an image from photo album
             PhotosPicker(selection: $pickerImage, matching: .images, photoLibrary: .shared()) {
                 Text("Select Image")
@@ -56,11 +55,16 @@ struct AddCardViewController: View {
                     .cornerRadius(10)
             }
             .padding()
-            
             Spacer()
         }
         .padding()
         .navigationTitle("Add Card")
+        .background(
+            Color.black
+                        .onTapGesture { 
+                            UIApplication.shared.endEditing()
+                        }
+                )
     }
     // MARK: - Add Card Action
     func addCard() {
@@ -126,7 +130,9 @@ struct AddCardViewController: View {
     }
 }
 
-#Preview {
-    CardViewController()
+extension UIApplication {
+    func endEditing() {
+        sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
 }
 

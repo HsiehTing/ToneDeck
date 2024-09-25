@@ -341,6 +341,7 @@ struct CardDetail: Identifiable, Decodable {
 }
 
 struct Card: Identifiable, Decodable, Hashable, Equatable {
+
     var id: String
     var cardName: String
     var avatar: String

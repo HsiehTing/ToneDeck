@@ -11,100 +11,112 @@ import FirebaseFirestore
 import FirebaseStorage
 import Kingfisher
 
+enum CardDestination: Hashable {
+    case camera(filterData: [Float?])
+    case applyCard(card: Card)
+    case addCard
+}
+
 struct CardViewController: View {
-    @State private var path = [String]()
     @StateObject private var firestoreService = FirestoreService()
+    @State var path: [CardDestination] = []
     var body: some View {
         NavigationStack(path: $path) {
             VStack {
                 List {
-                    ForEach(firestoreService.cards) { card in
-                        CardRow(card: card)
+                    ForEach(firestoreService.cards.sorted(by: {  ($0.createdTime.dateValue()) > ($1.createdTime.dateValue())  })) { card in
+                        CardRow(card: card, path: $path)
                             .padding(.vertical, 10)
                     }
-                }            
+                }
                 .onAppear {
                     firestoreService.fetchCards()
                 }
                 .navigationTitle("Cards")
             }
-            //.navigationTitle("Cards")
             .navigationBarItems(trailing: Button(action: {
                 // Add action for the "+" button here
-                path.append("add card")
+                path.append(.addCard)
             }) {
                 Image(systemName: "plus")
             })
-            .navigationDestination(for: String.self) { value in
-                if value == "add card" {
+            .navigationDestination(for: CardDestination.self) { destination in
+                switch destination {
+                case .camera(let filterData):
+                    CameraView(filterData: filterData, path: $path)
+                case .applyCard(let card):
+                    ApplyCardViewControllerWrapper(card: card)
+
+                case .addCard:
                     AddCardViewController(path: $path)
                 }
-            }
+        }
         }
     }
-    }
+}
 struct CardRow: View {
     let card: Card
-
-    @State private var showApplyCardView = false
+    @Binding var path: [CardDestination]
     var body: some View {
-        NavigationLink(destination: ApplyCardViewControllerWrapper(card: card)){
+
             ZStack(alignment: .bottomLeading) {
-                // Load image using Kingfisher (or any other way you prefer)
+                // Load image using Kingfisher, and make it tappable to trigger push navigation
                 KFImage(URL(string: card.avatar))
                     .resizable()
                     .scaledToFill()
                     .frame(height: 200)
                     .cornerRadius(10)
                     .clipped()
-                   // .contentShape(Rectangle())
-                    .overlay(
-                                        NavigationLink(destination: ApplyCardViewControllerWrapper(card: card)) {
-                                            Color.clear // 透明的可點擊區域
-                                        }
-                                        .contentShape(Rectangle()) // 使得整個區域可點擊
-                                    )
+                    .onTapGesture {
+
+                        path.append(.applyCard(card: card))
+                    }
+                // Text overlay
                 Text(card.cardName)
                     .font(.caption)
                     .fontWeight(.bold)
                     .padding(8)
                     .background(Color.black.opacity(0.5))
                     .foregroundColor(.white)
-                // Option button (right top)
-                HStack {
-                    Spacer()
-                    VStack {
+                // Buttons overlay
+                VStack {
+                    HStack {
+                        Spacer()
                         OptionMenuButton(card: card)
-                        Spacer()
+                            .padding(.top, 10)
+                            .padding(.trailing, 10)
                     }
-                }
-                .padding(.top, 10)
-                .padding(.trailing, 10)
-                // Camera button (right bottom)
-                HStack {
                     Spacer()
-                    VStack {
+                    HStack {
                         Spacer()
-                        CameraButton()
+                        
+                        // Directly including the Camera Button in bottom-right
+                        Button(action: {
+                            // Push CameraView onto the navigation stack
+                            path.append(.camera(filterData: card.filterData))
+                        }) {
+                            Image(systemName: "camera.fill")
+                                .font(.system(size: 20, weight: .bold))
+                                .padding()
+                                .background(Color.black.opacity(0.6))
+                                .clipShape(Circle())
+                                .foregroundColor(.white)
+                        }
+                        .padding(.bottom, 10)
+                        .padding(.trailing, 10)
                     }
                 }
-                .padding(.bottom, 10)
-                .padding(.trailing, 10)
             }
             .cornerRadius(10)
             .clipped()
-
-        }
+            // Handle programmatic navigation based on path
     }
 }
-
 struct OptionMenuButton: View {
     @State private var showRenameAlert = false
     @State private var newName = ""
     let db = Firestore.firestore()
-
     let card: Card
-
     var body: some View {
         Menu {
             Button(action: {
@@ -133,6 +145,7 @@ struct OptionMenuButton: View {
                 .background(Color.black.opacity(0.6))
                 .clipShape(Circle())
                 .foregroundColor(.white)
+                .buttonStyle(PlainButtonStyle())
         }
         .alert("Rename Card", isPresented: $showRenameAlert) {
             TextField("Enter new name", text: $newName)
@@ -144,36 +157,21 @@ struct OptionMenuButton: View {
             Text("Please enter a new name for the card.")
         }
     }
-
     private func renameCard() {
         let cardID = card.id
-            db.collection("cards").document(cardID).updateData([
-                "cardName": newName
-            ]) { error in
-                if let error = error {
-                    print("Error updating card name: \(error)")
-                } else {
-                    print("Card name successfully updated")
-                }
+        db.collection("cards").document(cardID).updateData([
+            "cardName": newName
+        ]) { error in
+            if let error = error {
+                print("Error updating card name: \(error)")
+            } else {
+                print("Card name successfully updated")
             }
+        }
     }
     private func deleteCard() {
         let cardID = card.id
-            db.collection("cards").document(cardID).delete()
+        db.collection("cards").document(cardID).delete()
     }
 }
-struct CameraButton: View {
-    var body: some View {
-        Button(action: {
-            // Add action for camera button
-            print("Camera tapped")
-        }) {
-            Image(systemName: "camera.fill")
-                .font(.system(size: 20, weight: .bold))
-                .padding()
-                .background(Color.black.opacity(0.6))
-                .clipShape(Circle())
-                .foregroundColor(.white)
-        }
-    }
-}
+

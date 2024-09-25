@@ -23,9 +23,9 @@ struct PhotoGridView: View {
                 if let selectedImageURL = selectedImageURL, let url = URL(string: selectedImageURL) {
                     KFImage(url)
                         .resizable()
-                        .aspectRatio(1, contentMode: .fit)
-                        .frame(width: 300, height: 300)
                         .padding()
+                        .scaledToFill()
+                        .frame(height: 500)
                 } else {
                     Text("Select an Image")
                         .font(.headline)
@@ -35,7 +35,7 @@ struct PhotoGridView: View {
                 // 下半部分：顯示照片網格
                 ScrollView {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 10) {
-                        ForEach(firestoreService.photos, id: \.id) { photo in
+                        ForEach(firestoreService.photos.sorted(by: {  ($0.createdTime.dateValue()) > ($1.createdTime.dateValue())  }), id: \.id) { photo in
                             Button(action: {
                                 selectedPhoto = photo
                                 selectedImageURL = photo.imageURL // Set the selected image URL
@@ -45,6 +45,7 @@ struct PhotoGridView: View {
                                     .aspectRatio(1, contentMode: .fit)
                                     .frame(width: 100, height: 100)
                                     .clipped()
+                                    .scaledToFill()
                             }
                         }
                     }
