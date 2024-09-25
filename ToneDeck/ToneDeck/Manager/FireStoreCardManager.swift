@@ -104,7 +104,7 @@ class FirestoreService: ObservableObject {
         }
     }
     func fetchNotifications() {
-            db.collection("notifications").whereField("to", isEqualTo: fromUserID).getDocuments { querySnapshot, error in
+            db.collection("notifications").whereField("to", isEqualTo: fromUserID).addSnapshotListener { querySnapshot, error in
                 if let error = error {
                     print("Error fetching notifications: \(error)")
                     return

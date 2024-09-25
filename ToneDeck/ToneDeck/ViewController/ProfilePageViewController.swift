@@ -86,7 +86,7 @@ struct ProfilePageView: View {
             .padding()
         }
         .onAppear {
-            firestoreService.fetchUserData(userID: userID ?? "")  // Fetch user data when the view appears
+            firestoreService.fetchUserData(userID: fromUserID ?? "")  // Fetch user data when the view appears
             guard let user = firestoreService.user else {return}
             checkIfFollowed(user: user)
         }

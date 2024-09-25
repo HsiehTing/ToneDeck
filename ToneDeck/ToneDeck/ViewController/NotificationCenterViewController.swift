@@ -94,7 +94,7 @@ struct NotificationRow: View {
             Spacer()
         }
         .onAppear {
-                    fetchUser(fromUserID: notification.from)  // 根據 fromUserID 取得對應的 User
+                fetchUser(fromUserID: notification.from)  // 根據 fromUserID 取得對應的 User
                 }
     }
 
@@ -129,16 +129,23 @@ let firestoreService = FirestoreService()
         let db = Firestore.firestore()
         let userRef = db.collection("users").document(fromUserID)
 
-        userRef.getDocument { document, error in
-            if let document = document, document.exists {
-                do {
-                    // 嘗試將 Firestore 的資料轉換成 User 結構
-                    self.user = try document.data(as: User.self)
-                } catch {
-                    print("Error decoding user: \(error)")
-                }
-            } else {
+        // 使用 snapshot listener 來監聽實時變化
+        userRef.addSnapshotListener { documentSnapshot, error in
+            if let error = error {
+                print("Error fetching user data: \(error)")
+                return
+            }
+
+            guard let document = documentSnapshot, document.exists else {
                 print("User not found")
+                return
+            }
+
+            do {
+                // 嘗試將 Firestore 的資料轉換成 User 結構
+                self.user = try document.data(as: User.self)
+            } catch {
+                print("Error decoding user: \(error)")
             }
         }
     }
