@@ -114,6 +114,7 @@ struct CardRow: View {
 }
 struct OptionMenuButton: View {
     @State private var showRenameAlert = false
+    @State private var showShareAlert = false
     @State private var newName = ""
     let db = Firestore.firestore()
     let card: Card
@@ -134,9 +135,17 @@ struct OptionMenuButton: View {
             }
             Button(action: {
                 // 添加分享操作
+                showShareAlert = true
+                UIPasteboard.general.string = card.id
+                
                 print("Share tapped")
             }) {
                 Label("Share", systemImage: "square.and.arrow.up")
+                    .alert("Copy to ClipBoard", isPresented: $showShareAlert) {
+
+                    } message: {
+                        Text("")
+                    }
             }
         } label: {
             Image(systemName: "ellipsis")
