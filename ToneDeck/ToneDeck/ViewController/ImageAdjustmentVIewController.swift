@@ -24,21 +24,18 @@ struct ImageAdjustmentView: View {
     @State private var adjustedImage: UIImage?
     let originalImage: UIImage
     let saveToLibrary = SaveToLibrary()
+    var onDismiss: (() -> Void)?
 
     var body: some View {
         VStack {
-            // Display the adjusted image
             if let adjustedImage = adjustedImage {
                 Image(uiImage: adjustedImage)
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: .infinity, maxHeight: 300)
                     .padding()
-
-
             }
 
-            // Sliders for adjusting brightness, contrast, and saturation
             VStack {
                 Text("Brightness: \(brightness)")
                 Slider(value: Binding(get: {
@@ -77,6 +74,7 @@ struct ImageAdjustmentView: View {
                 if let image = adjustedImage {
                     saveToLibrary.saveImageToPhotoLibrary(image: image, card: card)
                     saveToLibrary.addPhotoData(image: image, card: card)
+                    onDismiss?()
                     self.presentationMode.wrappedValue.dismiss()
                 }
             }) {

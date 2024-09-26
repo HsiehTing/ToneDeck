@@ -127,9 +127,11 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             let targetValues = [calculateBrightness(from: targetHistogramData),
                                 calculateContrastFromHistogram(histogramData: targetHistogramData),
                                 calculateSaturation(from: targetHistogramData)]
-            let filterValues = [calculateBrightness(from: filterHistogramData),
-                                calculateContrastFromHistogram(histogramData: filterHistogramData),
-                                calculateSaturation(from: filterHistogramData)]
+//            let filterValues = [calculateBrightness(from: filterHistogramData),
+//                                calculateContrastFromHistogram(histogramData: filterHistogramData),
+//                                calculateSaturation(from: filterHistogramData)]
+            guard let card = card else {return}
+            let filterValues = [card.filterData[0],card.filterData[1], card.filterData[2] ]
             let tValues = [tBrightness, tContrast, tSaturation]
             print("targetValues: \(targetValues)")
             print("filterValues: \(filterValues)")
@@ -146,22 +148,25 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             print("filterColor\(filterColorValue)")
 //            let hueColor = fabsf((filterColorValue ?? 0) - targetColorValue) * 0.15
             targetImageView.image = applyImageAdjustments(image: targetImage, smoothValues: scaledValues ?? [0, 0, 0], hueAdjustment: hueColor ?? 10)
-            applyButton.setTitle("Save Image", for: .normal)
-            guard let card = card else {return}
+            applyButton.setTitle("Customize", for: .normal)
             if fromUserID != card.creatorID{
                 sendNotification(card: card)
             }
-        } else if applyButton.title(for: .normal) == "Save Image" {
+        } else if applyButton.title(for: .normal) == "Customize" {
             guard let targetImage = targetImageView.image, let card = card else { return }
 
                 // Wrap ImageAdjustmentView in a UIHostingController
-            let imageAdjustmentView = ImageAdjustmentView(card: card, originalImage: targetImage)
+            let imageAdjustmentView = ImageAdjustmentView(card: card, originalImage: targetImage) { [weak self] in
+                    // This completion block will be called when the ImageAdjustmentView is dismissed
+                    self?.dismiss(animated: true, completion: {
+                        // After dismissing ImageAdjustmentView, navigate back to the CardView
+                        self?.navigationController?.popViewController(animated: true)
+                    })
+                }
                 let hostingController = UIHostingController(rootView: imageAdjustmentView)
 
                 // Present the UIHostingController modally
-                self.present(hostingController, animated: true, completion: nil)
-//            saveFilteredImageToLibrary()
-//            addPhotoData()
+            self.present(hostingController, animated: true, completion: nil)
             applyButton.setTitle("Apply Card", for: .normal)
         }
     }

@@ -103,6 +103,24 @@ class FirestoreService: ObservableObject {
             }
         }
     }
+    func fetchCardsFromProfile(for creatorID: String, completion: @escaping ([Card]) -> Void) {
+            db.collection("cards")
+                .whereField("creatorID", isEqualTo: creatorID)
+                .getDocuments { snapshot, error in
+                    if let error = error {
+                        print("Error fetching cards: \(error.localizedDescription)")
+                        completion([])
+                    } else if let snapshot = snapshot {
+                        let fetchedCards = snapshot.documents.compactMap { document -> Card? in
+                            try? document.data(as: Card.self)
+                        }
+                        DispatchQueue.main.async {
+                            self.cards = fetchedCards
+                            completion(fetchedCards)
+                        }
+                    }
+                }
+        }
     func fetchNotifications() {
             db.collection("notifications").whereField("to", isEqualTo: fromUserID).addSnapshotListener { querySnapshot, error in
                 if let error = error {

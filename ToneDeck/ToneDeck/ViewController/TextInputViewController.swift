@@ -12,7 +12,8 @@ import Kingfisher
 struct TextInputView: View {
     @State private var postText: String = ""
     var photo: Photo
-
+    var onDismiss: (() -> Void)?
+    @Binding var path: [FeedDestination]
     @Environment(\.presentationMode) var presentationMode // 讓視圖能夠返回前一頁
 
     var body: some View {
@@ -81,6 +82,8 @@ struct TextInputView: View {
                         print("User's postIDArray updated successfully!")
                     }
                 }
+                onDismiss?()
+                path.removeAll()
                 presentationMode.wrappedValue.dismiss() // 發佈成功後返回前一頁
             }
         }  
