@@ -18,15 +18,6 @@ struct ToneDeckApp: App {
       WindowGroup {
         NavigationView {
             ContentView()
-                .onAppear(perform: {
-                    let defaults = UserDefaults.standard
-//                   defaults.set("Ci792SJSsPqYhKczHOHL", forKey: "userDocumentID")
-                    //pb2odgkt1PB1lSgb2IY7//
-                    //Ci792SJSsPqYhKczHOHL//
-                    //defaults.removeObject(forKey: "userDocumentID")
-
-                    checkUserData()
-                })
         }
       }
     }
@@ -56,7 +47,7 @@ struct ContentView: View {
                                     defaults.set(formattedName, forKey: "userName")
                                 }
                             defaults.set(appleIDCredential.email, forKey: "userEmail")
-                            addCredentialsData(id: appleIDCredential.user, email: appleIDCredential.email ?? "")
+                            checkAndAddCredentialsData(id: appleIDCredential.user, email: appleIDCredential.email ?? "")
                             isSignedIn = true
                         case let passwordCredential as ASPasswordCredential:
                             let username = passwordCredential.user
@@ -69,6 +60,7 @@ struct ContentView: View {
                             break
 
                         }
+                        checkUserData()
                     case .failure(let error):
                         print("failure", error)
                     }
@@ -77,13 +69,29 @@ struct ContentView: View {
 
         }
     }
-    func addCredentialsData(id: String, email: String) {
-       let notifications = Firestore.firestore().collection("credentials")
-       let document = notifications.document()
-       let data: [String: Any] = [
-        "id": id,
-        "email": email
-       ]
-       document.setData(data)
+    func checkAndAddCredentialsData(id: String, email: String) {
+       let credentialsCollection = Firestore.firestore().collection("credentials")
+        credentialsCollection.whereField("id", isEqualTo: id).getDocuments { (snapshot, error) in
+            if let error = error {
+                print("Error fetching documents: \(error)")
+                return
+            }
+            if let snapshot = snapshot, !snapshot.isEmpty {
+                print("ID already exists. No need to add.")
+            } else {
+                let document = credentialsCollection.document() // Firestore auto-generates a new document ID
+                let data: [String: Any] = [
+                    "id": id,
+                    "email": email
+                ]
+                document.setData(data) { error in
+                    if let error = error {
+                        print("Error adding document: \(error)")
+                    } else {
+                        print("Document successfully added.")
+                    }
+                }
+            }
+        }
    }
 }

@@ -48,7 +48,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         // Configure the card imageView and label
         fireStoreService.fetchUserData(userID: fromUserID ?? "")
         if let card = card {
-            imageView.kf.setImage(with: URL(string: card.avatar))
+            imageView.kf.setImage(with: URL(string: card.imageURL))
             filterImage = imageView.image ?? UIImage()
             let nameLabel = UILabel()
             nameLabel.text = card.cardName
@@ -255,7 +255,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
              "fromUserPhoto": user.avatar,
              "from": fromUserID,
              "to": card.id,
-             "postImage": card.avatar,
+             "postImage": card.imageURL,
              "type": NotificationType.useCard.rawValue,
              "createdTime": Timestamp()
         ]

@@ -13,8 +13,9 @@ import Kingfisher
 import AlertKit
 
 enum CardDestination: Hashable {
-    case camera(filterData: [Float?])
+    case camera(filterData: [Float])
     case applyCard(card: Card)
+    case searchCard(card: Card)
     case addCard
 }
 
@@ -56,7 +57,24 @@ struct CardViewController: View {
                                     .padding(.leading, 10)
 
                                 Button {
-                                    path.append(.addCard)
+                                    let db = Firestore.firestore()
+                                    db.collection("cards")
+                                        .whereField("id", isEqualTo: textFieldText)
+                                        .getDocuments { snapshot, error in
+                                            if let error = error {
+                                                print("Error fetching card: \(error.localizedDescription)")
+                                            } else if let snapshot = snapshot, let document = snapshot.documents.first {
+                                                if let card = try? document.data(as: Card.self) {
+                                                    DispatchQueue.main.async {
+                                                        path.append(CardDestination.searchCard(card: card))
+                                                    }
+                                                } else {
+                                                    print("Failed to parse card data")
+                                                }
+                                            } else {
+                                                print("No card found with the provided cardID")
+                                            }
+                                        }
                                 } label: {
                                     Image(systemName: "magnifyingglass")
                                         .foregroundColor(.white)
@@ -71,7 +89,6 @@ struct CardViewController: View {
                                         .foregroundColor(.white)
                                 }
                             }
-
                             // Magnifying glass button (toggle search mode)
                             Button {
                                 withAnimation {
@@ -88,27 +105,20 @@ struct CardViewController: View {
                     }
                 }
                 .navigationDestination(for: CardDestination.self) { destination in
-                        switch destination {
-                        case .camera(let filterData):
-                            CameraView(filterData: filterData, path: $path)
-                        case .applyCard(let card):
-                            ApplyCardViewControllerWrapper(card: card)
-                        case .addCard:
-                            AddCardViewController(path: $path)
-                        }
+                    switch destination {
+                    case .camera(let filterData):
+                        CameraView(filterData: filterData, path: $path)
+                    case .applyCard(let card):
+                        ApplyCardViewControllerWrapper(card: card)
+                    case .addCard:
+                        AddCardViewController(path: $path)
+                    case .searchCard(card: let card):
+                        ApplyCardViewControllerWrapper(card: card)
                     }
+                }
             }
         }
     }
-    //    init() {
-    //        for fontFamily in UIFont.familyNames {
-    //            print(fontFamily)
-    //            for fontFamily in UIFont.fontNames(forFamilyName: fontFamily) {
-    //                print("------ \(fontFamily)")
-    //            }
-    //        }
-    //    }
-
 }
 struct CardRow: View {
     let card: Card
@@ -117,7 +127,7 @@ struct CardRow: View {
 
         ZStack(alignment: .bottomLeading) {
             // Load image using Kingfisher, and make it tappable to trigger push navigation
-            KFImage(URL(string: card.avatar))
+            KFImage(URL(string: card.imageURL))
                 .resizable()
                 .scaledToFill()
                 .frame(height: 200)
@@ -132,13 +142,13 @@ struct CardRow: View {
                 .fontWeight(.bold)
                 .padding(8)
                 .foregroundColor(.white)
+
             // Buttons overlay
             VStack {
                 HStack {
                     Spacer()
                     OptionMenuButton(card: card)
                         .padding(.top, 20)
-
                         .padding(.trailing, 10)
                 }
                 Spacer()
@@ -149,8 +159,7 @@ struct CardRow: View {
                     Button(action: {
                         // Push CameraView onto the navigation stack
                         path.append(.camera(filterData: card.filterData))
-                    }) {
-                        Image(systemName: "camera.fill")
+                    }) { Image(systemName: "camera.fill")
                             .font(.system(size: 12, weight: .bold))
                             .padding()
                             .background(Color.gray.opacity(0.6))
@@ -159,9 +168,7 @@ struct CardRow: View {
                             .buttonStyle(PlainButtonStyle())
                     }
                     .padding(.bottom, 20)
-
                     .padding(.trailing, 10)
-
                 }
             }
         }
@@ -178,20 +185,16 @@ struct OptionMenuButton: View {
     let db = Firestore.firestore()
     let card: Card
     var body: some View {
-        Menu {
-            Button(action: {
-                // 顯示改名彈出框
-                showRenameAlert = true
-            }) {
-                Label("Rename", systemImage: "pencil")
-            }
+        Menu { Button(action: {
+            // 顯示改名彈出框
+            showRenameAlert = true
+        }) { Label("Rename", systemImage: "pencil")
+        }
             Button(action: {
                 // 添加刪除操作
                 print("Delete tapped")
                 deleteCard()
-            }) {
-                Label("Delete", systemImage: "trash")
-            }
+            }) { Label("Delete", systemImage: "trash")}
             Button(action: {
                 // 添加分享操作
                 showShareAlert = true
@@ -200,19 +203,16 @@ struct OptionMenuButton: View {
                 alertView.titleLabel?.textColor = .white
 
                 print("Share tapped")
-            }) {
-                Label("Share", systemImage: "square.and.arrow.up")
+            }) { Label("Share", systemImage: "square.and.arrow.up")
                     .alert(isPresent: $showShareAlert, view: alertView)
-
             }
         } label: {
             Image(systemName: "ellipsis")
                 .font(.system(size: 18, weight: .bold))
-                .padding()
-                .background(Color.gray.opacity(0.6))
-                .clipShape(Circle())
-                .foregroundColor(.white)
-                .buttonStyle(PlainButtonStyle())
+                        .padding(10) // Reduced padding
+                        .background(Circle().fill(Color.gray.opacity(0.6))) // Moved background outside of padding
+                        .foregroundColor(.white)
+                        .buttonStyle(PlainButtonStyle())
         }
         .alert("Rename Card", isPresented: $showRenameAlert) {
             TextField("Enter new name", text: $newName)
@@ -240,7 +240,6 @@ struct OptionMenuButton: View {
         let cardID = card.id
         db.collection("cards").document(cardID).delete()
     }
-
 }
 #Preview {
     CardViewController()

@@ -11,6 +11,7 @@ class FirestoreService: ObservableObject {
     @Published var cards: [Card] = []
     @Published var cardsDetail: [CardDetail] = []
     @Published var cardsDict: [String: Card] = [:]
+    @Published var cardData: Card?
     @Published var photos: [Photo] = []
     @Published var posts: [Post] = []
     @Published var users: [User] = []
@@ -74,7 +75,7 @@ class FirestoreService: ObservableObject {
             let userID = data["userID"] as? String ?? ""
             let filterData = data["filterData"] as? [Float] ?? [0]
             // Create a simple Card struct or dictionary to store these two fields
-            let card = Card(id: cardID, cardName: cardName, avatar: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID)
+            let card = Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID)
             // Store the card in the dictionary
             DispatchQueue.main.async {
                 self.cardsDict[cardID] = card
@@ -97,7 +98,7 @@ class FirestoreService: ObservableObject {
                         let createdTIme = data["createdTime"] as? Timestamp ?? Timestamp()
                         let userID = data["userID"] as? String ?? ""
                         let filterData = data["filterData"] as? [Float] ?? [0]
-                        return Card(id: cardID, cardName: cardName, avatar: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID)
+                        return Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID)
                     }
                 }
             }
@@ -121,6 +122,41 @@ class FirestoreService: ObservableObject {
                     }
                 }
         }
+    func fetchCardFromCardID(cardID: String) {
+        db.collection("cards")
+            .whereField("cardID", isEqualTo: cardID)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error fetching card: \(error.localizedDescription)")
+                } else if let snapshot = snapshot {
+                    if let document = snapshot.documents.first, // Assuming you want the first document
+                       let card = try? document.data(as: Card.self) { // Cast to your `Card` model
+                        DispatchQueue.main.async {
+                            self.cardData = card
+                        }
+                    }
+                }
+            }
+    }
+    func fetchUserData(userID: String) {
+        db.collection("users").whereField("id", isEqualTo: userID).addSnapshotListener { snapshot, error in
+            if let error = error {
+                print("Error fetching user data: \(error.localizedDescription)")
+            } else if let snapshot = snapshot {
+                do {
+                    if let document = snapshot.documents.first,
+                       let user = try? document.data(as: User.self) {
+                        self.user = user
+                        self.fetchPosts(postIDs: self.user?.postIDArray ?? [])
+                    }
+                } catch {
+                    print("Error decoding user: \(error)")
+                }
+            } else {
+                print("User does not exist")
+            }
+        }
+    }
     func fetchNotifications() {
             db.collection("notifications").whereField("to", isEqualTo: fromUserID).addSnapshotListener { querySnapshot, error in
                 if let error = error {
@@ -140,21 +176,6 @@ class FirestoreService: ObservableObject {
                 }
             }
         }
-    func fetchUserData(userID: String) {
-        db.collection("users").document(userID).addSnapshotListener { document, error in
-            if let document = document, document.exists {
-                do {
-                    self.user = try document.data(as: User.self)
-                    self.fetchPosts(postIDs: self.user?.postIDArray ?? [])
-                } catch {
-                    print("Error decoding user: \(error)")
-                }
-            } else {
-                print("User does not exist")
-            }
-        }
-    }
-
     // Fetch posts based on postIDArray
     func fetchPosts(postIDs: [String]) {
         // Filter out any empty or invalid document IDs
@@ -164,7 +185,7 @@ class FirestoreService: ObservableObject {
             return
         }
         let postsRef = db.collection("posts").whereField(FieldPath.documentID(), in: validPostIDs)
-        postsRef.getDocuments { snapshot, error in
+        postsRef.addSnapshotListener { snapshot, error in
             if let snapshot = snapshot {
                 self.posts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
             } else if let error = error {
@@ -294,11 +315,14 @@ func checkUserData() {
     let defaults = UserDefaults.standard
     if let savedUserID = defaults.string(forKey: "userDocumentID") {
         // 如果有，檢查 Firestore 中是否有該使用者的資料
-        Firestore.firestore().collection("users").document(savedUserID).getDocument { (document, error) in
-            if let document = document, document.exists {
-                // 使用者資料已存在，略過儲存
-                print("User already exists. Skipping save.")
-            } else {
+        Firestore.firestore().collection("users").whereField("id", isEqualTo: savedUserID).getDocuments { (snapshot, error) in
+            if let error = error {
+                print("Error fetching documents: \(error)")
+                return
+            }
+            if let snapshot = snapshot, !snapshot.isEmpty {
+                        print("ID already exists. No need to add.")
+                    } else {
                 // 使用者資料不存在，新增資料
                 saveNewUser(userName: userName,
                             avatar: avatar,
@@ -326,7 +350,7 @@ func saveNewUser(userName: String, avatar: String, postIDArray: [String], follow
     let users = db.collection("users")
     let document = users.document() // 自動生成 document ID
     let userData: [String: Any] = [
-        "id": document.documentID,
+        "id": UserDefaults.standard.string(forKey: "userDocumentID"),
         "userName": userName,
         "avatar": avatar,
         "postIDArray": postIDArray,
@@ -359,10 +383,9 @@ struct CardDetail: Identifiable, Decodable {
 }
 
 struct Card: Identifiable, Decodable, Hashable, Equatable {
-
     var id: String
     var cardName: String
-    var avatar: String
+    var imageURL: String
     var createdTime: Timestamp
     var filterData: [Float]
     var creatorID: String
@@ -384,7 +407,6 @@ struct Photo: Identifiable, Decodable {
     var cardID: String
     var creatorID: String
     var createdTime: Timestamp
-
 }
 
 struct Notification: Identifiable, Decodable {

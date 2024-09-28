@@ -247,8 +247,6 @@ struct FeedView: View {
             }
         }
     }
-
-
 struct PostButtonsView: View {
     let card: Card
     @Binding var path: [FeedDestination]  // Use shared path for navigation
@@ -276,7 +274,7 @@ struct PostButtonsView: View {
                 path.append(.applyCard(card: card))  // Navigate to applyCard view
                 print("Navigating to applyCard with image for card \(card.cardName)")  // Debugging print
             }) {
-                KFImage(URL(string: card.avatar))
+                KFImage(URL(string: card.imageURL))
                     .resizable()
                     .frame(width: 40, height: 40)
                     .clipShape(Circle())

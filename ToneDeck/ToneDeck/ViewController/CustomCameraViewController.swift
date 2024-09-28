@@ -64,7 +64,7 @@ func createFilters(from filterData: [Float?]) -> [CIFilter] {
     let contrastValue = filterData[1] ?? 1.0
     let saturationValue = filterData[2] ?? 1.0
     let colorValue = filterData[3] ?? 0.0
-    colorFilter.setValue(brightnessValue * 0.7 , forKey: kCIInputBrightnessKey)  // Try lowering brightness
+    colorFilter.setValue(brightnessValue * 0.7, forKey: kCIInputBrightnessKey)  // Try lowering brightness
     colorFilter.setValue(contrastValue * 0.7, forKey: kCIInputContrastKey)    // Keep contrast at default (1.0)
     colorFilter.setValue(saturationValue * 0.7, forKey: kCIInputSaturationKey)  // Keep saturation at default (1.0)
     // Second filter: Hue Adjust
