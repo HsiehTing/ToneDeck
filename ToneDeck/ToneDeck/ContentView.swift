@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct AfterSignInContentView: View {
 
     var body: some View {
         

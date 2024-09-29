@@ -48,7 +48,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         // Configure the card imageView and label
         fireStoreService.fetchUserData(userID: fromUserID ?? "")
         if let card = card {
-            imageView.kf.setImage(with: URL(string: card.avatar))
+            imageView.kf.setImage(with: URL(string: card.imageURL))
             filterImage = imageView.image ?? UIImage()
             let nameLabel = UILabel()
             nameLabel.text = card.cardName
@@ -70,13 +70,25 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
                 nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10)
             ])
         }
-        // Configure the target imageView for photo selection
         targetImageView.backgroundColor = UIColor(white: 0.1, alpha: 1)
         targetImageView.contentMode = .scaleAspectFit
         targetImageView.image = UIImage(systemName: "camera")
         targetImageView.tintColor = .white
         targetImageView.isUserInteractionEnabled = true
         view.addSubview(targetImageView)
+        func addDashedBorder(to view: UIView) {
+            // 建立 CAShapeLayer 來作為虛線外框
+            let dashedBorder = CAShapeLayer()
+            dashedBorder.strokeColor = UIColor.white.cgColor // 虛線顏色
+            dashedBorder.lineDashPattern = [6, 3] // 虛線的線段與間隔長度
+            dashedBorder.frame = view.bounds
+            dashedBorder.fillColor = nil // 填充顏色為 nil
+            dashedBorder.path = UIBezierPath(rect: view.bounds).cgPath
+            dashedBorder.lineWidth = 2 // 虛線的寬度
+
+            // 將虛線的外框加到 view 的 layer 上
+            view.layer.addSublayer(dashedBorder)
+        }
         // Add gesture to open options
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(targetImageTapped))
         targetImageView.addGestureRecognizer(tapGesture)
@@ -103,6 +115,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         ])
         guard let card = card else {print("did not find card"); return}
         filterColorValue = card.filterData[3]
+        addDashedBorder(to: targetImageView)
         print(filterColorValue)
     }
     @objc func didTapApply() {
@@ -127,9 +140,8 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             let targetValues = [calculateBrightness(from: targetHistogramData),
                                 calculateContrastFromHistogram(histogramData: targetHistogramData),
                                 calculateSaturation(from: targetHistogramData)]
-            let filterValues = [calculateBrightness(from: filterHistogramData),
-                                calculateContrastFromHistogram(histogramData: filterHistogramData),
-                                calculateSaturation(from: filterHistogramData)]
+            guard let card = card else {return}
+            let filterValues = [card.filterData[0],card.filterData[1], card.filterData[2] ]
             let tValues = [tBrightness, tContrast, tSaturation]
             print("targetValues: \(targetValues)")
             print("filterValues: \(filterValues)")
@@ -137,31 +149,33 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             print(smoothTargetValues)
             let targetColorValue = getDominantColor(from: targetImage)
             if let filterColorValue = filterColorValue, targetColorValue != 0 {
-                self.hueColor = fabsf(filterColorValue - targetColorValue) * 0.25
+                self.hueColor = fabsf(filterColorValue - targetColorValue) 
                 print("hueColor: \(hueColor)")
             } else {
                 print("One or both color values are missing or targetColorValue is 0. Skipping calculation.")
             }
             print("targetColor\(targetColorValue)")
             print("filterColor\(filterColorValue)")
-//            let hueColor = fabsf((filterColorValue ?? 0) - targetColorValue) * 0.15
             targetImageView.image = applyImageAdjustments(image: targetImage, smoothValues: scaledValues ?? [0, 0, 0], hueAdjustment: hueColor ?? 10)
-            applyButton.setTitle("Save Image", for: .normal)
-            guard let card = card else {return}
+            applyButton.setTitle("Customize", for: .normal)
             if fromUserID != card.creatorID{
                 sendNotification(card: card)
             }
-        } else if applyButton.title(for: .normal) == "Save Image" {
+        } else if applyButton.title(for: .normal) == "Customize" {
             guard let targetImage = targetImageView.image, let card = card else { return }
 
                 // Wrap ImageAdjustmentView in a UIHostingController
-            let imageAdjustmentView = ImageAdjustmentView(card: card, originalImage: targetImage)
+            let imageAdjustmentView = ImageAdjustmentView(card: card, originalImage: targetImage) { [weak self] in
+                    // This completion block will be called when the ImageAdjustmentView is dismissed
+                    self?.dismiss(animated: true, completion: {
+                        // After dismissing ImageAdjustmentView, navigate back to the CardView
+                        self?.navigationController?.popViewController(animated: true)
+                    })
+                }
                 let hostingController = UIHostingController(rootView: imageAdjustmentView)
 
                 // Present the UIHostingController modally
-                self.present(hostingController, animated: true, completion: nil)
-//            saveFilteredImageToLibrary()
-//            addPhotoData()
+            self.present(hostingController, animated: true, completion: nil)
             applyButton.setTitle("Apply Card", for: .normal)
         }
     }
@@ -250,7 +264,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
              "fromUserPhoto": user.avatar,
              "from": fromUserID,
              "to": card.id,
-             "postImage": card.avatar,
+             "postImage": card.imageURL,
              "type": NotificationType.useCard.rawValue,
              "createdTime": Timestamp()
         ]
