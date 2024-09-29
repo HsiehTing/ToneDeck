@@ -70,13 +70,25 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
                 nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10)
             ])
         }
-        // Configure the target imageView for photo selection
         targetImageView.backgroundColor = UIColor(white: 0.1, alpha: 1)
         targetImageView.contentMode = .scaleAspectFit
         targetImageView.image = UIImage(systemName: "camera")
         targetImageView.tintColor = .white
         targetImageView.isUserInteractionEnabled = true
         view.addSubview(targetImageView)
+        func addDashedBorder(to view: UIView) {
+            // 建立 CAShapeLayer 來作為虛線外框
+            let dashedBorder = CAShapeLayer()
+            dashedBorder.strokeColor = UIColor.white.cgColor // 虛線顏色
+            dashedBorder.lineDashPattern = [6, 3] // 虛線的線段與間隔長度
+            dashedBorder.frame = view.bounds
+            dashedBorder.fillColor = nil // 填充顏色為 nil
+            dashedBorder.path = UIBezierPath(rect: view.bounds).cgPath
+            dashedBorder.lineWidth = 2 // 虛線的寬度
+
+            // 將虛線的外框加到 view 的 layer 上
+            view.layer.addSublayer(dashedBorder)
+        }
         // Add gesture to open options
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(targetImageTapped))
         targetImageView.addGestureRecognizer(tapGesture)
@@ -103,6 +115,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         ])
         guard let card = card else {print("did not find card"); return}
         filterColorValue = card.filterData[3]
+        addDashedBorder(to: targetImageView)
         print(filterColorValue)
     }
     @objc func didTapApply() {
@@ -127,9 +140,6 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             let targetValues = [calculateBrightness(from: targetHistogramData),
                                 calculateContrastFromHistogram(histogramData: targetHistogramData),
                                 calculateSaturation(from: targetHistogramData)]
-//            let filterValues = [calculateBrightness(from: filterHistogramData),
-//                                calculateContrastFromHistogram(histogramData: filterHistogramData),
-//                                calculateSaturation(from: filterHistogramData)]
             guard let card = card else {return}
             let filterValues = [card.filterData[0],card.filterData[1], card.filterData[2] ]
             let tValues = [tBrightness, tContrast, tSaturation]
@@ -146,7 +156,6 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             }
             print("targetColor\(targetColorValue)")
             print("filterColor\(filterColorValue)")
-//            let hueColor = fabsf((filterColorValue ?? 0) - targetColorValue) * 0.15
             targetImageView.image = applyImageAdjustments(image: targetImage, smoothValues: scaledValues ?? [0, 0, 0], hueAdjustment: hueColor ?? 10)
             applyButton.setTitle("Customize", for: .normal)
             if fromUserID != card.creatorID{
