@@ -24,6 +24,7 @@ struct CardViewController: View {
     @State var path: [CardDestination] = []
     @State private var isSearchActive = false
     @State var textFieldText : String = ""
+    @State private var showingImageSourceAlert = false
     init() {
         UINavigationBar.appearance().largeTitleTextAttributes = [.font : UIFont(name: "PlayfairDisplayRoman-Bold", size: 52)!]
     }

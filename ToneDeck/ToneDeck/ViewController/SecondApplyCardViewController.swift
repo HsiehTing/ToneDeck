@@ -206,7 +206,9 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
         }
         // Camera option
         let cameraAction = UIAlertAction(title: "Camera", style: .default) { _ in
-            var cameraVC = NoFilterCameraView()
+            var cameraVC = NoFilterCameraView(){_ in 
+
+            }
             cameraVC.delegate = self
                 let hostingController = UIHostingController(rootView: cameraVC)
             self.navigationController?.pushViewController(hostingController, animated: true)

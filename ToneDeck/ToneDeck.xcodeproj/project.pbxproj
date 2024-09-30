@@ -40,6 +40,7 @@
 		78BAF0542C980B0900A5B418 /* PhotoGridViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */; };
 		78BAF0562C980B4500A5B418 /* TextInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BAF0552C980B4500A5B418 /* TextInputViewController.swift */; };
 		78BAF0592C980FF300A5B418 /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 78BAF0582C980FF300A5B418 /* IQKeyboardManagerSwift */; };
+		78ECFDE62CA93D0E008B4226 /* SwiftUIApplyCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78ECFDE52CA93D0E008B4226 /* SwiftUIApplyCardView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -71,6 +72,7 @@
 		78BAF0512C97F61500A5B418 /* FeedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
 		78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGridViewController.swift; sourceTree = "<group>"; };
 		78BAF0552C980B4500A5B418 /* TextInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputViewController.swift; sourceTree = "<group>"; };
+		78ECFDE52CA93D0E008B4226 /* SwiftUIApplyCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIApplyCardView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -143,6 +145,7 @@
 				78AC68EA2CA1137A00260BB3 /* CustomCameraViewController.swift */,
 				780710562C9414FC0039B44C /* ApplyCardViewController.swift */,
 				787046292CA29A1700BA7CC2 /* SecondApplyCardViewController.swift */,
+				78ECFDE52CA93D0E008B4226 /* SwiftUIApplyCardView.swift */,
 				78AC68E52C9D79E800260BB3 /* ImageAdjustmentVIewController.swift */,
 				78BAF0512C97F61500A5B418 /* FeedViewController.swift */,
 				78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */,
@@ -310,6 +313,7 @@
 				7870462C2CA2E5F200BA7CC2 /* NoFilterCameraView.swift in Sources */,
 				78AC68E22C9D1BE000260BB3 /* CommentViewCOntroller.swift in Sources */,
 				780710432C91DF720039B44C /* AddCardViewController.swift in Sources */,
+				78ECFDE62CA93D0E008B4226 /* SwiftUIApplyCardView.swift in Sources */,
 				780710572C9414FD0039B44C /* ApplyCardViewController.swift in Sources */,
 				7807105A2C9565320039B44C /* HistogramManager.swift in Sources */,
 				78BAF0542C980B0900A5B418 /* PhotoGridViewController.swift in Sources */,

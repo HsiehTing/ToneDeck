@@ -12,13 +12,14 @@ import SwiftUI
 import Photos
 
 struct NoFilterCameraView: View {
+    var onCapture: (UIImage) -> Void
     @ObservedObject private var manager: CameraManager
     weak var delegate: CameraViewControllerDelegate?
     @Environment(\.presentationMode) var presentationMode
 
     // 更新 init 方法，將 path 參數也加入初始化
-    init() {
-
+    init(onCapture: @escaping (UIImage) -> Void) {
+        self.onCapture = onCapture
         self.manager = CameraManager(
             outputType: .photo,
             cameraPosition: .back,
@@ -34,8 +35,8 @@ struct NoFilterCameraView: View {
         MCameraController(manager: manager)
             .onImageCaptured { image in
                 print("IMAGE CAPTURED")
-
                 PhotoSaver().savePhotoToLibrary(image: image)
+                onCapture(image)
                 delegate?.didCapturePhoto(image)
                 self.presentationMode.wrappedValue.dismiss()
             }
