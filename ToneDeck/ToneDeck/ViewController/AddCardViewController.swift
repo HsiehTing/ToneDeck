@@ -15,57 +15,66 @@ struct AddCardViewController: View {
     @State private var cardName: String = ""
     @State private var selectedImage: UIImage?
     @State private var pickerImage: PhotosPickerItem?
+    @State private var isFillOutInfo = false
+
     var body: some View {
-        VStack {
-            // TextField for Card Name
-            TextField("Enter Card Name", text: $cardName)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-            // Picker for selecting an image from photo album
-            PhotosPicker(selection: $pickerImage, matching: .images, photoLibrary: .shared()) {
-                Text("Select Image")
+            VStack {
+                // TextField for Card Name
+                TextField("Enter Card Name", text: $cardName)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding()
-                    .background(Color.gray)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            }
-            .onChange(of: pickerImage) { newItem in
-                Task {
-                    if let data = try? await newItem?.loadTransferable(type: Data.self),
-                       let uiImage = UIImage(data: data) {
-                        selectedImage = uiImage
+                if let selectedImage = selectedImage {
+                    Image(uiImage: selectedImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 200, height: 200)
+                        .onTapGesture {
+                            openPhotoPicker()
+                        }
+                }
+                // Picker for selecting an image from photo album
+                PhotosPicker(selection: $pickerImage, matching: .images, photoLibrary: .shared()) {
+                    // Unified button for selecting image or adding card
+                    Image(systemName: !cardName.isEmpty && selectedImage != nil ? "camera.filters" : "camera.metering.center.weighted.average")
+                        .padding()
+                        //.background(Color.gray)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        .contentTransition(.symbolEffect(.replace, options: .nonRepeating)) // Add symbol effect transition
+                        .onTapGesture {
+                            if isFillOutInfo == true {
+                                addCard()
+                            }
+                        }
+                }
+
+                .onChange(of: pickerImage) { newItem in
+                    Task {
+                        if let data = try? await newItem?.loadTransferable(type: Data.self),
+                           let uiImage = UIImage(data: data) {
+                            selectedImage = uiImage
+                        }
+                        isFillOutInfo = true
                     }
                 }
-            }
-            // Display the selected image
-            if let selectedImage = selectedImage {
-                Image(uiImage: selectedImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 200, height: 200)
-            }
-            // Button to submit the card data
-            Button(action: {
-                addCard()
-            }) {
-                Text("Add Card")
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
+
+                // Display the selected image
+
+
+                Spacer()
             }
             .padding()
-            Spacer()
-        }
-        .padding()
-        .navigationTitle("Add Card")
-        .background(
-            Color.black
-                        .onTapGesture { 
-                            UIApplication.shared.endEditing()
-                        }
-                )
+            .navigationTitle("Add Card")
+            .background(
+                Color.black
+                    .onTapGesture {
+                        UIApplication.shared.endEditing()
+                    }
+            )
     }
+    private func openPhotoPicker() {
+           pickerImage = nil // Reset picker to allow re-selection
+       }
     // MARK: - Add Card Action
     func addCard() {
         guard let image = selectedImage, !cardName.isEmpty else {
@@ -129,7 +138,9 @@ struct AddCardViewController: View {
         }
     }
 }
-
+#Preview {
+    CardViewController()
+}
 extension UIApplication {
     func endEditing() {
         sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
