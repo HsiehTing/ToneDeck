@@ -45,11 +45,13 @@ struct PhotoGridView: View {
                             }) {
                                 KFImage(URL(string: photo.imageURL))
                                     .resizable()
-                                    .aspectRatio(1, contentMode: .fit)
+                                    .aspectRatio(1, contentMode: .fill)
                                     .frame(width: 100, height: 100)
                                     .clipped()
-                                    .scaledToFill()
+
+                                    .cornerRadius(10)
                             }
+                            .buttonStyle(PlainButtonStyle())
                         }
                     }
                     .padding()
@@ -92,4 +94,7 @@ struct PhotoGridView: View {
             )
         }
     }
+}
+#Preview {
+    FeedView()
 }

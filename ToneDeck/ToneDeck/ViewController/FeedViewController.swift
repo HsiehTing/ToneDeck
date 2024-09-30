@@ -99,57 +99,57 @@ struct FeedView: View {
                     .frame(maxWidth: .infinity, maxHeight: 600)
                     .clipped()
 
-                // Display card buttons if the card exists
-                if let card = card {
-                    PostButtonsView(card: card, path: $path)
-                        .padding(.vertical, 8)
-                } else {
-                    // Display loading placeholder if card is nil
-                    Text("Loading card...")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                        .padding(.vertical, 8)
-                }
 
-                // Display Post Text
-                Text(post.text)
-                    .font(.body)
-                    .padding([.top, .leading, .trailing])
 
-                // Display Creator ID and Time
-                PostInfoView(post: post, path: $path)
-            }
-            .background(Color.black)
-            .frame(maxWidth: .infinity, maxHeight: 800)
-            .overlay( HStack {
-                Spacer()
-                VStack {
+                HStack {
+                    Spacer()
                     Button(action: {
                         toggleLike()
 
                     }) {
-                        Image(systemName: "star.fill")
+                        Image(systemName: isStarred ?"aqi.medium" :"aqi.medium" )
                             .padding()
                             .background(Color.black.opacity(0.5))
-                            .foregroundColor(isStarred ? .yellow : .white) // Change color based on state
+                            .foregroundColor(isStarred ? .cyan  : .white) // Change color based on state
                             .clipShape(Circle())
-                    }
-                    .padding(4)
+                            .symbolEffect(.variableColor.cumulative.dimInactiveLayers.reversing, options: .nonRepeating)
 
+                    }
+                    .buttonStyle(PlainButtonStyle())
                     Button(action: {
                         loadUserAvatar()  // Load user avatar before presenting the view
                         isCommentViewPresented = true
                     }) {
                         Image(systemName: "bubble.right")
                             .padding()
+
                             .background(Color.black.opacity(0.5))
                             .foregroundColor(.white)
                             .clipShape(Circle())
+
                     }
-                    .padding(4)
+                    .buttonStyle(PlainButtonStyle())
                     .sheet(isPresented: $isCommentViewPresented) {
                         CommentView(post: post, postID: post.id, userID: fromUserID ?? "", userAvatarURL: userAvatarURL)
                     }
+                }
+                // Display Post Text
+                Text(post.text)
+                    .font(.body)
+                    .padding([.top, .leading, .trailing])
+                PostInfoView(post: post, path: $path)
+                    .padding([.top, .leading, .trailing])
+            }
+            .background(Color.black)
+            .frame(maxWidth: .infinity, maxHeight: 800)
+            .overlay( HStack {
+                Spacer()
+                VStack {
+                    if let card = card {
+                        PostButtonsView(card: card, path: $path)
+                            .padding(.bottom, 8)
+                    }
+
                 }
             }
                 .cornerRadius(10)
@@ -263,10 +263,10 @@ struct PostButtonsView: View {
                 Text(card.cardName)
                     .font(.caption)
                     .padding(8)
-                    .background(Color.black.opacity(0.2))
                     .cornerRadius(10)
                     .foregroundColor(.white)
             }
+            .buttonStyle(PlainButtonStyle())
             Spacer()
 
             // Button for navigating to apply card view using image
@@ -276,9 +276,10 @@ struct PostButtonsView: View {
             }) {
                 KFImage(URL(string: card.imageURL))
                     .resizable()
-                    .frame(width: 40, height: 40)
-                    .clipShape(Circle())
+                    .frame(width: 60, height: 60)
+                    .cornerRadius(10)
             }
+            .buttonStyle(PlainButtonStyle())
         }
         .padding()
     }
@@ -289,19 +290,22 @@ struct PostInfoView: View {
     @Binding var path: [FeedDestination]
     var body: some View {
 
-        HStack {
+        VStack {
             Button {
                 path.append(.visitProfile(userID: post.creatorID))
             } label: {
-                Text("by \(post.creatorID)")
-                    .font(.caption)
-                    .foregroundColor(.black) // 顯示為可點擊的藍色
+                Text(post.creatorID)
+                    .font(.title3)
+                    .foregroundColor(.white)
+
+
                 Spacer()
                 Text("\(formattedDate(from: post.createdTime))")
-                    .font(.caption)
+                    .font(.title3)
                     .foregroundColor(.gray)
                     .padding([.leading, .trailing, .bottom])
             }
+            .buttonStyle(PlainButtonStyle())
         }
     }
     func formattedDate(from timestamp: Timestamp) -> String {
@@ -317,4 +321,7 @@ struct PostInfoView: View {
         }
 
     }
+}
+#Preview {
+    FeedView()
 }

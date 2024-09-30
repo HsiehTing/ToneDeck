@@ -273,7 +273,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
              "id": document.documentID,
              "fromUserPhoto": user.avatar,
              "from": fromUserID,
-             "to": card.id,
+             "to": card.creatorID,
              "postImage": card.imageURL,
              "type": NotificationType.useCard.rawValue,
              "createdTime": Timestamp()

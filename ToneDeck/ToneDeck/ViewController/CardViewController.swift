@@ -161,14 +161,14 @@ struct CardRow: View {
                         // Push CameraView onto the navigation stack
                         path.append(.camera(filterData: card.filterData))
                     }) { Image(systemName: "camera.fill")
-                            .font(.system(size: 12, weight: .bold))
-                            .padding()
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(10)
                             .background(Color.gray.opacity(0.6))
                             .clipShape(Circle())
                             .foregroundColor(.white)
                             .buttonStyle(PlainButtonStyle())
                     }
-                    .padding(.bottom, 20)
+                    .padding(.bottom, 10)
                     .padding(.trailing, 10)
                 }
             }
@@ -209,12 +209,13 @@ struct OptionMenuButton: View {
             }
         } label: {
             Image(systemName: "ellipsis")
-                .font(.system(size: 18, weight: .bold))
+                .font(.system(size: 20, weight: .bold))
                         .padding(10) // Reduced padding
-                        .background(Circle().fill(Color.gray.opacity(0.6))) // Moved background outside of padding
+                        .background(Circle().fill(Color.gray.opacity(0.6)))
                         .foregroundColor(.white)
                         .buttonStyle(PlainButtonStyle())
         }
+        .buttonStyle(PlainButtonStyle())
         .alert("Rename Card", isPresented: $showRenameAlert) {
             TextField("Enter new name", text: $newName)
             Button("Cancel", role: .cancel) { }

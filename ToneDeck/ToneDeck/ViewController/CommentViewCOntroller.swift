@@ -22,19 +22,26 @@ struct CommentView: View {
     var body: some View {
         VStack {
             // Display comments list
+            Text("Comments")
+                .frame(height: 100)
+                .font(.title)
             ScrollView {
+
                 ForEach(comments, id: \.createdTime) { comment in
                     HStack(alignment: .center) {
-                        Text(comment.text)
-                            .font(.body)
                         Text(comment.userID)
                             .font(.caption)
                             .foregroundColor(.gray)
+                            Spacer()
+                        Text(comment.text)
+                            .font(.body)
+
                     }
-                    .padding(.vertical, 5)
+                    .padding(.vertical, 10)
                     .padding(.horizontal)
-                    Divider()
+
                 }
+                Spacer(minLength: 50)
             }
 
             // Text field and send button
@@ -49,7 +56,7 @@ struct CommentView: View {
                 // Comment input field
                 TextField("Add a comment...", text: $newCommentText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .frame(minHeight: 40)
+                    .frame(minHeight: 80)
 
                 // Send button
                 Button(action: {
@@ -131,3 +138,6 @@ struct CommentView: View {
     }
 }
 
+#Preview {
+    FeedView()
+}

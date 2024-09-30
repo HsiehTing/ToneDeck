@@ -47,6 +47,7 @@ struct AddCardViewController: View {
                             }
                         }
                 }
+                .buttonStyle(PlainButtonStyle())
 
                 .onChange(of: pickerImage) { newItem in
                     Task {
@@ -59,7 +60,6 @@ struct AddCardViewController: View {
                 }
 
                 // Display the selected image
-
 
                 Spacer()
             }
