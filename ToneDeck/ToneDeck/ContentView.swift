@@ -50,11 +50,10 @@ struct AfterSignInContentView: View {
             }            
         }
         .tint(.gray)
-        .onAppear {
-                       let defaults = UserDefaults.standard
-                       defaults.set("pb2odgkt1PB1lSgb2IY7", forKey: "userDocumentID")
-                   }
-
+//        .onAppear {
+//                       let defaults = UserDefaults.standard
+//                       defaults.set("Ci792SJSsPqYhKczHOHL", forKey: "userDocumentID")
+//                   }
     }
 }
 

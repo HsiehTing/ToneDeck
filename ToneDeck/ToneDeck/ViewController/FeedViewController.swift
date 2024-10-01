@@ -81,172 +81,170 @@ struct FeedView: View {
     }
 }
 
-    struct PostView: View {
-        let post: Post
-        let card: Card? // Optional card
-        let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
-        let fireStoreService = FirestoreService()
-        @Binding var path: [FeedDestination]
-        @State private var isStarred: Bool = false
-        @State private var isCommentViewPresented: Bool = false
-        @State private var userAvatarURL: String = ""
-        var body: some View {
-            VStack(alignment: .leading) {
-                // Display Post Image
-                KFImage(URL(string: post.imageURL))
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(maxWidth: .infinity, maxHeight: 600)
-                    .clipped()
-
-
-
-                HStack {
+struct PostView: View {
+    let post: Post
+    let card: Card? // Optional card
+    let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
+    let fireStoreService = FirestoreService()
+    @Binding var path: [FeedDestination]
+    @State private var isStarred: Bool = false
+    @State private var isCommentViewPresented: Bool = false
+    @State private var userAvatarURL: String = ""
+    var body: some View {
+        VStack(alignment: .leading) {
+            // Display Post Image
+            KFImage(URL(string: post.imageURL))
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(maxWidth: .infinity, maxHeight: 600)
+                .clipped()
+                .overlay( HStack {
                     Spacer()
-                    Button(action: {
-                        toggleLike()
+                    VStack {
+                        Spacer()
+                        if let card = card {
+                            PostButtonsView(card: card, path: $path)
 
-                    }) {
-                        Image(systemName: isStarred ?"aqi.medium" :"aqi.medium" )
-                            .padding()
-                            .background(Color.black.opacity(0.5))
-                            .foregroundColor(isStarred ? .cyan  : .white) // Change color based on state
-                            .clipShape(Circle())
-                            .symbolEffect(.variableColor.cumulative.dimInactiveLayers.reversing, options: .nonRepeating)
+                        }
 
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    Button(action: {
-                        loadUserAvatar()  // Load user avatar before presenting the view
-                        isCommentViewPresented = true
-                    }) {
-                        Image(systemName: "bubble.right")
-                            .padding()
-
-                            .background(Color.black.opacity(0.5))
-                            .foregroundColor(.white)
-                            .clipShape(Circle())
-
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .sheet(isPresented: $isCommentViewPresented) {
-                        CommentView(post: post, postID: post.id, userID: fromUserID ?? "", userAvatarURL: userAvatarURL)
                     }
                 }
-                // Display Post Text
-                Text(post.text)
-                    .font(.body)
-                    .padding([.top, .leading, .trailing])
-                PostInfoView(post: post, path: $path)
-                    .padding([.top, .leading, .trailing])
-            }
-            .background(Color.black)
-            .frame(maxWidth: .infinity, maxHeight: 800)
-            .overlay( HStack {
+                    .cornerRadius(10)
+                    .shadow(radius: 5)
+                    .padding([.leading, .trailing])
+
+                )
+            HStack {
                 Spacer()
-                VStack {
-                    if let card = card {
-                        PostButtonsView(card: card, path: $path)
-                            .padding(.bottom, 8)
-                    }
+                Button(action: {
+                    toggleLike()
+
+                }) {
+                    Image(systemName: isStarred ?"aqi.medium" :"aqi.medium" )
+                        .padding()
+                        .background(Color.black.opacity(0.5))
+                        .foregroundColor(isStarred ? .cyan  : .white) // Change color based on state
+                        .clipShape(Circle())
+                        .symbolEffect(.variableColor.cumulative.dimInactiveLayers.reversing, options: .nonRepeating)
 
                 }
-            }
-                .cornerRadius(10)
-                .shadow(radius: 5)
-                .padding([.leading, .trailing])
-            )
-            .onAppear {
-                fireStoreService.fetchUserData(userID: fromUserID ?? "")
-                checkIfStarred()
-            }
-        }
+                .buttonStyle(PlainButtonStyle())
+                Button(action: {
+                    loadUserAvatar()  // Load user avatar before presenting the view
+                    isCommentViewPresented = true
+                }) {
+                    Image(systemName: "bubble.right")
+                        .padding()
 
-        func toggleLike() {
-            if isStarred {
-                // If already starred, remove the user's ID from the likerIDArray
-                removeUserFromLikerArray()
+                        .background(Color.black.opacity(0.5))
+                        .foregroundColor(.white)
+                        .clipShape(Circle())
+
+                }
+                .buttonStyle(PlainButtonStyle())
+                .sheet(isPresented: $isCommentViewPresented) {
+                    CommentView(post: post, postID: post.id, userID: fromUserID ?? "", userAvatarURL: userAvatarURL)
+                }
+            }
+            // Display Post Text
+            Text(post.text)
+                .font(.body)
+                .padding([.top, .leading, .trailing])
+            PostInfoView(post: post, path: $path)
+                .padding([.top, .leading, .trailing])
+        }
+        .background(Color.black)
+        .frame(maxWidth: .infinity, maxHeight: 800)
+        .onAppear {
+            fireStoreService.fetchUserData(userID: fromUserID ?? "")
+            checkIfStarred()
+        }
+    }
+    func toggleLike() {
+        if isStarred {
+            // If already starred, remove the user's ID from the likerIDArray
+            removeUserFromLikerArray()
+        } else {
+            // If not starred, add the user's ID to the likerIDArray
+            addUserToLikerArray()
+        }
+        isStarred.toggle()
+    }
+    func checkIfStarred() {
+        // Assume we get the likerIDArray from the post
+        guard let fromUserID = fromUserID else {return}
+        if post.likerIDArray.contains(fromUserID) {
+            isStarred = true
+        } else {
+            isStarred = false
+        }
+    }
+
+    // Function to add the user to the likerIDArray in the posts collection
+    func addUserToLikerArray() {
+
+        guard let fromUserID = fromUserID else {return}
+        let postRef = Firestore.firestore().collection("posts").document(post.id)
+        postRef.updateData([
+            "likerIDArray": FieldValue.arrayUnion([fromUserID])
+        ]) { error in
+            if let error = error {
+                print("Error adding user to likerIDArray: \(error)")
             } else {
-                // If not starred, add the user's ID to the likerIDArray
-                addUserToLikerArray()
+                print("User added to likerIDArray successfully.")
             }
-            isStarred.toggle()
         }
-        func checkIfStarred() {
-            // Assume we get the likerIDArray from the post
-            guard let fromUserID = fromUserID else {return}
-            if post.likerIDArray.contains(fromUserID) {
-                isStarred = true
+        let notifications = Firestore.firestore().collection("notifications")
+        let user = fireStoreService.user
+        let document = notifications.document()
+        guard let user = user else {return}
+        let data: [String: Any] = [
+            "id": document.documentID,
+            "fromUserPhoto": user.avatar,
+            "from": fromUserID,
+            "to": post.creatorID,
+            "postImage": post.imageURL,
+            "type": NotificationType.like.rawValue,
+            "createdTime": Timestamp()
+        ]
+        document.setData(data)
+    }
+
+    // Function to remove the user from the likerIDArray in the posts collection
+    func removeUserFromLikerArray() {
+        // Firestore logic to update likerIDArray
+        guard let fromUserID = fromUserID else {return}
+
+        let postRef = Firestore.firestore().collection("posts").document(post.id)
+        postRef.updateData([
+            "likerIDArray": FieldValue.arrayRemove([fromUserID])
+        ]) { error in
+            if let error = error {
+                print("Error removing user from likerIDArray: \(error)")
             } else {
-                isStarred = false
+                print("User removed from likerIDArray successfully.")
             }
         }
-
-        // Function to add the user to the likerIDArray in the posts collection
-        func addUserToLikerArray() {
-
-            guard let fromUserID = fromUserID else {return}
-            let postRef = Firestore.firestore().collection("posts").document(post.id)
-            postRef.updateData([
-                "likerIDArray": FieldValue.arrayUnion([fromUserID])
-            ]) { error in
-                if let error = error {
-                    print("Error adding user to likerIDArray: \(error)")
-                } else {
-                    print("User added to likerIDArray successfully.")
-                }
-            }
-            let notifications = Firestore.firestore().collection("notifications")
-            let user = fireStoreService.user
-            let document = notifications.document()
-            guard let user = user else {return}
-            let data: [String: Any] = [
-                "id": document.documentID,
-                "fromUserPhoto": user.avatar,
-                "from": fromUserID,
-                "to": post.creatorID,
-                "postImage": post.imageURL,
-                "type": NotificationType.like.rawValue,
-                "createdTime": Timestamp()
-            ]
-            document.setData(data)
-        }
-
-        // Function to remove the user from the likerIDArray in the posts collection
-        func removeUserFromLikerArray() {
-            // Firestore logic to update likerIDArray
-            guard let fromUserID = fromUserID else {return}
-
-            let postRef = Firestore.firestore().collection("posts").document(post.id)
-            postRef.updateData([
-                "likerIDArray": FieldValue.arrayRemove([fromUserID])
-            ]) { error in
-                if let error = error {
-                    print("Error removing user from likerIDArray: \(error)")
-                } else {
-                    print("User removed from likerIDArray successfully.")
-                }
-            }
-            let user = fireStoreService.user
-            guard let user = user else {return}
-            let likeRef = Firestore.firestore().collection("notifications").whereField("from", isEqualTo: user.id).whereField("to", isEqualTo: post.creatorID).whereField("type", isEqualTo: "like")
-            likeRef.getDocuments { query, error in
-                guard let documents = query?.documents else {return}
-                for document in documents {
-                    document.reference.delete()
-                }
-            }
-        }
-        func loadUserAvatar() {
-            guard let fromUserID = fromUserID else {return}
-            let userRef = Firestore.firestore().collection("users").document(fromUserID)
-            userRef.getDocument { document, error in
-                if let document = document, document.exists {
-                    self.userAvatarURL = document.data()?["avatarURL"] as? String ?? ""
-                }
+        let user = fireStoreService.user
+        guard let user = user else {return}
+        let likeRef = Firestore.firestore().collection("notifications").whereField("from", isEqualTo: user.id).whereField("to", isEqualTo: post.creatorID).whereField("type", isEqualTo: "like")
+        likeRef.getDocuments { query, error in
+            guard let documents = query?.documents else {return}
+            for document in documents {
+                document.reference.delete()
             }
         }
     }
+    func loadUserAvatar() {
+        guard let fromUserID = fromUserID else {return}
+        let userRef = Firestore.firestore().collection("users").document(fromUserID)
+        userRef.getDocument { document, error in
+            if let document = document, document.exists {
+                self.userAvatarURL = document.data()?["avatarURL"] as? String ?? ""
+            }
+        }
+    }
+}
 struct PostButtonsView: View {
     let card: Card
     @Binding var path: [FeedDestination]  // Use shared path for navigation

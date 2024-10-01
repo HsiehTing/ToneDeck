@@ -26,6 +26,7 @@ struct TextInputView: View {
             TextEditor(text: $postText)
                 .frame(height: 200)
                 .border(Color.gray, width: 1)
+                .cornerRadius(20)
                 .padding()
             Button(action: {
                 publishPost()
@@ -34,9 +35,10 @@ struct TextInputView: View {
                     .font(.headline)
                     .foregroundColor(.white)
                     .padding()
-                    .background(Color.blue)
+                    .background(Color.gray)
                     .cornerRadius(10)
             }
+            .buttonStyle(PlainButtonStyle())
             .padding()
         }
         .navigationTitle("Add Post")
@@ -72,15 +74,28 @@ struct TextInputView: View {
                 print("Error publishing post: \(error)")
             } else {
                 print("Post published successfully!")
-                let userDocument = users.document(photo.creatorID)
-                userDocument.updateData([
-                    "postIDArray": FieldValue.arrayUnion([postID]) // Add postID to user's postIDArray
-                ]) { error in
+                let userDocument = users.whereField("id", isEqualTo: photo.creatorID)
+                userDocument.addSnapshotListener { snapshot, error in
                     if let error = error {
-                        print("Error updating user's postIDArray: \(error)")
-                    } else {
-                        print("User's postIDArray updated successfully!")
+                        print(error)
                     }
+                    guard let documents = snapshot?.documents else {
+                        print("No posts found.")
+                        return
+                    }
+                    for document in documents {
+                        document.reference.updateData([
+                            "postIDArray": FieldValue.arrayUnion([postID]) // Add postID to user's postIDArray
+                        ]) { error in
+                            if let error = error {
+                                print("Error updating user's postIDArray: \(error)")
+                            } else {
+                                print("User's postIDArray updated successfully!")
+                            }
+                        }
+                    }
+
+
                 }
                 onDismiss?()
                 path.removeAll()
@@ -89,3 +104,4 @@ struct TextInputView: View {
         }  
     }
 }
+

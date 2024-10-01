@@ -28,7 +28,7 @@ struct PhotoGridView: View {
                         .resizable()
                         .padding()
                         .scaledToFill()
-                        .frame(height: 500)
+                        .frame(height: 450)
                 } else {
                     Text("Select an Image")
                         .font(.headline)

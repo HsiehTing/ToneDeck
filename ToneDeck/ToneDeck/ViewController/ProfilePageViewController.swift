@@ -12,7 +12,8 @@ struct ProfilePageView: View {
     @StateObject private var firestoreService = FirestoreService()
     @State var isFollowed: Bool = false
     @State var path: [ProfileDestination] = []
-    @State private var fetchedCards: [Card] = []
+    @State private var fetchedPosts: [Post] = []
+    //@State var user: User
     let userID: String
     let defaultAvatarURL = "https://example.com/default_avatar.png"  // Set a default image
     let db = Firestore.firestore()
@@ -32,21 +33,20 @@ struct ProfilePageView: View {
                                 .clipShape(Circle())
                                 .overlay(Circle().stroke(Color.gray, lineWidth: 2))
                                 .shadow(radius: 10)
-
                             Text(user.userName)
                                 .font(.title)
                                 .fontWeight(.bold)
 
                             HStack(spacing: 24) {
                                 VStack {
-                                    Text("\(user.followingArray.count)")
+                                    Text("\(user.followingArray.count - 1)")
                                         .font(.headline)
                                     Text("Following")
                                         .font(.subheadline)
                                         .foregroundColor(.gray)
                                 }
                                 VStack {
-                                    Text("\(user.followerArray.count)")
+                                    Text("\(user.followerArray.count - 1)")
                                         .font(.headline)
                                     Text("Followers")
                                         .font(.subheadline)
@@ -57,20 +57,21 @@ struct ProfilePageView: View {
                                         toggleFollow(user: user)
                                     }) {
                                         Text(isFollowed ? "Unfollow" : "Follow")
+                                            .frame(width: 50)
+                                        
                                     }
+                                    .buttonStyle(.borderedProminent)
+                                    .tint(isFollowed ? .gray : .blue)
                                 } else {
                                     EmptyView()  // Return an EmptyView if no user is available
                                 }
                             }
                         }
                     }
-                    // Post Grid Section
-
                     if !firestoreService.posts.isEmpty {
                         LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 16) {
                             ForEach(firestoreService.posts) { post in
-
-                                    NavigationLink(destination: ProfilePostView(post: post, path: $path)) {
+                                NavigationLink(destination: ProfilePostView(post: post, path: $path)) {
                                         KFImage(URL(string: post.imageURL))
                                             .resizable()
                                             .scaledToFill()
@@ -79,6 +80,7 @@ struct ProfilePageView: View {
                                             .cornerRadius(8)
                                     }
                             }
+                            .buttonStyle(PlainButtonStyle())
                         }
                         .padding(.top, 16)
                     } else {
@@ -90,32 +92,64 @@ struct ProfilePageView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Profile")  // Add navigation title for the NavigationView
         }
-        .onAppear {
-            firestoreService.fetchUserData(userID: fromUserID ?? "")
-            guard let user = firestoreService.user else { return }
-            checkIfFollowed(user: user)
 
-            // Fetch the cards for all posts once the view appears
-            firestoreService.fetchCardsFromProfile(for: userID) { cards in
+        .onAppear {
+            firestoreService.fetchProfile(userID: userID) { fetchedUser in
                 DispatchQueue.main.async {
-                    self.fetchedCards = cards
+                    if let user = fetchedUser {  // 解包 fetchedUser
+                        fireStoreService.user = user  // 确保 fetchedUser 有值时才赋值
+                        self.checkIfFollowed(user: user)
+                        // 独立调用函数来获取帖子
+                        self.fetchPostsfromProfile(postIDs: user.postIDArray)
+                    } else {
+                        print("Error: fetchedUser is nil")
+                    }
                 }
+            }
+        }
+        .navigationTitle("Profile")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    path.append(.editingProfile)
+                } label: {
+                    NavigationLink {
+                        EditingProfileView()
+                    } label: {
+                        Image(systemName: "gearshape")
+                            .foregroundColor(.white)
+                    }
+                }
+
+            }
+        }
+    }
+    func fetchPostsfromProfile(postIDs: [String]) {
+        let validPostIDs = postIDs.filter { !$0.isEmpty }
+        guard !validPostIDs.isEmpty else {
+            print("No valid post IDs to fetch.")
+            return
+        }
+        let postsRef = db.collection("posts").whereField(FieldPath.documentID(), in: validPostIDs)
+        postsRef.addSnapshotListener { snapshot, error in
+            if let snapshot = snapshot {
+                firestoreService.posts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
+            } else if let error = error {
+                print("Error fetching posts: \(error)")
             }
         }
     }
     func toggleFollow(user: User) {
-
-
         if isFollowed {
             // If already starred, remove the user's ID from the likerIDArray
-            firestoreService.addUserToFollowingArray(userID: userID)
-            firestoreService.addFollowNotification(user: user)
-        } else {
-            // If not starred, add the user's ID to the likerIDArray
+
             firestoreService.removeUserFromFollowingArray(userID: userID)
             firestoreService.removeFollowNotification(user: user)
+        } else {
+            // If not starred, add the user's ID to the likerIDArray
+            firestoreService.addUserToFollowingArray(userID: userID)
+            firestoreService.addFollowNotification(user: user)
         }
         isFollowed.toggle()
     }
@@ -134,6 +168,7 @@ enum ProfileDestination: Hashable {
     case postView
     case applyCard(card: Card)
     case visitProfile(userID: String)
+    case editingProfile
 }
 
 struct ProfilePostView: View {
@@ -141,6 +176,7 @@ struct ProfilePostView: View {
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     let fireStoreService = FirestoreService()
     @Binding var path: [ProfileDestination]
+    @State var fetchedCard: Card? = nil
     @State private var isStarred: Bool = false
     @State private var isCommentViewPresented: Bool = false
     @State private var userAvatarURL: String = ""
@@ -152,67 +188,69 @@ struct ProfilePostView: View {
                 .aspectRatio(contentMode: .fill)
                 .frame(maxWidth: .infinity, maxHeight: 600)
                 .clipped()
+                .overlay( HStack {
+                    Spacer()
+                    VStack {
+                        Spacer()
+                        if let fetchedCard = fetchedCard {
+                            PostButtonsView(card: fetchedCard, path: $path)
 
-            // Display card buttons if the card exists
-//            if let card = card {
-//                PostButtonsView(card: card, path: $path)
-//                    .padding(.vertical, 8)
-//            } else {
-//                // Display loading placeholder if card is nil
-//                Text("Loading card...")
-//                    .font(.caption)
-//                    .foregroundColor(.gray)
-//                    .padding(.vertical, 8)
-//            }
+                        }
 
-            // Display Post Text
-            Text(post.text)
-                .font(.body)
-                .padding([.top, .leading, .trailing])
-
-            // Display Creator ID and Time
-            PostInfoView(post: post, path: $path)
-        }
-        .background(Color.black)
-        .frame(maxWidth: .infinity, maxHeight: 800)
-        .overlay( HStack {
-            Spacer()
-            VStack {
+                    }
+                }
+                    .cornerRadius(10)
+                    .shadow(radius: 5)
+                    .padding([.leading, .trailing])
+                )
+            HStack {
+                Spacer()
                 Button(action: {
                     toggleLike()
-
                 }) {
-                    Image(systemName: "star.fill")
+                    Image(systemName: isStarred ?"aqi.medium" :"aqi.medium" )
                         .padding()
                         .background(Color.black.opacity(0.5))
-                        .foregroundColor(isStarred ? .yellow : .white) // Change color based on state
+                        .foregroundColor(isStarred ? .cyan  : .white) // Change color based on state
                         .clipShape(Circle())
+                        .symbolEffect(.variableColor.cumulative.dimInactiveLayers.reversing, options: .nonRepeating)
                 }
-                .padding(4)
-
+                .buttonStyle(PlainButtonStyle())
                 Button(action: {
                     loadUserAvatar()  // Load user avatar before presenting the view
                     isCommentViewPresented = true
                 }) {
                     Image(systemName: "bubble.right")
                         .padding()
+
                         .background(Color.black.opacity(0.5))
                         .foregroundColor(.white)
                         .clipShape(Circle())
+
                 }
-                .padding(4)
+                .buttonStyle(PlainButtonStyle())
                 .sheet(isPresented: $isCommentViewPresented) {
                     CommentView(post: post, postID: post.id, userID: fromUserID ?? "", userAvatarURL: userAvatarURL)
                 }
             }
+            // Display Post Text
+            Text(post.text)
+                .font(.body)
+                .padding([.top, .leading, .trailing])
+            PostInfoView(post: post, path: $path)
+                .padding([.top, .leading, .trailing])
         }
-            .cornerRadius(10)
-            .shadow(radius: 5)
-            .padding([.leading, .trailing])
-        )
+        .background(Color.black)
+        .frame(maxWidth: .infinity, maxHeight: 800)
         .onAppear {
             fireStoreService.fetchUserData(userID: fromUserID ?? "")
             checkIfStarred()
+            fireStoreService.fetchCardsFromProfile(for: post.cardID ?? "") { card in
+                DispatchQueue.main.async {
+                    guard let card = card else {return}
+                    self.fetchedCard = card
+                }
+            }
         }
     }
     private func toggleLike() {
@@ -297,7 +335,7 @@ struct ProfilePostView: View {
     }
     struct PostButtonsView: View {
         let card: Card
-        @Binding var path: [ProfileDestination]  // Use shared path for navigation
+        @Binding var path: [ProfileDestination]
 
         var body: some View {
             HStack {

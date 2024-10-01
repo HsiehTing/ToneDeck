@@ -42,6 +42,7 @@ struct CardViewController: View {
                     .onAppear {
                         firestoreService.fetchCards()
                     }
+                    
                     .listStyle(PlainListStyle())
                     .frame(maxWidth: .infinity)
                     .edgesIgnoringSafeArea(.horizontal)
@@ -119,6 +120,12 @@ struct CardViewController: View {
                 }
             }
         }
+        .background(
+            Color.black
+                        .onTapGesture {
+                            UIApplication.shared.endEditing()
+                        }
+                )
     }
 }
 struct CardRow: View {
@@ -175,7 +182,6 @@ struct CardRow: View {
         }
         .cornerRadius(10)
         .clipped()
-        // Handle programmatic navigation based on path
     }
 }
 struct OptionMenuButton: View {
@@ -184,6 +190,7 @@ struct OptionMenuButton: View {
     @State private var newName = ""
     let alertView = AlertAppleMusic17View(title: "Copy to ClipBoard", subtitle: nil, icon: .done)
     let db = Firestore.firestore()
+    let firestoreService = FirestoreService()
     let card: Card
     var body: some View {
         Menu { Button(action: {
@@ -194,7 +201,7 @@ struct OptionMenuButton: View {
             Button(action: {
                 // 添加刪除操作
                 print("Delete tapped")
-                deleteCard()
+                firestoreService.deleteCard(card: card)
             }) { Label("Delete", systemImage: "trash")}
             Button(action: {
                 // 添加分享操作
@@ -210,10 +217,10 @@ struct OptionMenuButton: View {
         } label: {
             Image(systemName: "ellipsis")
                 .font(.system(size: 20, weight: .bold))
-                        .padding(10) // Reduced padding
-                        .background(Circle().fill(Color.gray.opacity(0.6)))
-                        .foregroundColor(.white)
-                        .buttonStyle(PlainButtonStyle())
+                .padding(10) // Reduced padding
+                .background(Circle().fill(Color.gray.opacity(0.6)))
+                .foregroundColor(.white)
+                .buttonStyle(PlainButtonStyle())
         }
         .buttonStyle(PlainButtonStyle())
         .alert("Rename Card", isPresented: $showRenameAlert) {
@@ -238,11 +245,8 @@ struct OptionMenuButton: View {
             }
         }
     }
-    private func deleteCard() {
-        let cardID = card.id
-        db.collection("cards").document(cardID).delete()
-    }
 }
 #Preview {
     CardViewController()
 }
+

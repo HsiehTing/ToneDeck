@@ -16,7 +16,6 @@ struct AddCardViewController: View {
     @State private var selectedImage: UIImage?
     @State private var pickerImage: PhotosPickerItem?
     @State private var isFillOutInfo = false
-
     var body: some View {
             VStack {
                 // TextField for Card Name
@@ -32,7 +31,6 @@ struct AddCardViewController: View {
                             openPhotoPicker()
                         }
                 }
-                // Picker for selecting an image from photo album
                 PhotosPicker(selection: $pickerImage, matching: .images, photoLibrary: .shared()) {
                     // Unified button for selecting image or adding card
                     Image(systemName: !cardName.isEmpty && selectedImage != nil ? "camera.filters" : "camera.metering.center.weighted.average")
@@ -47,8 +45,6 @@ struct AddCardViewController: View {
                             }
                         }
                 }
-                .buttonStyle(PlainButtonStyle())
-
                 .onChange(of: pickerImage) { newItem in
                     Task {
                         if let data = try? await newItem?.loadTransferable(type: Data.self),
@@ -58,9 +54,6 @@ struct AddCardViewController: View {
                         isFillOutInfo = true
                     }
                 }
-
-                // Display the selected image
-
                 Spacer()
             }
             .padding()
@@ -82,7 +75,6 @@ struct AddCardViewController: View {
             return
         }
         // Mock data for testing
-        //let userName = "User123"
         let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
         let timeStamp = Date()
         let histogram = ImageHistogramCalculator()
