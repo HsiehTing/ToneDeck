@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct AfterSignInContentView: View {
 
     var body: some View {
         
@@ -49,6 +49,11 @@ struct ContentView: View {
                 Label("", systemImage: "person.crop.circle")
             }            
         }
+        .tint(.gray)
+//        .onAppear {
+//                       let defaults = UserDefaults.standard
+//                       defaults.set("Ci792SJSsPqYhKczHOHL", forKey: "userDocumentID")
+//                   }
     }
 }
 

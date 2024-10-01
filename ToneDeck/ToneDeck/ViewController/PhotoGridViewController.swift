@@ -10,11 +10,14 @@ import FirebaseFirestore
 import Kingfisher
 
 struct PhotoGridView: View {
+    @Binding var path: [FeedDestination]
     @State private var photosURL = [String]() // 儲存從 Firebase 讀取的照片URL
     @State private var selectedImageURL: String? // 選中的照片 URL
     @State private var isTextInputActive = false // 控制導航至文字輸入頁面
     @State private var selectedPhoto: Photo?
     @StateObject private var firestoreService = FirestoreService() // 用於讀取 Firestore 資料
+    @Environment(\.presentationMode) var presentationMode
+    @State private var isFeedViewActive = false
 
     var body: some View {
         NavigationView {
@@ -25,7 +28,7 @@ struct PhotoGridView: View {
                         .resizable()
                         .padding()
                         .scaledToFill()
-                        .frame(height: 500)
+                        .frame(height: 450)
                 } else {
                     Text("Select an Image")
                         .font(.headline)
@@ -42,11 +45,13 @@ struct PhotoGridView: View {
                             }) {
                                 KFImage(URL(string: photo.imageURL))
                                     .resizable()
-                                    .aspectRatio(1, contentMode: .fit)
+                                    .aspectRatio(1, contentMode: .fill)
                                     .frame(width: 100, height: 100)
                                     .clipped()
-                                    .scaledToFill()
+
+                                    .cornerRadius(10)
                             }
+                            .buttonStyle(PlainButtonStyle())
                         }
                     }
                     .padding()
@@ -56,8 +61,9 @@ struct PhotoGridView: View {
             .navigationBarItems(trailing: Button("Next") {
                 // 點擊 "Next" 導航到文字輸入頁面
                 if let selectedPhoto = selectedPhoto {
-                    isTextInputActive = true // Trigger the navigation when a photo is selected
+                    isTextInputActive = true
                 }
+
             })
             .onAppear {
                 firestoreService.fetchPhotos() // Fetch photos when view appears
@@ -66,9 +72,20 @@ struct PhotoGridView: View {
                 Group {
                     if let unwrappedPhoto = selectedPhoto {
                         NavigationLink(
-                            destination: TextInputView(photo: unwrappedPhoto),
+
+                            destination: TextInputView(photo: selectedPhoto ?? Photo(id: "", imageURL: "", cardID: "", creatorID: "", createdTime: Timestamp()), onDismiss: {
+                                // 在 TextInputView 結束後導航回 FeedView
+                                isFeedViewActive = true
+                            }, path: $path),
                             isActive: $isTextInputActive,
                             label: { EmptyView() }
+                        )
+                        NavigationLink(
+                            destination: FeedView(),
+                            isActive: $isFeedViewActive,
+                            label: {
+                                EmptyView()
+                            }
                         )
                     } else {
                         EmptyView() // 當沒有選中照片時顯示空視圖
@@ -77,4 +94,7 @@ struct PhotoGridView: View {
             )
         }
     }
+}
+#Preview {
+    FeedView()
 }

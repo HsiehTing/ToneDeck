@@ -43,71 +43,94 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     let fireStoreService = FirestoreService()
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .black
-        // Configure the card imageView and label
-        fireStoreService.fetchUserData(userID: fromUserID ?? "")
-        if let card = card {
-            imageView.kf.setImage(with: URL(string: card.avatar))
-            filterImage = imageView.image ?? UIImage()
-            let nameLabel = UILabel()
-            nameLabel.text = card.cardName
-            nameLabel.textColor = .white
-            nameLabel.font = UIFont.systemFont(ofSize: 18, weight: .bold)
-            view.addSubview(imageView)
-            view.addSubview(nameLabel)
-            view.addSubview(applyButton)
-            // Layout card imageView and label
-            imageView.translatesAutoresizingMaskIntoConstraints = false
-            imageView.contentMode = .scaleAspectFit
-            nameLabel.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-                imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-                imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-                imageView.heightAnchor.constraint(equalToConstant: 200),
-                nameLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 10),
-                nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10)
-            ])
-        }
-        // Configure the target imageView for photo selection
-        targetImageView.backgroundColor = UIColor(white: 0.1, alpha: 1)
-        targetImageView.contentMode = .scaleAspectFit
-        targetImageView.image = UIImage(systemName: "camera")
-        targetImageView.tintColor = .white
-        targetImageView.isUserInteractionEnabled = true
-        view.addSubview(targetImageView)
-        // Add gesture to open options
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(targetImageTapped))
-        targetImageView.addGestureRecognizer(tapGesture)
-        // Layout the target imageView
-        targetImageView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            targetImageView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 50),
-            targetImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            targetImageView.widthAnchor.constraint(equalToConstant: 250),
-            targetImageView.heightAnchor.constraint(equalToConstant: 250)
-        ])
-        applyButton.translatesAutoresizingMaskIntoConstraints = false
-        applyButton.layer.cornerRadius = 10
-        applyButton.backgroundColor = .white
-        applyButton.setTitleColor(.black, for: .normal)
-        let applyTapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapApply))
-        applyButton.addGestureRecognizer(applyTapGesture)
-        applyButton.setTitle("Apply Card", for: .normal)
-        NSLayoutConstraint.activate([
-            applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 50),
-            applyButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            applyButton.widthAnchor.constraint(equalToConstant: 100),
-            applyButton.heightAnchor.constraint(equalToConstant: 40)
-        ])
-        guard let card = card else {print("did not find card"); return}
-        filterColorValue = card.filterData[3]
-        print(filterColorValue)
-    }
-    @objc func didTapApply() {
+           super.viewDidLoad()
+           view.backgroundColor = .black
+           // Configure the card imageView and label
+           fireStoreService.fetchUserData(userID: fromUserID ?? "")
+           if let card = card {
+               imageView.kf.setImage(with: URL(string: card.imageURL))
+               filterImage = imageView.image ?? UIImage()
+               let nameLabel = UILabel()
+               nameLabel.text = card.cardName
+               nameLabel.textColor = .white
+               nameLabel.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+               view.addSubview(imageView)
+               view.addSubview(nameLabel)
+               view.addSubview(applyButton)
+               // Layout card imageView and label
+               imageView.translatesAutoresizingMaskIntoConstraints = false
+               imageView.contentMode = .scaleAspectFit
+               nameLabel.translatesAutoresizingMaskIntoConstraints = false
+               NSLayoutConstraint.activate([
+                   imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+                   imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+                   imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+                   imageView.heightAnchor.constraint(equalToConstant: 200),
+                   nameLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 10),
+                   nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10)
+               ])
+           }
+
+           targetImageView.backgroundColor = UIColor(white: 0.1, alpha: 1)
+           targetImageView.contentMode = .scaleAspectFit
+           targetImageView.image = UIImage(systemName: "square.and.arrow.down.fill")
+           targetImageView.tintColor = .white
+           targetImageView.isUserInteractionEnabled = true
+           view.addSubview(targetImageView)
+
+           // 添加虛線邊框
+           targetImageView.layer.borderColor = UIColor.white.cgColor
+           targetImageView.layer.borderWidth = 2
+           targetImageView.layer.cornerRadius = 10
+           targetImageView.layer.masksToBounds = true
+
+//           let dashBorder = CAShapeLayer()
+//           dashBorder.strokeColor = UIColor.white.cgColor
+//           dashBorder.lineDashPattern = [6, 3] // 虛線的樣式：6點劃線，3點空白
+//           dashBorder.frame = targetImageView.bounds
+//           dashBorder.fillColor = nil
+//           dashBorder.path = UIBezierPath(roundedRect: targetImageView.bounds, cornerRadius: 10).cgPath
+//           targetImageView.layer.addSublayer(dashBorder)
+
+           let tapGesture = UITapGestureRecognizer(target: self, action: #selector(targetImageTapped))
+           targetImageView.addGestureRecognizer(tapGesture)
+
+           // Layout the target imageView
+           targetImageView.translatesAutoresizingMaskIntoConstraints = false
+           NSLayoutConstraint.activate([
+               targetImageView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 50),
+               targetImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+               targetImageView.widthAnchor.constraint(equalToConstant: 250),
+               targetImageView.heightAnchor.constraint(equalToConstant: 250)
+           ])
+
+           applyButton.translatesAutoresizingMaskIntoConstraints = false
+           applyButton.layer.cornerRadius = 10
+           applyButton.backgroundColor = .white
+           applyButton.setTitleColor(.black, for: .normal)
+           let applyTapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapApply))
+           applyButton.addGestureRecognizer(applyTapGesture)
+           applyButton.setTitle("Apply Card", for: .normal)
+           NSLayoutConstraint.activate([
+               applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 50),
+               applyButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+               applyButton.widthAnchor.constraint(equalToConstant: 100),
+               applyButton.heightAnchor.constraint(equalToConstant: 40)
+           ])
+           guard let card = card else {print("did not find card"); return}
+           filterColorValue = card.filterData[3]
+       }
+
+       // 在 viewDidLayoutSubviews 中更新虛線邊框的大小
+//       override func viewDidLayoutSubviews() {
+//           super.viewDidLayoutSubviews()
+//           if let dashBorder = targetImageView.layer.sublayers?.first as? CAShapeLayer {
+//               dashBorder.frame = targetImageView.bounds
+//               dashBorder.path = UIBezierPath(roundedRect: targetImageView.bounds, cornerRadius: 10).cgPath
+//           }
+//       }
+       @objc func didTapApply() {
         print("tap apply button")
-        
         if applyButton.title(for: .normal) == "Apply Card" {
             guard let targetImage = targetImage else {
                 print("No image selected from photo library.")
@@ -120,16 +143,13 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             }
             //        // 計算直方圖
             let targetHistogramData = histogram.calculateHistogram(for: targetImage)
-
             let filterHistogramData = histogram.calculateHistogram(for: filterImage)
-
             //        // 確認是否成功計算
             let targetValues = [calculateBrightness(from: targetHistogramData),
                                 calculateContrastFromHistogram(histogramData: targetHistogramData),
                                 calculateSaturation(from: targetHistogramData)]
-            let filterValues = [calculateBrightness(from: filterHistogramData),
-                                calculateContrastFromHistogram(histogramData: filterHistogramData),
-                                calculateSaturation(from: filterHistogramData)]
+            guard let card = card else {return}
+            let filterValues = [card.filterData[0],card.filterData[1], card.filterData[2] ]
             let tValues = [tBrightness, tContrast, tSaturation]
             print("targetValues: \(targetValues)")
             print("filterValues: \(filterValues)")
@@ -137,38 +157,40 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             print(smoothTargetValues)
             let targetColorValue = getDominantColor(from: targetImage)
             if let filterColorValue = filterColorValue, targetColorValue != 0 {
-                self.hueColor = fabsf(filterColorValue - targetColorValue) * 0.25
+                self.hueColor = fabsf(filterColorValue - targetColorValue) 
                 print("hueColor: \(hueColor)")
             } else {
                 print("One or both color values are missing or targetColorValue is 0. Skipping calculation.")
             }
             print("targetColor\(targetColorValue)")
             print("filterColor\(filterColorValue)")
-//            let hueColor = fabsf((filterColorValue ?? 0) - targetColorValue) * 0.15
             targetImageView.image = applyImageAdjustments(image: targetImage, smoothValues: scaledValues ?? [0, 0, 0], hueAdjustment: hueColor ?? 10)
-            applyButton.setTitle("Save Image", for: .normal)
-            guard let card = card else {return}
+            applyButton.setTitle("Customize", for: .normal)
             if fromUserID != card.creatorID{
                 sendNotification(card: card)
             }
-        } else if applyButton.title(for: .normal) == "Save Image" {
+        } else if applyButton.title(for: .normal) == "Customize" {
             guard let targetImage = targetImageView.image, let card = card else { return }
 
                 // Wrap ImageAdjustmentView in a UIHostingController
-            let imageAdjustmentView = ImageAdjustmentView(card: card, originalImage: targetImage)
+            let imageAdjustmentView = ImageAdjustmentView(card: card, originalImage: targetImage) { [weak self] in
+                    // This completion block will be called when the ImageAdjustmentView is dismissed
+                    self?.dismiss(animated: true, completion: {
+                        // After dismissing ImageAdjustmentView, navigate back to the CardView
+                        self?.navigationController?.popViewController(animated: true)
+                    })
+                }
                 let hostingController = UIHostingController(rootView: imageAdjustmentView)
 
                 // Present the UIHostingController modally
-                self.present(hostingController, animated: true, completion: nil)
-//            saveFilteredImageToLibrary()
-//            addPhotoData()
+            self.present(hostingController, animated: true, completion: nil)
             applyButton.setTitle("Apply Card", for: .normal)
         }
     }
     func applySmoothFilterWithDifferentT(targetValues: [Float], filterValues: [Float], tValues: [Float]) {
         var result = [Float]()
         for targetValue in 0..<targetValues.count {
-            let newValue = /*targetValues[targetValue] + */(filterValues[targetValue] - targetValues[targetValue]) * tValues[targetValue]
+            let newValue = (filterValues[targetValue] - targetValues[targetValue]) * tValues[targetValue]
             result.append(newValue)
         }
         scaleFactor(newValue: result, brightnessScale: 1, contrastScale: 1, saturationScale: 1)
@@ -208,7 +230,9 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         }
         // Camera option
         let cameraAction = UIAlertAction(title: "Camera", style: .default) { _ in
-            var cameraVC = NoFilterCameraView()
+            var cameraVC = NoFilterCameraView(){_ in
+
+            }
             cameraVC.delegate = self
                 let hostingController = UIHostingController(rootView: cameraVC)
             self.navigationController?.pushViewController(hostingController, animated: true)
@@ -249,8 +273,8 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
              "id": document.documentID,
              "fromUserPhoto": user.avatar,
              "from": fromUserID,
-             "to": card.id,
-             "postImage": card.avatar,
+             "to": card.creatorID,
+             "postImage": card.imageURL,
              "type": NotificationType.useCard.rawValue,
              "createdTime": Timestamp()
         ]

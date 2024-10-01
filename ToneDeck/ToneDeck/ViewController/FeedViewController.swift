@@ -36,7 +36,6 @@ struct FeedView: View {
     @StateObject private var firestoreService = FirestoreService()
     @State private var path = [FeedDestination]()
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
-
     var body: some View {
         NavigationStack(path: $path) {
             ScrollView {
@@ -44,10 +43,9 @@ struct FeedView: View {
                     ForEach(firestoreService.posts.sorted(by: {  ($0.createdTime.dateValue()) > ($1.createdTime.dateValue())  })) { post in
                         if let cardID = post.cardID,
                            let card = firestoreService.cardsDict[cardID] {
-                            PostView(post: post, card: card, path: $path)// Pass path to child views
-
+                            PostView(post: post, card: card, path: $path)
                         } else {
-                            PostView(post: post, card: nil, path: $path)  // Handle missing card case
+                            PostView(post: post, card: nil, path: $path)
                         }
                     }
                 }
@@ -56,7 +54,9 @@ struct FeedView: View {
                     firestoreService.fetchPosts()  // Load posts on view appear
                 }
                 .navigationBarItems(trailing: Button(action: {
-                    path.append(.addPost)  // Navigate to the add post view
+                    if path.last != .addPost {
+                        path.append(.addPost)
+                    }
                     print("Navigating to addPost")  // Debugging print
                 }) {
                     Image(systemName: "plus")
@@ -64,17 +64,23 @@ struct FeedView: View {
                 .navigationDestination(for: FeedDestination.self) { destination in
                     switch destination {
                     case .addPost:
-                        PhotoGridView()  
+                        PhotoGridView(path: $path)
+
                     case .applyCard(let card):
                         SecondApplyCardViewControllerWrapper(card: card)
+
                     case .visitProfile(let postCreatorID):
                         ProfilePageView(userID: postCreatorID)
+                            .onDisappear {
+                                path.removeAll(where: { $0 == .addPost })
+                            }
                     }
                 }
             }
         }
     }
 }
+
 struct PostView: View {
     let post: Post
     let card: Card? // Optional card
@@ -92,70 +98,69 @@ struct PostView: View {
                 .aspectRatio(contentMode: .fill)
                 .frame(maxWidth: .infinity, maxHeight: 600)
                 .clipped()
+                .overlay( HStack {
+                    Spacer()
+                    VStack {
+                        Spacer()
+                        if let card = card {
+                            PostButtonsView(card: card, path: $path)
 
-            // Display card buttons if the card exists
-            if let card = card {
-                PostButtonsView(card: card, path: $path)
-                    .padding(.vertical, 8)
-            } else {
-                // Display loading placeholder if card is nil
-                Text("Loading card...")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                    .padding(.vertical, 8)
-            }
+                        }
 
-            // Display Post Text
-            Text(post.text)
-                .font(.body)
-                .padding([.top, .leading, .trailing])
+                    }
+                }
+                    .cornerRadius(10)
+                    .shadow(radius: 5)
+                    .padding([.leading, .trailing])
 
-            // Display Creator ID and Time
-            PostInfoView(post: post, path: $path)
-        }
-        .background(Color.black)
-        .frame(maxWidth: .infinity, maxHeight: 800)
-        .overlay( HStack {
-            Spacer()
-            VStack {
+                )
+            HStack {
+                Spacer()
                 Button(action: {
                     toggleLike()
 
                 }) {
-                    Image(systemName: "star.fill")
+                    Image(systemName: isStarred ?"aqi.medium" :"aqi.medium" )
                         .padding()
                         .background(Color.black.opacity(0.5))
-                        .foregroundColor(isStarred ? .yellow : .white) // Change color based on state
+                        .foregroundColor(isStarred ? .cyan  : .white) // Change color based on state
                         .clipShape(Circle())
-                }
-                .padding(4)
+                        .symbolEffect(.variableColor.cumulative.dimInactiveLayers.reversing, options: .nonRepeating)
 
+                }
+                .buttonStyle(PlainButtonStyle())
                 Button(action: {
                     loadUserAvatar()  // Load user avatar before presenting the view
                     isCommentViewPresented = true
                 }) {
                     Image(systemName: "bubble.right")
                         .padding()
+
                         .background(Color.black.opacity(0.5))
                         .foregroundColor(.white)
                         .clipShape(Circle())
+
                 }
-                .padding(4)
+                .buttonStyle(PlainButtonStyle())
                 .sheet(isPresented: $isCommentViewPresented) {
                     CommentView(post: post, postID: post.id, userID: fromUserID ?? "", userAvatarURL: userAvatarURL)
                 }
             }
+            // Display Post Text
+            Text(post.text)
+                .font(.body)
+                .padding([.top, .leading, .trailing])
+            PostInfoView(post: post, path: $path)
+                .padding([.top, .leading, .trailing])
         }
-            .cornerRadius(10)
-            .shadow(radius: 5)
-            .padding([.leading, .trailing])
-        )
+        .background(Color.black)
+        .frame(maxWidth: .infinity, maxHeight: 800)
         .onAppear {
             fireStoreService.fetchUserData(userID: fromUserID ?? "")
             checkIfStarred()
         }
     }
-    private func toggleLike() {
+    func toggleLike() {
         if isStarred {
             // If already starred, remove the user's ID from the likerIDArray
             removeUserFromLikerArray()
@@ -165,7 +170,7 @@ struct PostView: View {
         }
         isStarred.toggle()
     }
-    private func checkIfStarred() {
+    func checkIfStarred() {
         // Assume we get the likerIDArray from the post
         guard let fromUserID = fromUserID else {return}
         if post.likerIDArray.contains(fromUserID) {
@@ -176,7 +181,7 @@ struct PostView: View {
     }
 
     // Function to add the user to the likerIDArray in the posts collection
-    private func addUserToLikerArray() {
+    func addUserToLikerArray() {
 
         guard let fromUserID = fromUserID else {return}
         let postRef = Firestore.firestore().collection("posts").document(post.id)
@@ -194,19 +199,19 @@ struct PostView: View {
         let document = notifications.document()
         guard let user = user else {return}
         let data: [String: Any] = [
-             "id": document.documentID,
-             "fromUserPhoto": user.avatar,
-             "from": fromUserID,
-             "to": post.creatorID,
-             "postImage": post.imageURL,
-             "type": NotificationType.like.rawValue,
-             "createdTime": Timestamp()
+            "id": document.documentID,
+            "fromUserPhoto": user.avatar,
+            "from": fromUserID,
+            "to": post.creatorID,
+            "postImage": post.imageURL,
+            "type": NotificationType.like.rawValue,
+            "createdTime": Timestamp()
         ]
         document.setData(data)
     }
 
     // Function to remove the user from the likerIDArray in the posts collection
-    private func removeUserFromLikerArray() {
+    func removeUserFromLikerArray() {
         // Firestore logic to update likerIDArray
         guard let fromUserID = fromUserID else {return}
 
@@ -230,7 +235,7 @@ struct PostView: View {
             }
         }
     }
-    private func loadUserAvatar() {
+    func loadUserAvatar() {
         guard let fromUserID = fromUserID else {return}
         let userRef = Firestore.firestore().collection("users").document(fromUserID)
         userRef.getDocument { document, error in
@@ -240,7 +245,6 @@ struct PostView: View {
         }
     }
 }
-
 struct PostButtonsView: View {
     let card: Card
     @Binding var path: [FeedDestination]  // Use shared path for navigation
@@ -249,16 +253,18 @@ struct PostButtonsView: View {
         HStack {
             // Button for navigating to apply card view
             Button(action: {
-                path.append(.applyCard(card: card))  // Navigate to applyCard view
+                if path.last != .applyCard(card: card) { // 防止重复导航
+                    path.append(.applyCard(card: card))
+                }
                 print("Navigating to applyCard with card \(card.cardName)")  // Debugging print
             }) {
                 Text(card.cardName)
                     .font(.caption)
                     .padding(8)
-                    .background(Color.black.opacity(0.2))
                     .cornerRadius(10)
                     .foregroundColor(.white)
             }
+            .buttonStyle(PlainButtonStyle())
             Spacer()
 
             // Button for navigating to apply card view using image
@@ -266,11 +272,12 @@ struct PostButtonsView: View {
                 path.append(.applyCard(card: card))  // Navigate to applyCard view
                 print("Navigating to applyCard with image for card \(card.cardName)")  // Debugging print
             }) {
-                KFImage(URL(string: card.avatar))
+                KFImage(URL(string: card.imageURL))
                     .resizable()
-                    .frame(width: 40, height: 40)
-                    .clipShape(Circle())
+                    .frame(width: 60, height: 60)
+                    .cornerRadius(10)
             }
+            .buttonStyle(PlainButtonStyle())
         }
         .padding()
     }
@@ -281,36 +288,38 @@ struct PostInfoView: View {
     @Binding var path: [FeedDestination]
     var body: some View {
 
-            HStack {
-                Button {
-                    path.append(.visitProfile(userID: post.creatorID))
-                } label: {
-                    Text("by \(post.creatorID)")
-                        .font(.caption)
-                        .foregroundColor(.black) // 顯示為可點擊的藍色
+        VStack {
+            Button {
+                path.append(.visitProfile(userID: post.creatorID))
+            } label: {
+                Text(post.creatorID)
+                    .font(.title3)
+                    .foregroundColor(.white)
+
+
                 Spacer()
-                Text("\(post.createdTime, formatter: postDateFormatter)")
-                    .font(.caption)
+                Text("\(formattedDate(from: post.createdTime))")
+                    .font(.title3)
                     .foregroundColor(.gray)
                     .padding([.leading, .trailing, .bottom])
             }
+            .buttonStyle(PlainButtonStyle())
         }
-
-
     }
-
-    // Date Formatter for displaying time
-    private let postDateFormatter: DateFormatter = {
+    func formattedDate(from timestamp: Timestamp) -> String {
+        let date = timestamp.dateValue() // Convert Timestamp to Date
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        return formatter
-    }()
-
+        formatter.dateStyle = .medium // Set date format (e.g., "Sep 24, 2024")
+        formatter.timeStyle = .none   // Only show date, no time
+        return formatter.string(from: date) // Convert Date to String
+    }
     struct FeedView_Previews: PreviewProvider {
         static var previews: some View {
             FeedView()
         }
 
     }
+}
+#Preview {
+    FeedView()
 }

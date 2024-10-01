@@ -47,7 +47,7 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
         // Configure the card imageView and label
         fireStoreService.fetchUserData(userID: fromUserID ?? "")
         if let card = card {
-            imageView.kf.setImage(with: URL(string: card.avatar))
+            imageView.kf.setImage(with: URL(string: card.imageURL))
             filterImage = imageView.image ?? UIImage()
             let nameLabel = UILabel()
             nameLabel.text = card.cardName
@@ -206,7 +206,9 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
         }
         // Camera option
         let cameraAction = UIAlertAction(title: "Camera", style: .default) { _ in
-            var cameraVC = NoFilterCameraView()
+            var cameraVC = NoFilterCameraView(){_ in 
+
+            }
             cameraVC.delegate = self
                 let hostingController = UIHostingController(rootView: cameraVC)
             self.navigationController?.pushViewController(hostingController, animated: true)
@@ -248,7 +250,7 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
              "fromUserPhoto": user.avatar,
              "from": fromUserID,
              "to": card.id,
-             "postImage": card.avatar,
+             "postImage": card.imageURL,
              "type": NotificationType.useCard.rawValue,
              "createdTime": Timestamp()
         ]

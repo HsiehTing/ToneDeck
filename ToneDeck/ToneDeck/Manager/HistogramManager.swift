@@ -18,7 +18,7 @@ class ImageHistogramCalculator: ObservableObject {
     // 計算目標圖像的四種直方圖數據：紅、綠、藍、灰
     func calculateHistogram(for image: UIImage) -> [String: [Float]] {
         guard let ciImage = CIImage(image: image) else {
-            print("Failed to convert UIImage to CIImage.")
+            print("+++++ Failed to convert UIImage to CIImage.")
             return ["none": [0]]
         }
 

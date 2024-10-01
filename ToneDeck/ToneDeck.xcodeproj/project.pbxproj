@@ -27,6 +27,9 @@
 		784E6BE72C9A773D004533C0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 784E6BE62C9A773D004533C0 /* GoogleService-Info.plist */; };
 		7870462A2CA29A1700BA7CC2 /* SecondApplyCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787046292CA29A1700BA7CC2 /* SecondApplyCardViewController.swift */; };
 		7870462C2CA2E5F200BA7CC2 /* NoFilterCameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7870462B2CA2E5F200BA7CC2 /* NoFilterCameraView.swift */; };
+		787046302CA5638F00BA7CC2 /* AlertKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7870462F2CA5638F00BA7CC2 /* AlertKit */; };
+		787046342CA5B03500BA7CC2 /* PlayfairDisplay-Italic-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 787046332CA5B03400BA7CC2 /* PlayfairDisplay-Italic-VariableFont_wght.ttf */; };
+		787046362CA5B03F00BA7CC2 /* PlayfairDisplay-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 787046352CA5B03F00BA7CC2 /* PlayfairDisplay-VariableFont_wght.ttf */; };
 		787DB7CF2C998F5300350DEC /* ProfilePageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */; };
 		78AC68E22C9D1BE000260BB3 /* CommentViewCOntroller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AC68E12C9D1BE000260BB3 /* CommentViewCOntroller.swift */; };
 		78AC68E62C9D79E800260BB3 /* ImageAdjustmentVIewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AC68E52C9D79E800260BB3 /* ImageAdjustmentVIewController.swift */; };
@@ -37,6 +40,10 @@
 		78BAF0542C980B0900A5B418 /* PhotoGridViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */; };
 		78BAF0562C980B4500A5B418 /* TextInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BAF0552C980B4500A5B418 /* TextInputViewController.swift */; };
 		78BAF0592C980FF300A5B418 /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 78BAF0582C980FF300A5B418 /* IQKeyboardManagerSwift */; };
+		78CA2F792CAAF86C004E8414 /* ExtensionFireStoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78CA2F782CAAF86C004E8414 /* ExtensionFireStoreService.swift */; };
+		78CA2F7B2CABC9FB004E8414 /* EditingProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78CA2F7A2CABC9FB004E8414 /* EditingProfileView.swift */; };
+		78CA2F7D2CAC376F004E8414 /* Shader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 78CA2F7C2CAC376E004E8414 /* Shader.metal */; };
+		78ECFDE62CA93D0E008B4226 /* SwiftUIApplyCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78ECFDE52CA93D0E008B4226 /* SwiftUIApplyCardView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,6 +64,8 @@
 		784E6BE62C9A773D004533C0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		787046292CA29A1700BA7CC2 /* SecondApplyCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondApplyCardViewController.swift; sourceTree = "<group>"; };
 		7870462B2CA2E5F200BA7CC2 /* NoFilterCameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoFilterCameraView.swift; sourceTree = "<group>"; };
+		787046332CA5B03400BA7CC2 /* PlayfairDisplay-Italic-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Italic-VariableFont_wght.ttf"; sourceTree = "<group>"; };
+		787046352CA5B03F00BA7CC2 /* PlayfairDisplay-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-VariableFont_wght.ttf"; sourceTree = "<group>"; };
 		787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePageViewController.swift; sourceTree = "<group>"; };
 		78AC68E12C9D1BE000260BB3 /* CommentViewCOntroller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewCOntroller.swift; sourceTree = "<group>"; };
 		78AC68E52C9D79E800260BB3 /* ImageAdjustmentVIewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAdjustmentVIewController.swift; sourceTree = "<group>"; };
@@ -66,6 +75,10 @@
 		78BAF0512C97F61500A5B418 /* FeedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
 		78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGridViewController.swift; sourceTree = "<group>"; };
 		78BAF0552C980B4500A5B418 /* TextInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputViewController.swift; sourceTree = "<group>"; };
+		78CA2F782CAAF86C004E8414 /* ExtensionFireStoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionFireStoreService.swift; sourceTree = "<group>"; };
+		78CA2F7A2CABC9FB004E8414 /* EditingProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditingProfileView.swift; sourceTree = "<group>"; };
+		78CA2F7C2CAC376E004E8414 /* Shader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shader.metal; sourceTree = "<group>"; };
+		78ECFDE52CA93D0E008B4226 /* SwiftUIApplyCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIApplyCardView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,6 +86,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				787046302CA5638F00BA7CC2 /* AlertKit in Frameworks */,
 				7807103A2C9190130039B44C /* FirebaseDatabase in Frameworks */,
 				7807103E2C9190130039B44C /* FirebaseStorage in Frameworks */,
 				780710382C9190130039B44C /* FirebaseAuth in Frameworks */,
@@ -110,9 +124,10 @@
 				78070FF32C918C1B0039B44C /* ToneDeckApp.swift */,
 				78070FF52C918C1B0039B44C /* ContentView.swift */,
 				780710052C918DFB0039B44C /* AppDelegate.swift */,
+				78CA2F7C2CAC376E004E8414 /* Shader.metal */,
 				780710442C9285730039B44C /* Manager */,
 				7807103F2C9190A60039B44C /* ViewController */,
-				78070FF72C918C1E0039B44C /* Assets.xcassets */,
+				787046312CA5AE9D00BA7CC2 /* Assets */,
 				784E6BE62C9A773D004533C0 /* GoogleService-Info.plist */,
 				78070FF92C918C1E0039B44C /* Preview Content */,
 			);
@@ -137,12 +152,14 @@
 				78AC68EA2CA1137A00260BB3 /* CustomCameraViewController.swift */,
 				780710562C9414FC0039B44C /* ApplyCardViewController.swift */,
 				787046292CA29A1700BA7CC2 /* SecondApplyCardViewController.swift */,
+				78ECFDE52CA93D0E008B4226 /* SwiftUIApplyCardView.swift */,
 				78AC68E52C9D79E800260BB3 /* ImageAdjustmentVIewController.swift */,
 				78BAF0512C97F61500A5B418 /* FeedViewController.swift */,
 				78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */,
 				78AC68E12C9D1BE000260BB3 /* CommentViewCOntroller.swift */,
 				78BAF0552C980B4500A5B418 /* TextInputViewController.swift */,
 				787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */,
+				78CA2F7A2CABC9FB004E8414 /* EditingProfileView.swift */,
 				78AC68E72C9EF90800260BB3 /* NotificationCenterViewController.swift */,
 			);
 			path = ViewController;
@@ -152,10 +169,29 @@
 			isa = PBXGroup;
 			children = (
 				780710452C92859B0039B44C /* FireStoreCardManager.swift */,
+				78CA2F782CAAF86C004E8414 /* ExtensionFireStoreService.swift */,
 				780710592C9565320039B44C /* HistogramManager.swift */,
 				7807105B2C9605430039B44C /* FilterManager.swift */,
 			);
 			path = Manager;
+			sourceTree = "<group>";
+		};
+		787046312CA5AE9D00BA7CC2 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				787046322CA5AEB900BA7CC2 /* Fonts */,
+				78070FF72C918C1E0039B44C /* Assets.xcassets */,
+			);
+			path = Assets;
+			sourceTree = "<group>";
+		};
+		787046322CA5AEB900BA7CC2 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				787046352CA5B03F00BA7CC2 /* PlayfairDisplay-VariableFont_wght.ttf */,
+				787046332CA5B03400BA7CC2 /* PlayfairDisplay-Italic-VariableFont_wght.ttf */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -183,6 +219,7 @@
 				780710482C9286FB0039B44C /* Kingfisher */,
 				78BAF0582C980FF300A5B418 /* IQKeyboardManagerSwift */,
 				78AC68ED2CA135B400260BB3 /* MijickCameraView */,
+				7870462F2CA5638F00BA7CC2 /* AlertKit */,
 			);
 			productName = ToneDeck;
 			productReference = 78070FF02C918C1B0039B44C /* ToneDeck.app */;
@@ -217,6 +254,7 @@
 				780710472C9286FB0039B44C /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				78BAF0572C980FF300A5B418 /* XCRemoteSwiftPackageReference "IQKeyboardManager" */,
 				78AC68EC2CA135B400260BB3 /* XCRemoteSwiftPackageReference "CameraView" */,
+				7870462E2CA5638F00BA7CC2 /* XCRemoteSwiftPackageReference "AlertKit" */,
 			);
 			productRefGroup = 78070FF12C918C1B0039B44C /* Products */;
 			projectDirPath = "";
@@ -232,7 +270,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				787046342CA5B03500BA7CC2 /* PlayfairDisplay-Italic-VariableFont_wght.ttf in Resources */,
 				78070FFB2C918C1E0039B44C /* Preview Assets.xcassets in Resources */,
+				787046362CA5B03F00BA7CC2 /* PlayfairDisplay-VariableFont_wght.ttf in Resources */,
 				78070FF82C918C1E0039B44C /* Assets.xcassets in Resources */,
 				784E6BE72C9A773D004533C0 /* GoogleService-Info.plist in Resources */,
 			);
@@ -277,11 +317,15 @@
 				78AC68E62C9D79E800260BB3 /* ImageAdjustmentVIewController.swift in Sources */,
 				7807105C2C9605430039B44C /* FilterManager.swift in Sources */,
 				78070FF42C918C1B0039B44C /* ToneDeckApp.swift in Sources */,
+				78CA2F7D2CAC376F004E8414 /* Shader.metal in Sources */,
 				78BAF0522C97F61500A5B418 /* FeedViewController.swift in Sources */,
 				7870462A2CA29A1700BA7CC2 /* SecondApplyCardViewController.swift in Sources */,
 				7870462C2CA2E5F200BA7CC2 /* NoFilterCameraView.swift in Sources */,
+				78CA2F792CAAF86C004E8414 /* ExtensionFireStoreService.swift in Sources */,
 				78AC68E22C9D1BE000260BB3 /* CommentViewCOntroller.swift in Sources */,
+				78CA2F7B2CABC9FB004E8414 /* EditingProfileView.swift in Sources */,
 				780710432C91DF720039B44C /* AddCardViewController.swift in Sources */,
+				78ECFDE62CA93D0E008B4226 /* SwiftUIApplyCardView.swift in Sources */,
 				780710572C9414FD0039B44C /* ApplyCardViewController.swift in Sources */,
 				7807105A2C9565320039B44C /* HistogramManager.swift in Sources */,
 				78BAF0542C980B0900A5B418 /* PhotoGridViewController.swift in Sources */,
@@ -520,6 +564,14 @@
 				minimumVersion = 7.12.0;
 			};
 		};
+		7870462E2CA5638F00BA7CC2 /* XCRemoteSwiftPackageReference "AlertKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparrowcode/AlertKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.1.9;
+			};
+		};
 		78AC68EC2CA135B400260BB3 /* XCRemoteSwiftPackageReference "CameraView" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Mijick/CameraView.git";
@@ -563,6 +615,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 780710472C9286FB0039B44C /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		7870462F2CA5638F00BA7CC2 /* AlertKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7870462E2CA5638F00BA7CC2 /* XCRemoteSwiftPackageReference "AlertKit" */;
+			productName = AlertKit;
 		};
 		78AC68ED2CA135B400260BB3 /* MijickCameraView */ = {
 			isa = XCSwiftPackageProductDependency;
