@@ -48,7 +48,7 @@ extension FirestoreService {
         userRef.getDocuments { querySnapshot, error in
             guard let documents = querySnapshot?.documents else {return}
             for document in  documents {
-                document.reference.updateData(["Avatar": newAvatarURL])
+                document.reference.updateData(["avatar": newAvatarURL])
             }
         }
 

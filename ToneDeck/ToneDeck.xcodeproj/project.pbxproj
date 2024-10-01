@@ -42,6 +42,7 @@
 		78BAF0592C980FF300A5B418 /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 78BAF0582C980FF300A5B418 /* IQKeyboardManagerSwift */; };
 		78CA2F792CAAF86C004E8414 /* ExtensionFireStoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78CA2F782CAAF86C004E8414 /* ExtensionFireStoreService.swift */; };
 		78CA2F7B2CABC9FB004E8414 /* EditingProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78CA2F7A2CABC9FB004E8414 /* EditingProfileView.swift */; };
+		78CA2F7D2CAC376F004E8414 /* Shader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 78CA2F7C2CAC376E004E8414 /* Shader.metal */; };
 		78ECFDE62CA93D0E008B4226 /* SwiftUIApplyCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78ECFDE52CA93D0E008B4226 /* SwiftUIApplyCardView.swift */; };
 /* End PBXBuildFile section */
 
@@ -76,6 +77,7 @@
 		78BAF0552C980B4500A5B418 /* TextInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputViewController.swift; sourceTree = "<group>"; };
 		78CA2F782CAAF86C004E8414 /* ExtensionFireStoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionFireStoreService.swift; sourceTree = "<group>"; };
 		78CA2F7A2CABC9FB004E8414 /* EditingProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditingProfileView.swift; sourceTree = "<group>"; };
+		78CA2F7C2CAC376E004E8414 /* Shader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shader.metal; sourceTree = "<group>"; };
 		78ECFDE52CA93D0E008B4226 /* SwiftUIApplyCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIApplyCardView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -122,6 +124,7 @@
 				78070FF32C918C1B0039B44C /* ToneDeckApp.swift */,
 				78070FF52C918C1B0039B44C /* ContentView.swift */,
 				780710052C918DFB0039B44C /* AppDelegate.swift */,
+				78CA2F7C2CAC376E004E8414 /* Shader.metal */,
 				780710442C9285730039B44C /* Manager */,
 				7807103F2C9190A60039B44C /* ViewController */,
 				787046312CA5AE9D00BA7CC2 /* Assets */,
@@ -314,6 +317,7 @@
 				78AC68E62C9D79E800260BB3 /* ImageAdjustmentVIewController.swift in Sources */,
 				7807105C2C9605430039B44C /* FilterManager.swift in Sources */,
 				78070FF42C918C1B0039B44C /* ToneDeckApp.swift in Sources */,
+				78CA2F7D2CAC376F004E8414 /* Shader.metal in Sources */,
 				78BAF0522C97F61500A5B418 /* FeedViewController.swift in Sources */,
 				7870462A2CA29A1700BA7CC2 /* SecondApplyCardViewController.swift in Sources */,
 				7870462C2CA2E5F200BA7CC2 /* NoFilterCameraView.swift in Sources */,

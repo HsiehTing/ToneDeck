@@ -31,7 +31,7 @@ struct EditingProfileView: View {
                         .clipShape(Circle())
                         .overlay(Circle().stroke(Color.white, lineWidth: 2))
                 } else {
-                    Image(systemName: "person.circle.fill")
+                    Image(systemName: firestoreService.user?.avatar ?? "")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 100, height: 100)
@@ -48,7 +48,6 @@ struct EditingProfileView: View {
                     }
                 }
             }
-            
             // Username
             TextField("Username", text: $userName)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -56,18 +55,17 @@ struct EditingProfileView: View {
                 .onChange(of: userName) { oldValue, newValue in
                     updateUserName()
                 }
-            
             // Status Toggle
             Toggle("Active Status", isOn: $isStatusActive)
                 .padding()
                 .background(Color.gray.opacity(0.2))
                 .cornerRadius(10)
-            
             Spacer()
         }
         .padding()
         .onAppear {
-            firestoreService.fetchUserData(userID: fromUserID ?? "")
+            guard let fromUserID = fromUserID else {return}
+            firestoreService.fetchUserData(userID: fromUserID)
         }
         .background(Color.black.edgesIgnoringSafeArea(.all))
         .foregroundColor(.white)

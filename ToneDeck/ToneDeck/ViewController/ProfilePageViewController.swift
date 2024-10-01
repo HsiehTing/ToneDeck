@@ -15,7 +15,6 @@ struct ProfilePageView: View {
     @State private var fetchedPosts: [Post] = []
     //@State var user: User
     let userID: String
-    let defaultAvatarURL = "https://example.com/default_avatar.png"  // Set a default image
     let db = Firestore.firestore()
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     let fireStoreService = FirestoreService()
@@ -28,7 +27,7 @@ struct ProfilePageView: View {
                         VStack(spacing: 8) {
                             KFImage(URL(string: user.avatar))
                                 .resizable()
-                                .scaledToFit()
+                                .aspectRatio(contentMode: .fill)
                                 .frame(width: 100, height: 100)
                                 .clipShape(Circle())
                                 .overlay(Circle().stroke(Color.gray, lineWidth: 2))
