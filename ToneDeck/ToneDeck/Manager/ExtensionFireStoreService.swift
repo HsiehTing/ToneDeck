@@ -61,7 +61,40 @@ extension FirestoreService {
                 document.reference.updateData(["userName": newName])
             }
         }
-
+    }
+    func addBlockUserData(to targetID: String) {
+        guard let fromUserID = fromUserID else { return }
+        let userRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: fromUserID)
+        userRef.getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents, let document = documents.first else {return}
+            let documentRef = document.reference
+            documentRef.setData([
+                "blockUserArray": FieldValue.arrayUnion([targetID])
+            ]){ error in
+                if let error = error {
+                    print("Error updating blockUserArray: \(error.localizedDescription)")
+                } else {
+                    print("Successfully added targetID to blockUserArray")
+                }
+            }
+        }
+    }
+    func addReportUserData(to targetID: String) {
+        guard let fromUserID = fromUserID else { return }
+        let userRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: fromUserID)
+        userRef.getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents, let document = documents.first else {return}
+            let documentRef = document.reference
+            documentRef.setData([
+                "reportUserArray": FieldValue.arrayUnion([targetID])
+            ]){ error in
+                if let error = error {
+                    print("Error updating blockUserArray: \(error.localizedDescription)")
+                } else {
+                    print("Successfully added targetID to reportUserArray")
+                }
+            }
+        }
     }
 }
 func checkUserData() {

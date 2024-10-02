@@ -7,17 +7,23 @@
 import SwiftUI
 import FirebaseFirestore
 import Kingfisher
+import AlertKit
 
 struct ProfilePageView: View {
+
     @StateObject private var firestoreService = FirestoreService()
     @State var isFollowed: Bool = false
     @State var path: [ProfileDestination] = []
     @State private var fetchedPosts: [Post] = []
-    //@State var user: User
+    @State var userData: User? = nil
+    @State private var showBlockAlert = false
+    @State private var showReportAlert = false
     let userID: String
     let db = Firestore.firestore()
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     let fireStoreService = FirestoreService()
+    let alertView = AlertAppleMusic17View(title: "User blocked", subtitle: "You will not see the posts from this user", icon: .done)
+    let reportView = AlertAppleMusic17View(title: "Report received", subtitle: "We will work on this ASAP", icon: .done)
     var body: some View {
         NavigationView {
             ScrollView {
@@ -57,7 +63,6 @@ struct ProfilePageView: View {
                                     }) {
                                         Text(isFollowed ? "Unfollow" : "Follow")
                                             .frame(width: 50)
-                                        
                                     }
                                     .buttonStyle(.borderedProminent)
                                     .tint(isFollowed ? .gray : .blue)
@@ -71,13 +76,13 @@ struct ProfilePageView: View {
                         LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 16) {
                             ForEach(firestoreService.posts) { post in
                                 NavigationLink(destination: ProfilePostView(post: post, path: $path)) {
-                                        KFImage(URL(string: post.imageURL))
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 100, height: 100)
-                                            .clipped()
-                                            .cornerRadius(8)
-                                    }
+                                    KFImage(URL(string: post.imageURL))
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 100, height: 100)
+                                        .clipped()
+                                        .cornerRadius(8)
+                                }
                             }
                             .buttonStyle(PlainButtonStyle())
                         }
@@ -92,14 +97,13 @@ struct ProfilePageView: View {
                 .padding()
             }
         }
-
         .onAppear {
             firestoreService.fetchProfile(userID: userID) { fetchedUser in
                 DispatchQueue.main.async {
-                    if let user = fetchedUser {  // 解包 fetchedUser
-                        fireStoreService.user = user  // 确保 fetchedUser 有值时才赋值
+                    if let user = fetchedUser {
+                        userData = fetchedUser
+                        fireStoreService.user = user
                         self.checkIfFollowed(user: user)
-                        // 独立调用函数来获取帖子
                         self.fetchPostsfromProfile(postIDs: user.postIDArray)
                     } else {
                         print("Error: fetchedUser is nil")
@@ -110,20 +114,49 @@ struct ProfilePageView: View {
         .navigationTitle("Profile")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
+
                 Button {
-                    path.append(.editingProfile)
+                    // Action for settings
                 } label: {
-                    NavigationLink {
-                        EditingProfileView()
-                    } label: {
-                        Image(systemName: "gearshape")
-                            .foregroundColor(.white)
+                    if userID == fromUserID {
+                        NavigationLink {
+                            EditingProfileView(userData: $userData)
+                        } label: {
+                            Image(systemName: "gearshape")
+                                .foregroundColor(.white)
+                                .buttonStyle(PlainButtonStyle())
+                        }
+                    } else {
+                        Menu {
+                            Button(action: {
+                                showBlockAlert = true
+                                firestoreService.addBlockUserData(to: userID)
+                                alertView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
+                                alertView.titleLabel?.textColor = .white                                
+                            }) { Label("Block", systemImage: "pencil")
+                                .alert(isPresent: $showBlockAlert, view: alertView)}
+                            Button(action: {
+                                showReportAlert = true
+                                firestoreService.addReportUserData(to: userID)
+                                reportView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
+                                reportView.titleLabel?.textColor = .white
+                                print("Report")
+                            }) { Label("Delete", systemImage: "trash")
+                                .alert(isPresent: $showReportAlert, view: reportView)}
+                        } label: {
+                            Image(systemName: "ellipsis")
+                                .font(.system(size: 20, weight: .bold))
+                                .padding(10) // Reduced padding
+                                .background(Circle().fill(Color.gray.opacity(0.6)))
+                                .foregroundColor(.white)
+                                .buttonStyle(PlainButtonStyle())
+                        }
                     }
                 }
-
             }
         }
     }
+
     func fetchPostsfromProfile(postIDs: [String]) {
         let validPostIDs = postIDs.filter { !$0.isEmpty }
         guard !validPostIDs.isEmpty else {
@@ -139,35 +172,32 @@ struct ProfilePageView: View {
             }
         }
     }
+
     func toggleFollow(user: User) {
         if isFollowed {
-            // If already starred, remove the user's ID from the likerIDArray
-
             firestoreService.removeUserFromFollowingArray(userID: userID)
             firestoreService.removeFollowNotification(user: user)
         } else {
-            // If not starred, add the user's ID to the likerIDArray
             firestoreService.addUserToFollowingArray(userID: userID)
             firestoreService.addFollowNotification(user: user)
         }
         isFollowed.toggle()
     }
+
     func checkIfFollowed(user: User) {
-        // Assume we get the likerIDArray from the post
-        guard let fromUserID = fromUserID else {return}
+        guard let fromUserID = fromUserID else { return }
         if user.followerArray.contains(fromUserID) {
             isFollowed = true
         } else {
             isFollowed = false
         }
     }
-
 }
 enum ProfileDestination: Hashable {
     case postView
     case applyCard(card: Card)
     case visitProfile(userID: String)
-    case editingProfile
+    // case editingProfile(Void)
 }
 
 struct ProfilePostView: View {
@@ -221,7 +251,6 @@ struct ProfilePostView: View {
                 }) {
                     Image(systemName: "bubble.right")
                         .padding()
-
                         .background(Color.black.opacity(0.5))
                         .foregroundColor(.white)
                         .clipShape(Circle())
@@ -245,10 +274,9 @@ struct ProfilePostView: View {
             fireStoreService.fetchUserData(userID: fromUserID ?? "")
             checkIfStarred()
             fireStoreService.fetchCardsFromProfile(for: post.cardID ?? "") { card in
-                DispatchQueue.main.async {
-                    guard let card = card else {return}
-                    self.fetchedCard = card
-                }
+
+                guard let card = card else {return}
+                self.fetchedCard = card
             }
         }
     }
@@ -378,9 +406,11 @@ struct ProfilePostView: View {
                 Button {
                     path.append(.visitProfile(userID: post.creatorID))
                 } label: {
-                    Text("by \(post.creatorID)")
+                    Text(post.creatorID)
                         .font(.caption)
-                        .foregroundColor(.black)
+                        .foregroundColor(.white)
+
+
                     Spacer()
                     Text("\(formattedDate(from: post.createdTime))")
                         .font(.caption)
@@ -399,4 +429,5 @@ struct ProfilePostView: View {
 
     }
 }
+
 

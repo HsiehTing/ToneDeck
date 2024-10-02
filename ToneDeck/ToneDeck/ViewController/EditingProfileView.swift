@@ -9,14 +9,15 @@ import SwiftUI
 import PhotosUI
 import FirebaseStorage
 import Firebase
+import Kingfisher
 
 struct EditingProfileView: View {
     @State private var userName: String = ""
     @State private var avatarImage: UIImage?
     @State private var avatarItem: PhotosPickerItem?
     @State private var isStatusActive: Bool = false
+    @Binding var userData: User?
     let firestoreService = FirestoreService()
-
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     
     var body: some View {
@@ -30,14 +31,20 @@ struct EditingProfileView: View {
                         .frame(width: 100, height: 100)
                         .clipShape(Circle())
                         .overlay(Circle().stroke(Color.white, lineWidth: 2))
+
                 } else {
-                    Image(systemName: firestoreService.user?.avatar ?? "")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 100, height: 100)
-                        .foregroundColor(.gray)
+                    if let userData = userData {
+                        KFImage(URL(string: userData.avatar) )
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.gray, lineWidth: 2))
+                            .shadow(radius: 10)
+                    }
                 }
             }
+            .buttonStyle(PlainButtonStyle())
             .onChange(of: avatarItem) { _ in
                 Task {
                     if let data = try? await avatarItem?.loadTransferable(type: Data.self) {
@@ -64,8 +71,9 @@ struct EditingProfileView: View {
         }
         .padding()
         .onAppear {
-            guard let fromUserID = fromUserID else {return}
-            firestoreService.fetchUserData(userID: fromUserID)
+//            guard let fromUserID = fromUserID else {return}
+//            firestoreService.fetchUserData(userID: fromUserID)
+
         }
         .background(Color.black.edgesIgnoringSafeArea(.all))
         .foregroundColor(.white)
@@ -90,7 +98,5 @@ struct EditingProfileView: View {
         }
 }
 
-#Preview {
-    EditingProfileView()
-}
+
 

@@ -67,14 +67,12 @@ struct ContentView: View {
                                     isSignedIn = true
                                 default:
                                     break
-
                                 }
                                 checkUserData()
                             case .failure(let error):
                                 print("failure", error)
                             }
                         }
-
                     )
                     .frame(width: 170,height: 50)
                     .signInWithAppleButtonStyle(.whiteOutline)
@@ -113,7 +111,7 @@ class MeshGradient {
     struct AnimatedGrayscaleMeshView: View {
         @State private var time: Float = 0.0
 
-        let timer = Timer.publish(every: 0.07, on: .main, in: .common).autoconnect()
+        let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
 
         private var positions: [SIMD2<Float>] {
             [
@@ -161,6 +159,7 @@ class MeshGradient {
                                     Color(white: Double(ivalue + jvalue + 1) / 3),
                                     Color(white: Double(ivalue + jvalue + 2) / 3),
                                     Color(white: Double(ivalue + jvalue + 1) / 3),
+                                
 
                                 ])
 
@@ -175,14 +174,14 @@ class MeshGradient {
                             }
                         }
                     }
-                    .blur(radius: 40)
+                    .blur(radius: 30)
                     .layerEffect(ShaderLibrary.pixellate(.float(2)), maxSampleOffset: .zero)
                     .frame(height: geometry.size.height ) // Set the frame height
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2) // Center the view
 
                 }
                 .onReceive(timer) { _ in
-                    time += 0.07
+                    time += 0.05
 
                 }
                 Color.black.opacity(0.3)

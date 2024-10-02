@@ -126,7 +126,6 @@ struct PostView: View {
                         .foregroundColor(isStarred ? .cyan  : .white) // Change color based on state
                         .clipShape(Circle())
                         .symbolEffect(.variableColor.cumulative.dimInactiveLayers.reversing, options: .nonRepeating)
-
                 }
                 .buttonStyle(PlainButtonStyle())
                 Button(action: {
@@ -148,7 +147,7 @@ struct PostView: View {
             }
             // Display Post Text
             Text(post.text)
-                .font(.body)
+                .font(.headline)
                 .padding([.top, .leading, .trailing])
             PostInfoView(post: post, path: $path)
                 .padding([.top, .leading, .trailing])
@@ -293,13 +292,11 @@ struct PostInfoView: View {
                 path.append(.visitProfile(userID: post.creatorID))
             } label: {
                 Text(post.creatorID)
-                    .font(.title3)
+                    .font(.caption)
                     .foregroundColor(.white)
-
-
                 Spacer()
                 Text("\(formattedDate(from: post.createdTime))")
-                    .font(.title3)
+                    .font(.caption)
                     .foregroundColor(.gray)
                     .padding([.leading, .trailing, .bottom])
             }

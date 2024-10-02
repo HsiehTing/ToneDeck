@@ -72,7 +72,6 @@ struct CommentView: View {
             loadComments()  // Fetch comments when the view appears
             fireStoreService.fetchUserData(userID: fromUserID ?? "")
         }
-        .navigationTitle("comments")
         .background(
             Color.black
                         .onTapGesture {
