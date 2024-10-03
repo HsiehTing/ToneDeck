@@ -17,10 +17,8 @@ struct ToneDeckApp: App {
     var body: some Scene {
       WindowGroup {
         NavigationView {
-            //AfterSignInContentView()
-            ContentView()
-
-
+            AfterSignInContentView()
+            //ContentView()
         }
       }
     }
@@ -78,7 +76,9 @@ struct ContentView: View {
                     .signInWithAppleButtonStyle(.whiteOutline)
                 }
             }
+
         }
+
     }
     func checkAndAddCredentialsData(id: String, email: String) {
        let credentialsCollection = Firestore.firestore().collection("credentials")

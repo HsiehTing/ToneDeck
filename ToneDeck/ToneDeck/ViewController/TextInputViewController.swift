@@ -49,7 +49,6 @@ struct TextInputView: View {
                         }
                 )
     }
-    
     // 將貼文儲存到 Firebase Firestore
     func publishPost() {
         let db = Firestore.firestore()
@@ -64,7 +63,7 @@ struct TextInputView: View {
             "createdTime": Timestamp(),
             "cardID": photo.cardID,
             "photoIDArray": [photo.id],
-            "isPrivate": false,
+            "isPrivate": UserDefaults.standard.bool(forKey: "privacyStatus"),
             "likerIDArray": [],
             "id": postID,
             "commentArray": []

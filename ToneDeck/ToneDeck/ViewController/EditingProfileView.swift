@@ -15,11 +15,10 @@ struct EditingProfileView: View {
     @State private var userName: String = ""
     @State private var avatarImage: UIImage?
     @State private var avatarItem: PhotosPickerItem?
-    @State private var isStatusActive: Bool = false
+    @State private var isStatusActive: Bool = UserDefaults.standard.bool(forKey: "privacyStatus")
     @Binding var userData: User?
     let firestoreService = FirestoreService()
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
-    
     var body: some View {
         VStack(spacing: 20) {
             // Avatar
@@ -63,10 +62,39 @@ struct EditingProfileView: View {
                     updateUserName()
                 }
             // Status Toggle
-            Toggle("Active Status", isOn: $isStatusActive)
+            Toggle("Private account", isOn: $isStatusActive)
                 .padding()
                 .background(Color.gray.opacity(0.2))
                 .cornerRadius(10)
+                .onChange(of: isStatusActive) { oldValue, newValue in
+                    guard let fromUserID = fromUserID else {return}
+                    UserDefaults.standard.set(isStatusActive, forKey: "privacyStatus")
+                    firestoreService.updateUserStatus(status: isStatusActive)
+                }
+
+            Button {
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                   let window = windowScene.windows.first {
+                                    window.rootViewController = UIHostingController(rootView: ContentView())
+                                    window.makeKeyAndVisible()
+                                }
+
+            } label: {
+                Image(systemName: "rectangle.portrait.and.arrow.forward")
+            }
+            .buttonStyle(PlainButtonStyle())
+            Button {
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                   let window = windowScene.windows.first {
+                                    window.rootViewController = UIHostingController(rootView: ContentView())
+                                    window.makeKeyAndVisible()
+                                }
+                firestoreService.updateDeleteStatus(status: true)
+
+            } label: {
+                Text("Delete Account")
+            }
+            .buttonStyle(PlainButtonStyle())
             Spacer()
         }
         .padding()
@@ -97,6 +125,5 @@ struct EditingProfileView: View {
             firestoreService.updateUserName(userID: fromUserID, newName: userName)
         }
 }
-
 
 

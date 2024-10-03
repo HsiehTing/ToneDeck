@@ -53,6 +53,26 @@ extension FirestoreService {
         }
 
     }
+    func updateUserStatus (status: Bool) {
+        let userRef = Firestore.firestore().collection("posts").whereField("creatorID", isEqualTo: fromUserID)
+        userRef.getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {return}
+            for document in  documents {
+                document.reference.updateData(["isPrivate": status])
+            }
+        }
+
+    }
+    func updateDeleteStatus (status: Bool) {
+        let userRef = Firestore.firestore().collection("posts").whereField("creatorID", isEqualTo: fromUserID)
+        userRef.getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {return}
+            for document in  documents {
+                document.reference.updateData(["isDelete": status])
+            }
+        }
+
+    }
     func updateUserName (userID: String, newName: String) {
         let userRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: userID)
         userRef.getDocuments { querySnapshot, error in
@@ -96,6 +116,7 @@ extension FirestoreService {
             }
         }
     }
+    
 }
 func checkUserData() {
     let mockUserName = "default user name"
@@ -147,13 +168,15 @@ func saveNewUser(userName: String, avatar: String, postIDArray: [String], follow
     let users = db.collection("users")
     let document = users.document() // 自動生成 document ID
     let userData: [String: Any] = [
-        "id": UserDefaults.standard.string(forKey: "userDocumentID"),
+//        "id": UserDefaults.standard.string(forKey: "userDocumentID"),
+        "id": document.documentID,
         "userName": userName,
         "avatar": avatar,
         "postIDArray": postIDArray,
         "followingArray": followingIDArray,
         "followerArray": followerIDArray,
         "photoIDArray": photoIDArray,
+        "blockUserArray": [],
         "createdTime": timeStamp
     ]
 
@@ -165,6 +188,7 @@ func saveNewUser(userName: String, avatar: String, postIDArray: [String], follow
             // 儲存 document ID 到 UserDefaults
             let defaults = UserDefaults.standard
             defaults.set(document.documentID, forKey: "userDocumentID")
+            defaults.set(false, forKey: "f")
         }
     }
 
@@ -199,7 +223,8 @@ struct User: Identifiable, Codable {
     var postIDArray: [String]
     var followingArray: [String]
     var followerArray: [String]
-    //var photoIDArray: [String]
+    var blockUserArray: [String]
+    var photoIDArray: [String]
 }
 
 struct Photo: Identifiable, Decodable {

@@ -36,11 +36,66 @@ struct FeedView: View {
     @StateObject private var firestoreService = FirestoreService()
     @State private var path = [FeedDestination]()
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
+    let segments: [String] = ["For you", "Following"]
+    @State private var selected: String = "For you"
+    @Namespace var name
     var body: some View {
         NavigationStack(path: $path) {
+            HStack{
+                ForEach(segments, id: \.self) { segment in
+                    Button {
+                            selected = segment
+                    } label: {
+                        VStack{
+                            Text(segment)
+                                .font(.footnote)
+                                .fontWeight(.medium)
+                                .foregroundColor(selected == segment ? .white : Color(uiColor: .darkGray))
+                                .animation(.easeInOut)
+
+                            ZStack{
+                                Capsule()
+                                    .fill(Color.clear)
+                                    .frame(height: 2)
+                                if selected == segment {
+                                    Capsule()
+                                        .fill(Color.secondary)
+                                        .matchedGeometryEffect(id: "Tab", in: name)
+                                        .frame(width: 120, height: 2)
+                                        .animation(.easeInOut)
+
+                                }
+                            }
+                        }
+
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .padding(.top, 20)
+                }
+            }
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 40) {
-                    ForEach(firestoreService.posts.sorted(by: {  ($0.createdTime.dateValue()) > ($1.createdTime.dateValue())  })) { post in
+                    ForEach(
+                        firestoreService.posts
+                        
+                            .filter { post in
+                                // 确保 post.creatorID 不在 blockUserArray 中
+
+                                guard let blockUserArray = firestoreService.user?.blockUserArray else {
+                                    return true
+                                }
+                                guard let followingUserArray = firestoreService.user?.followingArray else {
+                                    return true
+                                }
+                                if selected == segments[0] {
+                                               return !blockUserArray.contains(post.creatorID) && post.isPrivate == false
+                                           } else {
+                                               return !blockUserArray.contains(post.creatorID) && followingUserArray.contains(post.creatorID)
+                                           }
+
+                            }
+                            .sorted(by: { ($0.createdTime.dateValue()) > ($1.createdTime.dateValue()) })
+                    ) { post in
                         if let cardID = post.cardID,
                            let card = firestoreService.cardsDict[cardID] {
                             PostView(post: post, card: card, path: $path)
@@ -52,6 +107,7 @@ struct FeedView: View {
                 .navigationTitle("Feed")
                 .onAppear {
                     firestoreService.fetchPosts()  // Load posts on view appear
+                    firestoreService.fetchUserData(userID: fromUserID ?? "")
                 }
                 .navigationBarItems(trailing: Button(action: {
                     if path.last != .addPost {
@@ -155,7 +211,7 @@ struct PostView: View {
         .background(Color.black)
         .frame(maxWidth: .infinity, maxHeight: 800)
         .onAppear {
-            fireStoreService.fetchUserData(userID: fromUserID ?? "")
+//            fireStoreService.fetchUserData(userID: fromUserID ?? "")
             checkIfStarred()
         }
     }
