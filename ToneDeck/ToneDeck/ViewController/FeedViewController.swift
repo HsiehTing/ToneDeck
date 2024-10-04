@@ -7,6 +7,7 @@
 import SwiftUI
 import FirebaseFirestore
 import Kingfisher
+import FirebaseCore
 
 // 定義導航目的地
 enum FeedDestination: Hashable {
@@ -61,7 +62,7 @@ struct FeedView: View {
                                     Capsule()
                                         .fill(Color.secondary)
                                         .matchedGeometryEffect(id: "Tab", in: name)
-                                        .frame(width: 120, height: 2)
+                                        .frame(width: 100, height: 2)
                                         .animation(.easeInOut)
 
                                 }
@@ -70,7 +71,7 @@ struct FeedView: View {
 
                     }
                     .buttonStyle(PlainButtonStyle())
-                    .padding(.top, 20)
+                    .padding()
                 }
             }
             ScrollView {
@@ -152,7 +153,8 @@ struct PostView: View {
             KFImage(URL(string: post.imageURL))
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .frame(maxWidth: .infinity, maxHeight: 600)
+                .frame(maxWidth: .infinity, maxHeight: 400)
+                .padding()
                 .clipped()
                 .overlay( HStack {
                     Spacer()
@@ -176,12 +178,12 @@ struct PostView: View {
                     toggleLike()
 
                 }) {
-                    Image(systemName: isStarred ?"aqi.medium" :"aqi.medium" )
+                    Image(systemName: isStarred ?"capsule.fill" :"capsule" )
                         .padding()
                         .background(Color.black.opacity(0.5))
                         .foregroundColor(isStarred ? .cyan  : .white) // Change color based on state
                         .clipShape(Circle())
-                        .symbolEffect(.variableColor.cumulative.dimInactiveLayers.reversing, options: .nonRepeating)
+
                 }
                 .buttonStyle(PlainButtonStyle())
                 Button(action: {
@@ -203,10 +205,10 @@ struct PostView: View {
             }
             // Display Post Text
             Text(post.text)
-                .font(.headline)
-                .padding([.top, .leading, .trailing])
+                .font(.title)
+                .padding()
             PostInfoView(post: post, path: $path)
-                .padding([.top, .leading, .trailing])
+
         }
         .background(Color.black)
         .frame(maxWidth: .infinity, maxHeight: 800)
@@ -314,10 +316,10 @@ struct PostButtonsView: View {
                 print("Navigating to applyCard with card \(card.cardName)")  // Debugging print
             }) {
                 Text(card.cardName)
-                    .font(.caption)
-                    .padding(8)
+                    .font(.title3)
                     .cornerRadius(10)
                     .foregroundColor(.white)
+
             }
             .buttonStyle(PlainButtonStyle())
             Spacer()
@@ -329,8 +331,14 @@ struct PostButtonsView: View {
             }) {
                 KFImage(URL(string: card.imageURL))
                     .resizable()
-                    .frame(width: 60, height: 60)
+                    .frame(width: 40, height: 40)
                     .cornerRadius(10)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(.white, lineWidth: 2)
+                    )
+
+
             }
             .buttonStyle(PlainButtonStyle())
         }
@@ -341,22 +349,41 @@ struct PostButtonsView: View {
 struct PostInfoView: View {
     let post: Post
     @Binding var path: [FeedDestination]
+    let db = Firestore.firestore()
+    @State private var userName: String = ""
     var body: some View {
 
         VStack {
             Button {
                 path.append(.visitProfile(userID: post.creatorID))
             } label: {
-                Text(post.creatorID)
+                Text(userName)
                     .font(.caption)
                     .foregroundColor(.white)
+
                 Spacer()
                 Text("\(formattedDate(from: post.createdTime))")
                     .font(.caption)
                     .foregroundColor(.gray)
-                    .padding([.leading, .trailing, .bottom])
+
             }
             .buttonStyle(PlainButtonStyle())
+            .padding()
+        }
+        .onAppear {
+            fetchUserName(for: post.creatorID)
+        }
+    }
+    func fetchUserName(for userID: String) {
+        let userRef = db.collection("users").whereField("id", isEqualTo: userID)
+        userRef.getDocuments { snapshot, error in
+            if let error = error {
+                print("Error fetching user: \(error)")
+            } else if let snapshot = snapshot, let document = snapshot.documents.first {
+                if let user = try? document.data(as: User.self) {
+                    userName = user.userName  // 更新用户名
+                }
+            }
         }
     }
     func formattedDate(from timestamp: Timestamp) -> String {

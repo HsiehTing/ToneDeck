@@ -84,7 +84,7 @@ class FirestoreService: ObservableObject {
     }
 
     func fetchCards() {
-        db.collection("cards").getDocuments { (snapshot, error) in
+        db.collection("cards").whereField("creatorID", isEqualTo: fromUserID).getDocuments { (snapshot, error) in
             if let error = error {
                 print("Error fetching cards: \(error)")
             } else {
@@ -198,6 +198,18 @@ class FirestoreService: ObservableObject {
                 }
             }
         }
+//    func fetchUserName(for userID: String) {
+//            let userRef = db.collection("users").whereField("id", isEqualTo: userID)
+//            userRef.getDocuments { snapshot, error in
+//                if let error = error {
+//                    print("Error fetching user: \(error)")
+//                } else if let snapshot = snapshot, let document = snapshot.documents.first {
+//                    if let user = try? document.data(as: User.self) {
+//                        userName = user.userName  // 更新用户名
+//                    }
+//                }
+//            }
+//        }
     func fetchPostsfromProfile(postIDs: [String]) {
         let validPostIDs = postIDs.filter { !$0.isEmpty }
         guard !validPostIDs.isEmpty else {

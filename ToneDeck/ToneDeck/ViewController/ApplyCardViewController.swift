@@ -84,13 +84,13 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
            targetImageView.layer.cornerRadius = 10
            targetImageView.layer.masksToBounds = true
 
-//           let dashBorder = CAShapeLayer()
-//           dashBorder.strokeColor = UIColor.white.cgColor
-//           dashBorder.lineDashPattern = [6, 3] // 虛線的樣式：6點劃線，3點空白
-//           dashBorder.frame = targetImageView.bounds
-//           dashBorder.fillColor = nil
-//           dashBorder.path = UIBezierPath(roundedRect: targetImageView.bounds, cornerRadius: 10).cgPath
-//           targetImageView.layer.addSublayer(dashBorder)
+           let dashBorder = CAShapeLayer()
+           dashBorder.strokeColor = UIColor.white.cgColor
+           dashBorder.lineDashPattern = [6, 3] // 虛線的樣式：6點劃線，3點空白
+           dashBorder.frame = targetImageView.bounds
+           dashBorder.fillColor = nil
+           dashBorder.path = UIBezierPath(roundedRect: targetImageView.bounds, cornerRadius: 10).cgPath
+           targetImageView.layer.addSublayer(dashBorder)
 
            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(targetImageTapped))
            targetImageView.addGestureRecognizer(tapGesture)
@@ -121,14 +121,13 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
            filterColorValue = card.filterData[3]
        }
 
-       // 在 viewDidLayoutSubviews 中更新虛線邊框的大小
-//       override func viewDidLayoutSubviews() {
-//           super.viewDidLayoutSubviews()
-//           if let dashBorder = targetImageView.layer.sublayers?.first as? CAShapeLayer {
-//               dashBorder.frame = targetImageView.bounds
-//               dashBorder.path = UIBezierPath(roundedRect: targetImageView.bounds, cornerRadius: 10).cgPath
-//           }
-//       }
+       override func viewDidLayoutSubviews() {
+           super.viewDidLayoutSubviews()
+           if let dashBorder = targetImageView.layer.sublayers?.first as? CAShapeLayer {
+               dashBorder.frame = targetImageView.bounds
+               dashBorder.path = UIBezierPath(roundedRect: targetImageView.bounds, cornerRadius: 10).cgPath
+           }
+       }
        @objc func didTapApply() {
         print("tap apply button")
         if applyButton.title(for: .normal) == "Apply Card" {

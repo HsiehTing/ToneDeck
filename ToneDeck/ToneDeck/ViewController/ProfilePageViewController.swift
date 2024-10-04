@@ -210,7 +210,7 @@ struct ProfilePostView: View {
     @State private var isCommentViewPresented: Bool = false
     @State private var userAvatarURL: String = ""
     var body: some View {
-        VStack(alignment: .leading) {
+        LazyVStack(alignment: .leading, spacing: 40) {
             // Display Post Image
             KFImage(URL(string: post.imageURL))
                 .resizable()
@@ -264,10 +264,11 @@ struct ProfilePostView: View {
             // Display Post Text
             Text(post.text)
                 .font(.body)
-                .padding([.top, .leading, .trailing])
+                .padding([.horizontal])
             PostInfoView(post: post, path: $path)
                 .padding([.top, .leading, .trailing])
         }
+        .padding([])
         .background(Color.black)
         .frame(maxWidth: .infinity, maxHeight: 800)
         .onAppear {
@@ -374,11 +375,11 @@ struct ProfilePostView: View {
                     print("Navigating to applyCard with card \(card.cardName)")
                 }) {
                     Text(card.cardName)
-                        .font(.caption)
-                        .padding(8)
-                        .background(Color.black.opacity(0.2))
+                        .font(.title3)
+                       
                         .cornerRadius(10)
                         .foregroundColor(.white)
+
                 }
                 Spacer()
 
@@ -390,7 +391,12 @@ struct ProfilePostView: View {
                     KFImage(URL(string: card.imageURL))
                         .resizable()
                         .frame(width: 40, height: 40)
-                        .clipShape(Circle())
+                        .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(.white, lineWidth: 2)
+                        )
+
                 }
             }
             .padding()
@@ -400,22 +406,38 @@ struct ProfilePostView: View {
     struct PostInfoView: View {
         let post: Post
         @Binding var path: [ProfileDestination]
+        @State private var userName: String = ""
+        let db = Firestore.firestore()
         var body: some View {
-
             HStack {
                 Button {
                     path.append(.visitProfile(userID: post.creatorID))
                 } label: {
-                    Text(post.creatorID)
+                    Text(userName)
                         .font(.caption)
                         .foregroundColor(.white)
-
-
+                        .padding([.leading, .trailing, .bottom])
                     Spacer()
                     Text("\(formattedDate(from: post.createdTime))")
                         .font(.caption)
                         .foregroundColor(.gray)
                         .padding([.leading, .trailing, .bottom])
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+            .onAppear {
+                fetchUserName(for: post.creatorID)
+            }
+        }
+        func fetchUserName(for userID: String) {
+            let userRef = db.collection("users").whereField("id", isEqualTo: userID)
+            userRef.getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error fetching user: \(error)")
+                } else if let snapshot = snapshot, let document = snapshot.documents.first {
+                    if let user = try? document.data(as: User.self) {
+                        userName = user.userName  // 更新用户名
+                    }
                 }
             }
         }

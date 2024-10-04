@@ -16,6 +16,7 @@ struct CameraView: View {
     @Binding var path: [CardDestination]
     @ObservedObject private var manager: CameraManager
     weak var delegate: CameraViewControllerDelegate?
+    @Environment(\.presentationMode) var presentationMode
 
     // 更新 init 方法，將 path 參數也加入初始化
     init(filterData: [Float?], path: Binding<[CardDestination]>) {
@@ -39,6 +40,7 @@ struct CameraView: View {
     }
     var body: some View {
         MCameraController(manager: manager)
+
             .onImageCaptured { image in
                 print("IMAGE CAPTURED")
 
@@ -47,6 +49,8 @@ struct CameraView: View {
             }
             .onVideoCaptured { url in
                 print("VIDEO CAPTURED")
+                self.presentationMode.wrappedValue.dismiss()
+
             }
             .afterMediaCaptured { $0
                 .closeCameraController(true)
@@ -57,6 +61,7 @@ struct CameraView: View {
             }
     }
 }
+
 func createFilters(from filterData: [Float?]) -> [CIFilter] {
     // First filter: Color Controls (Brightness, Contrast, Saturation)
     let colorFilter = CIFilter(name: "CIColorControls")!

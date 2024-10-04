@@ -168,8 +168,8 @@ func saveNewUser(userName: String, avatar: String, postIDArray: [String], follow
     let users = db.collection("users")
     let document = users.document() // 自動生成 document ID
     let userData: [String: Any] = [
-//        "id": UserDefaults.standard.string(forKey: "userDocumentID"),
-        "id": document.documentID,
+        "id": UserDefaults.standard.string(forKey: "userDocumentID"),
+        //"id": document.documentID,
         "userName": userName,
         "avatar": avatar,
         "postIDArray": postIDArray,
@@ -177,7 +177,8 @@ func saveNewUser(userName: String, avatar: String, postIDArray: [String], follow
         "followerArray": followerIDArray,
         "photoIDArray": photoIDArray,
         "blockUserArray": [],
-        "createdTime": timeStamp
+        "createdTime": timeStamp,
+        "isPrivate": false
     ]
 
     document.setData(userData) { error in
@@ -187,8 +188,8 @@ func saveNewUser(userName: String, avatar: String, postIDArray: [String], follow
             print("User successfully saved!")
             // 儲存 document ID 到 UserDefaults
             let defaults = UserDefaults.standard
-            defaults.set(document.documentID, forKey: "userDocumentID")
-            defaults.set(false, forKey: "f")
+            //defaults.set(document.documentID, forKey: "userDocumentID")
+            defaults.set(false, forKey: "privacyStatus")
         }
     }
 
