@@ -42,7 +42,6 @@ struct CardViewController: View {
                     .onAppear {
                         firestoreService.fetchCards()
                     }
-                    
                     .listStyle(PlainListStyle())
                     .frame(maxWidth: .infinity)
                     .edgesIgnoringSafeArea(.horizontal)
