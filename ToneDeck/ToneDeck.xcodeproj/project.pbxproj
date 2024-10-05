@@ -68,6 +68,7 @@
 		781D3A752CAFAC7C00273755 /* Public+MTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 781D3A6D2CAFAC7C00273755 /* Public+MTime.swift */; };
 		781D3A762CAFAC7C00273755 /* Public+MTimer.Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 781D3A6E2CAFAC7C00273755 /* Public+MTimer.Error.swift */; };
 		781D3A772CAFAC7C00273755 /* Public+MTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 781D3A6F2CAFAC7C00273755 /* Public+MTimer.swift */; };
+		781D3A7A2CAFED7100273755 /* MeshGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 781D3A792CAFED7000273755 /* MeshGradient.swift */; };
 		784E6BE72C9A773D004533C0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 784E6BE62C9A773D004533C0 /* GoogleService-Info.plist */; };
 		7870462A2CA29A1700BA7CC2 /* SecondApplyCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787046292CA29A1700BA7CC2 /* SecondApplyCardViewController.swift */; };
 		7870462C2CA2E5F200BA7CC2 /* NoFilterCameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7870462B2CA2E5F200BA7CC2 /* NoFilterCameraView.swift */; };
@@ -148,6 +149,7 @@
 		781D3A6D2CAFAC7C00273755 /* Public+MTime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Public+MTime.swift"; sourceTree = "<group>"; };
 		781D3A6E2CAFAC7C00273755 /* Public+MTimer.Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Public+MTimer.Error.swift"; sourceTree = "<group>"; };
 		781D3A6F2CAFAC7C00273755 /* Public+MTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Public+MTimer.swift"; sourceTree = "<group>"; };
+		781D3A792CAFED7000273755 /* MeshGradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshGradient.swift; sourceTree = "<group>"; };
 		784E6BE62C9A773D004533C0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		787046292CA29A1700BA7CC2 /* SecondApplyCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondApplyCardViewController.swift; sourceTree = "<group>"; };
 		7870462B2CA2E5F200BA7CC2 /* NoFilterCameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoFilterCameraView.swift; sourceTree = "<group>"; };
@@ -249,6 +251,7 @@
 				787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */,
 				78CA2F7A2CABC9FB004E8414 /* EditingProfileView.swift */,
 				78AC68E72C9EF90800260BB3 /* NotificationCenterViewController.swift */,
+				781D3A792CAFED7000273755 /* MeshGradient.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -662,6 +665,7 @@
 				78AC68E22C9D1BE000260BB3 /* CommentViewCOntroller.swift in Sources */,
 				78CA2F7B2CABC9FB004E8414 /* EditingProfileView.swift in Sources */,
 				780710432C91DF720039B44C /* AddCardViewController.swift in Sources */,
+				781D3A7A2CAFED7100273755 /* MeshGradient.swift in Sources */,
 				781D3A4A2CAFAA5D00273755 /* Bundle++.swift in Sources */,
 				781D3A5A2CAFAA5D00273755 /* ButtonScaleStyle.swift in Sources */,
 				781D3A4B2CAFAA5D00273755 /* CALayer++.swift in Sources */,

@@ -112,7 +112,8 @@ struct AddCardViewController: View {
                         "createdTime": timeStamp,
                         "filterData": filterData,
                         "imageURL": imageURL
-                    ]        
+//                        "dominantColor": dominantColor
+                    ]
                     document.setData(cardData) { error in
                         if let error = error {
                             print("Error saving card: \(error)")

@@ -84,7 +84,7 @@ class FirestoreService: ObservableObject {
     }
 
     func fetchCards() {
-        db.collection("cards").whereField("creatorID", isEqualTo: fromUserID).getDocuments { (snapshot, error) in
+        db.collection("cards").whereField("creatorID", isEqualTo: fromUserID).addSnapshotListener { (snapshot, error) in
             if let error = error {
                 print("Error fetching cards: \(error)")
             } else {

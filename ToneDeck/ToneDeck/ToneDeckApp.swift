@@ -159,8 +159,6 @@ class MeshGradient {
                                     Color(white: Double(ivalue + jvalue + 1) / 3),
                                     Color(white: Double(ivalue + jvalue + 2) / 3),
                                     Color(white: Double(ivalue + jvalue + 1) / 3),
-                                
-
                                 ])
 
                                 let startPoint = scaledPositions[ivalue * 3 + jvalue]

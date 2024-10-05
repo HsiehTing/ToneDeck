@@ -117,6 +117,9 @@ struct FeedView: View {
                     print("Navigating to addPost")  // Debugging print
                 }) {
                     Image(systemName: "plus")
+                        .foregroundColor(.cyan)
+                       
+
                 })
                 .navigationDestination(for: FeedDestination.self) { destination in
                     switch destination {
@@ -333,6 +336,7 @@ struct PostButtonsView: View {
                     .resizable()
                     .frame(width: 40, height: 40)
                     .cornerRadius(10)
+
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
                             .stroke(.white, lineWidth: 2)
@@ -340,9 +344,12 @@ struct PostButtonsView: View {
 
 
             }
+
             .buttonStyle(PlainButtonStyle())
         }
-        .padding()
+        .padding(.bottom, 30)
+        .padding(.trailing, 15)
+        .padding(.leading, 15)
     }
 }
 

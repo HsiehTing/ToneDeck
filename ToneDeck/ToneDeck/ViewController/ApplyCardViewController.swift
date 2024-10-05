@@ -41,6 +41,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     var colorVector: [Float] = []
     var hueColor: Float?
     let fireStoreService = FirestoreService()
+    let meshGradientView = UIKitMeshGradient(frame: CGRect(x: 0, y: 0, width: 250, height: 250))
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     override func viewDidLoad() {
            super.viewDidLoad()
@@ -71,9 +72,9 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
                ])
            }
 
-           targetImageView.backgroundColor = UIColor(white: 0.1, alpha: 1)
+           //targetImageView.backgroundColor = UIColor(white: 0.1, alpha: 1)
            targetImageView.contentMode = .scaleAspectFit
-           targetImageView.image = UIImage(systemName: "square.and.arrow.down.fill")
+           //targetImageView.image = UIImage(systemName: "square.and.arrow.down.fill")
            targetImageView.tintColor = .white
            targetImageView.isUserInteractionEnabled = true
            view.addSubview(targetImageView)
@@ -103,7 +104,9 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
                targetImageView.widthAnchor.constraint(equalToConstant: 250),
                targetImageView.heightAnchor.constraint(equalToConstant: 250)
            ])
-
+        meshGradientView.setTargetColorRGBA(red: 0.784314, green: 0.576471, blue: 0.423529, alpha: 1)
+        targetImageView.addSubview(meshGradientView)
+       
            applyButton.translatesAutoresizingMaskIntoConstraints = false
            applyButton.layer.cornerRadius = 10
            applyButton.backgroundColor = .white
@@ -259,6 +262,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
        }
     func didCapturePhoto(_ image: UIImage) {
             // 接收到照片後處理
+        self.meshGradientView.isHidden = true
             targetImage = image
             targetImageView.image = image
             applyButton.setTitle("Apply Card", for: .normal) // Reset button after capturing photo

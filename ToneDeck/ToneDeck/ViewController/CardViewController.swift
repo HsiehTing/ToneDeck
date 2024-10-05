@@ -37,12 +37,13 @@ struct CardViewController: View {
                             CardRow(card: card, path: $path)
                                 .padding(.vertical, 10)
                                 .clipped()
+                                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
                         }
                     }
+                    .listStyle(PlainListStyle())
                     .onAppear {
                         firestoreService.fetchCards()
                     }
-                    .listStyle(PlainListStyle())
                     .frame(maxWidth: .infinity)
                     .edgesIgnoringSafeArea(.horizontal)
                     .navigationTitle(Text("Cards"))
@@ -87,7 +88,7 @@ struct CardViewController: View {
                                     path.append(.addCard)
                                 } label: {
                                     Image(systemName: "plus")
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.cyan)
                                 }
                             }
                             // Magnifying glass button (toggle search mode)
