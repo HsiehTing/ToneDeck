@@ -63,18 +63,18 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
                imageView.contentMode = .scaleAspectFit
                nameLabel.translatesAutoresizingMaskIntoConstraints = false
                NSLayoutConstraint.activate([
-                   imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+                   imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 50),
                    imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
                    imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-                   imageView.heightAnchor.constraint(equalToConstant: 200),
-                   nameLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 10),
+                   imageView.heightAnchor.constraint(equalToConstant: 230),
+                   nameLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 30),
                    nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10)
                ])
            }
 
            //targetImageView.backgroundColor = UIColor(white: 0.1, alpha: 1)
            targetImageView.contentMode = .scaleAspectFit
-           //targetImageView.image = UIImage(systemName: "square.and.arrow.down.fill")
+
            targetImageView.tintColor = .white
            targetImageView.isUserInteractionEnabled = true
            view.addSubview(targetImageView)
@@ -99,7 +99,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
            // Layout the target imageView
            targetImageView.translatesAutoresizingMaskIntoConstraints = false
            NSLayoutConstraint.activate([
-               targetImageView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 50),
+               targetImageView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 100),
                targetImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
                targetImageView.widthAnchor.constraint(equalToConstant: 250),
                targetImageView.heightAnchor.constraint(equalToConstant: 250)
@@ -107,16 +107,30 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         guard let dominantColor = card?.dominantColor else {return}
         meshGradientView.setTargetColorRGBA(red: dominantColor.red , green: dominantColor.green , blue: dominantColor.blue , alpha: 1)
         targetImageView.addSubview(meshGradientView)
-       
+        let iconImageView = UIImageView()
+        meshGradientView.addSubview(iconImageView)
+        iconImageView.image = UIImage(systemName: "square.and.arrow.down.fill")
+        iconImageView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            iconImageView.centerXAnchor.constraint(equalTo: meshGradientView.centerXAnchor),
+            iconImageView.centerYAnchor.constraint(equalTo: meshGradientView.centerYAnchor),
+            iconImageView.widthAnchor.constraint(equalToConstant: 40),  // Set a width for the icon
+            iconImageView.heightAnchor.constraint(equalToConstant: 40)  // Set a height for the icon
+        ])
+        iconImageView.alpha = 0.6
            applyButton.translatesAutoresizingMaskIntoConstraints = false
-           applyButton.layer.cornerRadius = 10
+           applyButton.layer.cornerRadius = 15
            applyButton.backgroundColor = .white
-           applyButton.setTitleColor(.black, for: .normal)
+
            let applyTapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapApply))
            applyButton.addGestureRecognizer(applyTapGesture)
-           applyButton.setTitle("Apply Card", for: .normal)
+        let applyButtonTitle = NSAttributedString(string: "Apply Card", attributes: [
+            .underlineStyle: NSUnderlineStyle.single.rawValue, // 確保不帶下劃線
+            .foregroundColor: UIColor.darkGray // 設置字體顏色
+        ])
+        applyButton.setAttributedTitle(applyButtonTitle, for: .normal)
            NSLayoutConstraint.activate([
-               applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 50),
+               applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 30),
                applyButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
                applyButton.widthAnchor.constraint(equalToConstant: 100),
                applyButton.heightAnchor.constraint(equalToConstant: 40)
@@ -168,6 +182,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             print("targetColor\(targetColorValue)")
             print("filterColor\(filterColorValue)")
             targetImageView.image = applyImageAdjustments(image: targetImage, smoothValues: scaledValues ?? [0, 0, 0], hueAdjustment: hueColor ?? 10)
+            self.meshGradientView.isHidden = true
             applyButton.setTitle("Customize", for: .normal)
             if fromUserID != card.creatorID{
                 sendNotification(card: card)

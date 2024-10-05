@@ -82,9 +82,9 @@ class UIKitMeshGradient: UIView {
             GeometryReader { geometry in
                 ZStack {
                     // 添加一個背景色，確保沒有透明部分
-                    
-                    viewModel.targetColor
-                    
+
+                   
+
                     Canvas { context, size in
                         let width = size.width
                         let height = size.height

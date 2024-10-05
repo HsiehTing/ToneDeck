@@ -21,7 +21,7 @@ class FirestoreService: ObservableObject {
     let db = Firestore.firestore()
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     
-    func fetchPosts() {
+     func fetchPosts() {
         db.collection("posts").getDocuments { snapshot, error in
             if let error = error {
                 print("Error fetching posts: \(error.localizedDescription)")
@@ -65,6 +65,10 @@ class FirestoreService: ObservableObject {
     func fetchCardDetails(for cardID: String, completion: @escaping () -> Void) {
         let cardRef = db.collection("cards").document(cardID)
         cardRef.getDocument { snapshot, error in
+            if let error = error {
+                print("Error fetching cards: \(error.localizedDescription)")
+                return
+            }
             guard let document = snapshot, document.exists, let data = document.data() else {
                 print("No card found for ID: \(cardID)")
                 completion()
@@ -75,12 +79,27 @@ class FirestoreService: ObservableObject {
             let createdTIme = data["createdTime"] as? Timestamp ?? Timestamp()
             let userID = data["userID"] as? String ?? ""
             let filterData = data["filterData"] as? [Float] ?? [0]
-            let dominantColor = data["dominantColor"]as? DominantColor
-            guard let dominantColor = dominantColor else {return}
-            let card = Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID, dominantColor: dominantColor )
-            DispatchQueue.main.async {
-                self.cardsDict[cardID] = card
-                completion()
+            if let dominantColorData = data["dominantColor"] as? [String: Any],
+               let red = dominantColorData["red"] as? Double,
+               let green = dominantColorData["green"] as? Double,
+               let blue = dominantColorData["blue"] as? Double,
+               let alpha = dominantColorData["alpha"] as? Double {
+
+                let dominantColor = DominantColor(red: red, green: green, blue: blue, alpha: alpha)
+
+                let card = Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID, dominantColor: dominantColor)
+                DispatchQueue.main.async {
+                   self.cardsDict[cardID] = card
+                   completion()
+               }
+            } else {
+                // Handle case where dominantColor data is missing or not in the expected format
+                let card = Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID,
+                dominantColor: DominantColor(red: 0, green: 0, blue: 0, alpha: 1))
+                DispatchQueue.main.async {
+                   self.cardsDict[cardID] = card
+                   completion()
+               }
             }
         }
     }
