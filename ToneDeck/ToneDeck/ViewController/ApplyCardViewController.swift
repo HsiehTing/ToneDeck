@@ -104,7 +104,8 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
                targetImageView.widthAnchor.constraint(equalToConstant: 250),
                targetImageView.heightAnchor.constraint(equalToConstant: 250)
            ])
-        meshGradientView.setTargetColorRGBA(red: 0.784314, green: 0.576471, blue: 0.423529, alpha: 1)
+        guard let dominantColor = card?.dominantColor else {return}
+        meshGradientView.setTargetColorRGBA(red: dominantColor.red , green: dominantColor.green , blue: dominantColor.blue , alpha: 1)
         targetImageView.addSubview(meshGradientView)
        
            applyButton.translatesAutoresizingMaskIntoConstraints = false

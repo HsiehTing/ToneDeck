@@ -104,15 +104,23 @@ struct AddCardViewController: View {
                     // Save the card data to Firestore
                     let db = Firestore.firestore()
                     let cards = Firestore.firestore().collection("cards")
+                    guard let dominantColor = dominantColor else {return}
+                    let rgbaComponents = dominantColor.rgbaComponents
                     let document = cards.document()
+                    let dominantColorData: [String: Any] = [
+                            "red": rgbaComponents.red,
+                            "green": rgbaComponents.green,
+                            "blue": rgbaComponents.blue,
+                            "alpha": rgbaComponents.alpha
+                        ]
                     let cardData: [String: Any] = [
                         "id": document.documentID,
                         "creatorID": fromUserID ?? "",
                         "cardName": cardName,
                         "createdTime": timeStamp,
                         "filterData": filterData,
-                        "imageURL": imageURL
-//                        "dominantColor": dominantColor
+                        "imageURL": imageURL,
+                        "dominantColor": dominantColorData
                     ]
                     document.setData(cardData) { error in
                         if let error = error {

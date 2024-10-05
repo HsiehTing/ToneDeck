@@ -215,6 +215,13 @@ struct Card: Identifiable, Decodable, Hashable, Equatable {
     var createdTime: Timestamp
     var filterData: [Float]
     var creatorID: String
+    var dominantColor: DominantColor
+}
+struct DominantColor:Codable, Equatable, Hashable{
+    var red: Double
+    var green: Double
+    var blue: Double
+    var alpha: Double
 }
 
 struct User: Identifiable, Codable {

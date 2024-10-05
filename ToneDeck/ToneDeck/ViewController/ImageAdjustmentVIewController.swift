@@ -412,6 +412,6 @@ class SaveToLibrary {
     }
 }
 
-#Preview{
-    ImageAdjustmentView(card: Card(id: String(), cardName: String(), imageURL: String(), createdTime: Timestamp(), filterData: [Float()], creatorID: String()), originalImage: UIImage())
-}
+//#Preview{
+//    ImageAdjustmentView(card: Card(id: String(), cardName: String(), imageURL: String(), createdTime: Timestamp(), filterData: [Float()], creatorID: String()), originalImage: UIImage())
+//}

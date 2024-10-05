@@ -12,26 +12,21 @@ import Combine
 class UIKitMeshGradient: UIView {
     private var hostingController: UIHostingController<AnimatedColorMeshView>?
     private let colorSubject = CurrentValueSubject<Color, Never>(.blue)
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
     }
-    
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupView()
     }
-    
     private func setupView() {
         let swiftUIView = AnimatedColorMeshView(colorPublisher: colorSubject.eraseToAnyPublisher())
         hostingController = UIHostingController(rootView: swiftUIView)
-        
         if let hostView = hostingController?.view {
             hostView.backgroundColor = .clear
             hostView.translatesAutoresizingMaskIntoConstraints = false
             addSubview(hostView)
-            
             NSLayoutConstraint.activate([
                 hostView.topAnchor.constraint(equalTo: topAnchor),
                 hostView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -40,7 +35,6 @@ class UIKitMeshGradient: UIView {
             ])
         }
     }
-    
     func setTargetColor(_ color: UIColor) {
         let components = color.rgbaComponents
         setTargetColorRGBA(red: Double(components.red),
@@ -58,17 +52,13 @@ class UIKitMeshGradient: UIView {
     struct AnimatedColorMeshView: View {
         @State private var time: Float = 0.0
         @StateObject private var viewModel: ViewModel
-        
         let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
-        
         init(colorPublisher: AnyPublisher<Color, Never>) {
             _viewModel = StateObject(wrappedValue: ViewModel(colorPublisher: colorPublisher))
         }
-        
         private func positions(in size: CGSize) -> [SIMD2<Float>] {
             let aspectRatio = Float(size.width / size.height)
             let scaleFactor = min(Float(size.width), Float(size.height)) / 500.0
-            
             return [
                 [0.0, 0.0],
                 [0.5, 0.0],
@@ -92,6 +82,7 @@ class UIKitMeshGradient: UIView {
             GeometryReader { geometry in
                 ZStack {
                     // 添加一個背景色，確保沒有透明部分
+                    
                     viewModel.targetColor
                     
                     Canvas { context, size in
@@ -150,7 +141,7 @@ class UIKitMeshGradient: UIView {
         }
         private func adjustColor(_ color: Color, brightnessAdjustment: Double, saturationAdjustment: Double) -> Color {
             let components = color.hsbaComponents
-            let adjustedBrightness = min(max(components.brightness * brightnessAdjustment, 0.6), 1)
+            let adjustedBrightness = min(max(components.brightness * brightnessAdjustment, 0.6), 1.3)
             let adjustedSaturation = min(max(components.saturation + saturationAdjustment, 0), 1)
             return Color(hue: components.hue, saturation: adjustedSaturation, brightness: adjustedBrightness, opacity: 1)
         }

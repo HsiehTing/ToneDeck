@@ -75,7 +75,9 @@ class FirestoreService: ObservableObject {
             let createdTIme = data["createdTime"] as? Timestamp ?? Timestamp()
             let userID = data["userID"] as? String ?? ""
             let filterData = data["filterData"] as? [Float] ?? [0]
-            let card = Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID)
+            let dominantColor = data["dominantColor"]as? DominantColor
+            guard let dominantColor = dominantColor else {return}
+            let card = Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID, dominantColor: dominantColor )
             DispatchQueue.main.async {
                 self.cardsDict[cardID] = card
                 completion()
@@ -97,7 +99,22 @@ class FirestoreService: ObservableObject {
                         let createdTIme = data["createdTime"] as? Timestamp ?? Timestamp()
                         let userID = data["userID"] as? String ?? ""
                         let filterData = data["filterData"] as? [Float] ?? [0]
-                        return Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID)
+                        let dominantColor = data["dominantColor"] as?  DominantColor
+                        if let dominantColorData = data["dominantColor"] as? [String: Any],
+                           let red = dominantColorData["red"] as? Double,
+                           let green = dominantColorData["green"] as? Double,
+                           let blue = dominantColorData["blue"] as? Double,
+                           let alpha = dominantColorData["alpha"] as? Double {
+
+                            let dominantColor = DominantColor(red: red, green: green, blue: blue, alpha: alpha)
+
+                            return Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID, dominantColor: dominantColor)
+                        } else {
+                            // Handle case where dominantColor data is missing or not in the expected format
+                            return Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme,
+                                filterData: filterData, creatorID: userID, dominantColor: DominantColor(red: 0, green: 0, blue: 0, alpha: 1))
+                        }
+
                     }
                 }
             }
