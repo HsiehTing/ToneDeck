@@ -62,7 +62,7 @@ struct ProfilePageView: View {
                                         toggleFollow(user: user)
                                     }) {
                                         Text(isFollowed ? "Unfollow" : "Follow")
-                                            .frame(width: 50)
+                                            .frame(width: isFollowed ?  80 : 50)
                                     }
                                     .buttonStyle(.borderedProminent)
                                     .tint(isFollowed ? .gray : .blue)

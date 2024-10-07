@@ -216,7 +216,7 @@ struct PostView: View {
         .background(Color.black)
         .frame(maxWidth: .infinity, maxHeight: 800)
         .onAppear {
-//            fireStoreService.fetchUserData(userID: fromUserID ?? "")
+            fireStoreService.fetchUserData(userID: fromUserID ?? "")
             checkIfStarred()
         }
     }

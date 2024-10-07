@@ -161,8 +161,7 @@ struct CardRow: View {
                 HStack {
                     Spacer()
                     OptionMenuButton(card: card)
-                        .padding(.top, 20)
-                        .padding(.trailing, 10)
+
                 }
                 Spacer()
                 HStack {
@@ -236,6 +235,8 @@ struct OptionMenuButton: View {
                 .buttonStyle(PlainButtonStyle())
         }
         .buttonStyle(PlainButtonStyle())
+        .padding(.top, 20)
+        .padding(.trailing, 10)
         .alert("Rename Card", isPresented: $showRenameAlert) {
             TextField("Enter new name", text: $newName)
             Button("Cancel", role: .cancel) { }

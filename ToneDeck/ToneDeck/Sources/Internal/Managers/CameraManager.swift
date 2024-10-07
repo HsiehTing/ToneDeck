@@ -13,7 +13,7 @@ import SwiftUI
 import AVKit
 import MetalKit
 import CoreMotion
-import MijickTimer
+//import MijickTimer
 
 public class CameraManager: NSObject, ObservableObject { init(_ attributes: Attributes) { self.initialAttributes = attributes; self.attributes = attributes }
     // MARK: Attributes

@@ -20,6 +20,7 @@ struct ApplyCardViewControllerWrapper: UIViewControllerRepresentable {
         return viewController
     }
     func updateUIViewController(_ uiViewController: ApplyCardViewController, context: Context) {}
+
 }
 
 class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CameraViewControllerDelegate {
@@ -72,6 +73,8 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             imageView.heightAnchor.constraint(equalToConstant: 300),
             imageView.widthAnchor.constraint(equalToConstant: 400)
         ])
+        print("===========================\(view.safeAreaInsets.top)")
+
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 25
@@ -144,6 +147,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         applyButton.setTitle("Apply Card", for: .normal)
            NSLayoutConstraint.activate([
                applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 20),
+//               applyButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 20),
                applyButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
                applyButton.widthAnchor.constraint(equalToConstant: 100),
                applyButton.heightAnchor.constraint(equalToConstant: 40)

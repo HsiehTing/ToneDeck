@@ -11,7 +11,7 @@
 
 import SwiftUI
 import AVFoundation
-import MijickTimer
+//import MijickTimer
 
 public protocol MCameraView: View {
     var cameraManager: CameraManager { get }

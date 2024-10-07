@@ -71,14 +71,12 @@ struct EditingProfileView: View {
                     UserDefaults.standard.set(isStatusActive, forKey: "privacyStatus")
                     firestoreService.updateUserStatus(status: isStatusActive)
                 }
-
             Button {
                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                                    let window = windowScene.windows.first {
                                     window.rootViewController = UIHostingController(rootView: ContentView())
                                     window.makeKeyAndVisible()
                                 }
-
             } label: {
                 Image(systemName: "rectangle.portrait.and.arrow.forward")
             }

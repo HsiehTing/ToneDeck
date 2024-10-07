@@ -77,7 +77,7 @@ class FirestoreService: ObservableObject {
             let cardName = data["cardName"] as? String ?? "Unknown Card"
             let imageURL = data["imageURL"] as? String ?? ""
             let createdTIme = data["createdTime"] as? Timestamp ?? Timestamp()
-            let userID = data["userID"] as? String ?? ""
+            let userID = data["creatorID"] as? String ?? ""
             let filterData = data["filterData"] as? [Float] ?? [0]
             if let dominantColorData = data["dominantColor"] as? [String: Any],
                let red = dominantColorData["red"] as? Double,

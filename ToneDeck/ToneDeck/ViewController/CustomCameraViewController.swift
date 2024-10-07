@@ -5,7 +5,7 @@
 //  Created by 謝霆 on 2024/9/23.
 //
 
-import MijickCameraView
+//import MijickCameraView
 import AVFoundation
 import CoreImage
 import SwiftUI

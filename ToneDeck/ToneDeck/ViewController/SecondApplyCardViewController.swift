@@ -55,7 +55,6 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
                nameLabel.text = card.cardName
            }
            //targetImageView.backgroundColor = UIColor(white: 0.1, alpha: 1)
-
         nameLabel.textColor = .white
         nameLabel.font = UIFont(name: "PlayfairDisplayItalic-Black", size: 52)
         view.addSubview(imageView)
@@ -145,6 +144,7 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
         applyButton.setTitle("Apply Card", for: .normal)
            NSLayoutConstraint.activate([
                applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 20),
+               applyButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 20),
                applyButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
                applyButton.widthAnchor.constraint(equalToConstant: 100),
                applyButton.heightAnchor.constraint(equalToConstant: 40)
@@ -292,7 +292,7 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
              "id": document.documentID,
              "fromUserPhoto": user.avatar,
              "from": fromUserID,
-             "to": card.id,
+             "to": card.creatorID,
              "postImage": card.imageURL,
              "type": NotificationType.useCard.rawValue,
              "createdTime": Timestamp()
