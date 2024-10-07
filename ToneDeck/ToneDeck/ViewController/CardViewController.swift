@@ -25,6 +25,7 @@ struct CardViewController: View {
     @State private var isSearchActive = false
     @State var textFieldText : String = ""
     @State private var showingImageSourceAlert = false
+
     init() {
         UINavigationBar.appearance().largeTitleTextAttributes = [.font : UIFont(name: "PlayfairDisplayRoman-Bold", size: 52)!]
     }
@@ -38,8 +39,11 @@ struct CardViewController: View {
                                 .padding(.vertical, 10)
                                 .clipped()
                                 .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+                                .transition(.slide)
+                                .animation(.easeInOut)
                         }
                     }
+
                     .listStyle(PlainListStyle())
                     .onAppear {
                         firestoreService.fetchCards()
@@ -131,6 +135,7 @@ struct CardViewController: View {
 struct CardRow: View {
     let card: Card
     @Binding var path: [CardDestination]
+    @State private var isAnimationTriggered: Bool = false
     var body: some View {
 
         ZStack(alignment: .bottomLeading) {
@@ -138,7 +143,7 @@ struct CardRow: View {
             KFImage(URL(string: card.imageURL))
                 .resizable()
                 .scaledToFill()
-                .frame(height: 200)
+                .frame(width: 400, height: 200)
                 .cornerRadius(20)
                 .clipped()
                 .onTapGesture {
@@ -180,9 +185,17 @@ struct CardRow: View {
                 }
             }
         }
+        .offsetAnimation(isTriggered: isAnimationTriggered, delay: 0.9)
         .cornerRadius(10)
         .clipped()
+        .onAppear {
+            isAnimationTriggered = true
+        }
+        .onDisappear {
+            isAnimationTriggered = false
+        }
     }
+
 }
 struct OptionMenuButton: View {
     @State private var showRenameAlert = false
@@ -248,5 +261,22 @@ struct OptionMenuButton: View {
 }
 #Preview {
     CardViewController()
+}
+extension View {
+
+    func offsetAnimation(isTriggered: Bool, delay: CGFloat) -> some View {
+        return self
+            .offset(y: isTriggered ? 0 : 30)
+            .opacity(isTriggered ? 1 : 0)
+            .animation(.smooth(duration: 1.4, extraBounce: 0.2).delay(delay), value: isTriggered)
+    }
+
+    func bannerAnimation(isTriggered: Bool) -> some View {
+        return self
+            .scaleEffect(isTriggered ? 1 : 0.95)
+            .opacity(isTriggered ? 1 : 0)
+            .animation(.easeOut(duration: 1), value: isTriggered)
+    }
+
 }
 

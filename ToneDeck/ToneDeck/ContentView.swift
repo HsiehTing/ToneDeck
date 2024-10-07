@@ -51,8 +51,8 @@ struct AfterSignInContentView: View {
         }
         .tint(.gray)
         .onAppear {
-//                       let defaults = UserDefaults.standard
-//                       defaults.set("jJmDCF0Fzr0JMAWRuzKZ", forKey: "userDocumentID")
+                       let defaults = UserDefaults.standard
+                       defaults.set( "000058.a3b89dd536a94dc3acabf4c5d58892a0.0705", forKey: "userDocumentID")
            // checkUserData()
                    }
     }

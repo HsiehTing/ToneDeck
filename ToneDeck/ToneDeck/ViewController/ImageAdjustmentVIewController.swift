@@ -18,9 +18,8 @@ struct ImageAdjustmentView: View {
     @State private var contrast: CGFloat = 1.0
     @State private var saturation: CGFloat = 1.0
     @State private var hueAdjustment: CGFloat = 0.0
-
     @State var card: Card
-
+    @State private var isAnimationTriggered: Bool? = false
     @State private var adjustedImage: UIImage?
     @State private var selectedFilter: FilterType = .brightness
     let originalImage: UIImage
@@ -35,7 +34,7 @@ struct ImageAdjustmentView: View {
 
         var id: String { self.rawValue }
     }
-
+   
     var body: some View {
         Spacer()
          VStack {
@@ -55,19 +54,23 @@ struct ImageAdjustmentView: View {
                          .foregroundColor(.black)
                          .buttonStyle(PlainButtonStyle())
                          .font(.caption)
-                         .frame(height: 25)
+                         .frame(height: 35)
                          .cornerRadius(7)
                          .padding()
                  }
+                 .buttonStyle(PlainButtonStyle())
              }
+             Spacer()
              if let adjustedImage = adjustedImage {
                  Image(uiImage: adjustedImage)
                      .resizable()
                      .scaledToFit()
                      .frame(maxWidth: .infinity, maxHeight: 300)
                      .padding()
+                     .bannerAnimation(isTriggered: isAnimationTriggered ?? true)
 
              }
+
 
              Spacer()
 
@@ -122,6 +125,7 @@ struct ImageAdjustmentView: View {
          .backgroundStyle(.black)
          .onAppear {
              applyAdjustments()
+             isAnimationTriggered = true
          }
      }
 
@@ -412,4 +416,29 @@ class SaveToLibrary {
     }
 }
 
+extension Color {
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let alpha, red, green, blue: UInt64
+        switch hex.count {
+        case 3: // RGB (12-bit)
+            (alpha, red, green, blue) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
+        case 6: // RGB (24-bit)
+            (alpha, red, green, blue) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
+        case 8: // ARGB (32-bit)
+            (alpha, red, green, blue) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
+        default:
+            (alpha, red, green, blue) = (1, 1, 1, 0)
+        }
 
+        self.init(
+            .sRGB,
+            red: Double(red) / 255,
+            green: Double(green) / 255,
+            blue:  Double(blue) / 255,
+            opacity: Double(alpha) / 255
+        )
+    }
+}

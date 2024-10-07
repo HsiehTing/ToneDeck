@@ -14,60 +14,55 @@ struct AddCardViewController: View {
     @Binding var path: [CardDestination]
     @State private var cardName: String = ""
     @State private var selectedImage: UIImage?
-    @State private var pickerImage: PhotosPickerItem?
+    @State private var isShowingPhotoPicker = false
     @State private var isFillOutInfo = false
     var body: some View {
-            VStack {
-                // TextField for Card Name
-                TextField("Enter Card Name", text: $cardName)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding()
-                if let selectedImage = selectedImage {
-                    Image(uiImage: selectedImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 200, height: 200)
-                        .onTapGesture {
-                            openPhotoPicker()
-                        }
-                }
-                PhotosPicker(selection: $pickerImage, matching: .images, photoLibrary: .shared()) {
-                    // Unified button for selecting image or adding card
-                    Image(systemName: !cardName.isEmpty && selectedImage != nil ? "camera.filters" : "camera.metering.center.weighted.average")
-                        .padding()
-                        //.background(Color.gray)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        .contentTransition(.symbolEffect(.replace, options: .nonRepeating)) // Add symbol effect transition
-                        .onTapGesture {
-                            if isFillOutInfo == true {
-                                addCard()
-                            }
-                        }
-                }
-                .onChange(of: pickerImage) { newItem in
-                    Task {
-                        if let data = try? await newItem?.loadTransferable(type: Data.self),
-                           let uiImage = UIImage(data: data) {
-                            selectedImage = uiImage
-                        }
-                        isFillOutInfo = true
-                    }
-                }
-                Spacer()
-            }
-            .padding()
-            .navigationTitle("Add Card")
-            .background(
-                Color.black
+        VStack {
+            TextField("Enter Card Name", text: $cardName)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding()
+
+            if let selectedImage = selectedImage {
+                Image(uiImage: selectedImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 200, height: 200)
                     .onTapGesture {
-                        UIApplication.shared.endEditing()
+                        isShowingPhotoPicker = true
                     }
-            )
+            }
+
+            Button(action: {
+                if isFillOutInfo {
+                    addCard()
+                } else {
+                    isShowingPhotoPicker = true
+                }
+            }) {
+                Image(systemName: !cardName.isEmpty && selectedImage != nil ? "camera.filters" : "camera.metering.center.weighted.average")
+                    .padding()
+                    .foregroundColor(.white)
+                    .background(Color.blue)
+                    .cornerRadius(10)
+            }
+            .contentTransition(.symbolEffect(.replace, options: .nonRepeating))
+        }
+        .sheet(isPresented: $isShowingPhotoPicker) {
+            ImagePicker(image: $selectedImage, isPresented: $isShowingPhotoPicker)
+        }
+        .onChange(of: selectedImage) { _ in
+            isFillOutInfo = true
+        }
+        .padding()
+        .navigationTitle("Add Card")
+        .background(
+            Color.black
+                .onTapGesture {
+                    UIApplication.shared.endEditing()
+                }
+        )
     }
-    private func openPhotoPicker() {
-           pickerImage = nil // Reset picker to allow re-selection
-       }
+
     // MARK: - Add Card Action
     func addCard() {
         guard let image = selectedImage, !cardName.isEmpty else {
@@ -80,8 +75,8 @@ struct AddCardViewController: View {
         let histogram = ImageHistogramCalculator()
         let filterHistogramData = histogram.calculateHistogram(for: image)
         let filterData = [calculateBrightness(from: filterHistogramData),
-                            calculateContrastFromHistogram(histogramData: filterHistogramData),
-                            calculateSaturation(from: filterHistogramData),
+                          calculateContrastFromHistogram(histogramData: filterHistogramData),
+                          calculateSaturation(from: filterHistogramData),
                           getDominantColor(from: image)]
         // Save the image to Firebase Storage
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
@@ -108,11 +103,11 @@ struct AddCardViewController: View {
                     let rgbaComponents = dominantColor.rgbaComponents
                     let document = cards.document()
                     let dominantColorData: [String: Any] = [
-                            "red": rgbaComponents.red,
-                            "green": rgbaComponents.green,
-                            "blue": rgbaComponents.blue,
-                            "alpha": rgbaComponents.alpha
-                        ]
+                        "red": rgbaComponents.red,
+                        "green": rgbaComponents.green,
+                        "blue": rgbaComponents.blue,
+                        "alpha": rgbaComponents.alpha
+                    ]
                     let cardData: [String: Any] = [
                         "id": document.documentID,
                         "creatorID": fromUserID ?? "",
@@ -147,4 +142,38 @@ extension UIApplication {
         sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
+struct ImagePicker: UIViewControllerRepresentable {
+    @Binding var image: UIImage?
+    @Binding var isPresented: Bool
 
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+        let parent: ImagePicker
+
+        init(_ parent: ImagePicker) {
+            self.parent = parent
+        }
+
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let image = info[.originalImage] as? UIImage {
+                parent.image = image
+            }
+            parent.isPresented = false
+        }
+
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            parent.isPresented = false
+        }
+    }
+}

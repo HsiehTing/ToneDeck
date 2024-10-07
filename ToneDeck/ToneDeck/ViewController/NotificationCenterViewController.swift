@@ -102,13 +102,13 @@ struct NotificationRow: View {
     func getNotificationText(notification: Notification) -> String {
         switch notification.type {
         case .like:
-            return "\(notification.from) just liked your post"
+            return "\(user?.userName) just liked your post"
         case .comment:
-            return "\(notification.from) commented on your post"
+            return "\(user?.userName) commented on your post"
         case .useCard:
-            return "\(notification.from) used your card"
+            return "\(user?.userName) used your card"
         case .follow:
-            return "\(notification.from) started following you"
+            return "\(user?.userName) started following you"
         }
     }
     private func toggleFollow(user: User) {

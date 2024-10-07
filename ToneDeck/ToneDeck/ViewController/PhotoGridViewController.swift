@@ -29,6 +29,7 @@ struct PhotoGridView: View {
                         .padding()
                         .scaledToFill()
                         .frame(height: 300)
+                        .clipped()
                 } else {
                     Text("Select an Image")
                         .font(.headline)
@@ -45,7 +46,7 @@ struct PhotoGridView: View {
                             }) {
                                 KFImage(URL(string: photo.imageURL))
                                     .resizable()
-                                    .aspectRatio(1, contentMode: .fill)
+                                    .scaledToFill()
                                     .frame(width: 100, height: 100)
                                     .clipped()
 
