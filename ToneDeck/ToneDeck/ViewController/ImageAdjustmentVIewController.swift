@@ -66,9 +66,9 @@ struct ImageAdjustmentView: View {
                  Image(uiImage: adjustedImage)
                      .resizable()
                      .scaledToFit()
-                     .frame(maxWidth: .infinity, maxHeight: 300)
-                     .padding()
+                     .frame(maxWidth: .infinity)
                      .bannerAnimation(isTriggered: isAnimationTriggered ?? true)
+                     .padding()
 
              }
 
@@ -137,8 +137,6 @@ struct ImageAdjustmentView: View {
      }
 
     private func applyAdjustments() {
-        let processor = MetalImageProcessor()
-
         adjustedImage = applyImageAdjustments(
             image: originalImage,
             smoothValues: [Float(brightness), Float(contrast), Float(saturation)],
