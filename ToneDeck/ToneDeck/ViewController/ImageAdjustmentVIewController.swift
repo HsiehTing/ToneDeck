@@ -18,6 +18,7 @@ struct ImageAdjustmentView: View {
     @State private var contrast: CGFloat = 1.0
     @State private var saturation: CGFloat = 1.0
     @State private var hueAdjustment: CGFloat = 0.0
+    @State private var grain: CGFloat = 0.0
     @State var card: Card
     @State private var isAnimationTriggered: Bool? = false
     @State private var adjustedImage: UIImage?
@@ -31,7 +32,7 @@ struct ImageAdjustmentView: View {
         case contrast = "righttriangle"
         case saturation = "drop.halffull"
         case hue = "swirl.circle.righthalf.filled"
-
+        case grain = "seal"
         var id: String { self.rawValue }
     }
    
@@ -71,9 +72,7 @@ struct ImageAdjustmentView: View {
 
              }
 
-
              Spacer()
-
 
              switch selectedFilter {
              case .brightness:
@@ -87,6 +86,9 @@ struct ImageAdjustmentView: View {
                      .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
              case .hue:
                  Text("Hue")
+                     .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
+             case .grain:
+                 Text("Grain")
                      .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
              }
              switch selectedFilter {
@@ -110,6 +112,11 @@ struct ImageAdjustmentView: View {
                  MeshingSlider(value: $hueAdjustment, colors: [.gray, .white], range: -CGFloat.pi...CGFloat.pi)
                      .onChange(of: hueAdjustment) { _ in applyAdjustments() }
                      .frame(height: 70)
+             case .grain:
+                 Text("\(grain, specifier: "%.2f")")
+                 MeshingSlider(value: $grain, colors: [.gray, .white], range: -1...1)
+                     .onChange(of: grain) { _ in applyAdjustments() }
+                     .frame(height: 70)
              }
 
              Picker("Select Filter", selection: $selectedFilter) {
@@ -130,10 +137,12 @@ struct ImageAdjustmentView: View {
      }
 
     private func applyAdjustments() {
+        let processor = MetalImageProcessor()
+
         adjustedImage = applyImageAdjustments(
             image: originalImage,
             smoothValues: [Float(brightness), Float(contrast), Float(saturation)],
-            hueAdjustment: Float(hueAdjustment)
+            hueAdjustment: Float(hueAdjustment), grainIntensity: Float(grain), grainSize: 6
         )
     }
 }
@@ -290,10 +299,11 @@ extension Color {
 }
 
 // Function to apply filters to the image
-func applyImageAdjustments(image: UIImage, smoothValues: [Float], hueAdjustment: Float) -> UIImage? {
+func applyImageAdjustments(image: UIImage, smoothValues: [Float], hueAdjustment: Float, grainIntensity: Float, grainSize: Float) -> UIImage? {
     let orientation = image.imageOrientation
     guard let ciImage = CIImage(image: image) else { return nil }
     let rotateciImage = ciImage.oriented(CGImagePropertyOrientation(image.imageOrientation))
+
     // Apply brightness, contrast, and saturation adjustments
     let colorControlsFilter = CIFilter(name: "CIColorControls")
     colorControlsFilter?.setValue(rotateciImage, forKey: kCIInputImageKey)
@@ -301,6 +311,7 @@ func applyImageAdjustments(image: UIImage, smoothValues: [Float], hueAdjustment:
     colorControlsFilter?.setValue(smoothValues[1], forKey: kCIInputContrastKey)
     colorControlsFilter?.setValue(smoothValues[2], forKey: kCIInputSaturationKey)
     guard let colorControlsOutput = colorControlsFilter?.outputImage else { return nil }
+
     // Apply hue adjustment
     let hueAdjustFilter = CIFilter(name: "CIHueAdjust")
     hueAdjustFilter?.setDefaults()
@@ -308,13 +319,40 @@ func applyImageAdjustments(image: UIImage, smoothValues: [Float], hueAdjustment:
     hueAdjustFilter?.setValue(hueAdjustment, forKey: kCIInputAngleKey)
     guard let hueAdjustOutput = hueAdjustFilter?.outputImage else { return nil }
 
+    // Apply grain effect
+    let grainFilter = CIFilter(name: "CIRandomGenerator")
+    guard var grainOutput = grainFilter?.outputImage else { return nil }
+
+    // Scale the grain
+    let scaleFilter = CIFilter(name: "CIAffineTransform")
+    let scale = CGFloat(grainSize)
+    let scaleTransform = CGAffineTransform(scaleX: scale, y: scale)
+    scaleFilter?.setValue(grainOutput, forKey: kCIInputImageKey)
+    scaleFilter?.setValue(NSValue(cgAffineTransform: scaleTransform), forKey: kCIInputTransformKey)
+    guard let scaledGrain = scaleFilter?.outputImage else { return nil }
+
+    let cropFilter = CIFilter(name: "CICrop")
+    cropFilter?.setValue(scaledGrain, forKey: kCIInputImageKey)
+    cropFilter?.setValue(CIVector(cgRect: hueAdjustOutput.extent), forKey: "inputRectangle")
+    guard let croppedGrain = cropFilter?.outputImage else { return nil }
+
+    let blendFilter = CIFilter(name: "CISourceOverCompositing")
+    blendFilter?.setValue(hueAdjustOutput, forKey: kCIInputBackgroundImageKey)
+    blendFilter?.setValue(croppedGrain.applyingFilter("CIColorMatrix", parameters: [
+        "inputRVector": CIVector(x: 0, y: 0, z: 0, w: 0),
+        "inputGVector": CIVector(x: 0, y: 0, z: 0, w: 0),
+        "inputBVector": CIVector(x: 0, y: 0, z: 0, w: 0),
+        "inputAVector": CIVector(x: 0, y: 0, z: 0, w: CGFloat(grainIntensity)),
+        "inputBiasVector": CIVector(x: 0, y: 0, z: 0, w: 0)
+    ]), forKey: kCIInputImageKey)
+    guard let blendOutput = blendFilter?.outputImage else { return nil }
+
     // Create final UIImage
     let context = CIContext(options: [CIContextOption.useSoftwareRenderer: false])
-    guard let cgImage = context.createCGImage(hueAdjustOutput, from: hueAdjustOutput.extent) else { return nil }
+    guard let cgImage = context.createCGImage(blendOutput, from: blendOutput.extent) else { return nil }
 
     return UIImage(cgImage: cgImage)
 }
-
 class SaveToLibrary {
     func addPhotoData(image: UIImage, card: Card) {
 
