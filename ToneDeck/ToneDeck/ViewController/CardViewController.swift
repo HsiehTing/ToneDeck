@@ -184,7 +184,7 @@ struct CardRow: View {
                 }
             }
         }
-        .offsetAnimation(isTriggered: isAnimationTriggered, delay: 0.9)
+        .offsetAnimation(isTriggered: isAnimationTriggered, delay: 0.3)
         .cornerRadius(10)
         .clipped()
         .onAppear {

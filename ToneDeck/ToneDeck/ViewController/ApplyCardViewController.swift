@@ -183,7 +183,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         print(smoothTargetValues)
         let targetColorValue = getDominantColor(from: targetImage)
         if let filterColorValue = filterColorValue, targetColorValue != 0 {
-            self.hueColor = fabsf(filterColorValue - targetColorValue)
+            self.hueColor = fabsf(filterColorValue /*- targetColorValue*/)
             print("hueColor: \(hueColor)")
         } else {
             print("One or both color values are missing or targetColorValue is 0. Skipping calculation.")

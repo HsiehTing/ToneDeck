@@ -17,8 +17,8 @@ struct ToneDeckApp: App {
     var body: some Scene {
       WindowGroup {
         NavigationView {
-            AfterSignInContentView()
-           // ContentView()
+           // AfterSignInContentView()
+            ContentView()
         }
       }
     }
