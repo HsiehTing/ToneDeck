@@ -7,6 +7,7 @@
 import SwiftUI
 import FirebaseFirestore
 import Kingfisher
+import FirebaseCore
 
 // 定義導航目的地
 enum FeedDestination: Hashable {
@@ -36,11 +37,66 @@ struct FeedView: View {
     @StateObject private var firestoreService = FirestoreService()
     @State private var path = [FeedDestination]()
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
+    let segments: [String] = ["For you", "Following"]
+    @State private var selected: String = "For you"
+    @Namespace var name
     var body: some View {
         NavigationStack(path: $path) {
+            HStack{
+                ForEach(segments, id: \.self) { segment in
+                    Button {
+                            selected = segment
+                    } label: {
+                        VStack{
+                            Text(segment)
+                                .font(.footnote)
+                                .fontWeight(.medium)
+                                .foregroundColor(selected == segment ? .white : Color(uiColor: .darkGray))
+                                .animation(.easeInOut)
+
+                            ZStack{
+                                Capsule()
+                                    .fill(Color.clear)
+                                    .frame(height: 2)
+                                if selected == segment {
+                                    Capsule()
+                                        .fill(Color.secondary)
+                                        .matchedGeometryEffect(id: "Tab", in: name)
+                                        .frame(width: 100, height: 2)
+                                        .animation(.easeInOut)
+
+                                }
+                            }
+                        }
+
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .padding()
+                }
+            }
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 40) {
-                    ForEach(firestoreService.posts.sorted(by: {  ($0.createdTime.dateValue()) > ($1.createdTime.dateValue())  })) { post in
+                    ForEach(
+                        firestoreService.posts
+                        
+                            .filter { post in
+                                // 确保 post.creatorID 不在 blockUserArray 中
+
+                                guard let blockUserArray = firestoreService.user?.blockUserArray else {
+                                    return true
+                                }
+                                guard let followingUserArray = firestoreService.user?.followingArray else {
+                                    return true
+                                }
+                                if selected == segments[0] {
+                                               return !blockUserArray.contains(post.creatorID) && post.isPrivate == false
+                                           } else {
+                                               return !blockUserArray.contains(post.creatorID) && followingUserArray.contains(post.creatorID)
+                                           }
+
+                            }
+                            .sorted(by: { ($0.createdTime.dateValue()) > ($1.createdTime.dateValue()) })
+                    ) { post in
                         if let cardID = post.cardID,
                            let card = firestoreService.cardsDict[cardID] {
                             PostView(post: post, card: card, path: $path)
@@ -52,6 +108,7 @@ struct FeedView: View {
                 .navigationTitle("Feed")
                 .onAppear {
                     firestoreService.fetchPosts()  // Load posts on view appear
+                    firestoreService.fetchUserData(userID: fromUserID ?? "")
                 }
                 .navigationBarItems(trailing: Button(action: {
                     if path.last != .addPost {
@@ -60,6 +117,9 @@ struct FeedView: View {
                     print("Navigating to addPost")  // Debugging print
                 }) {
                     Image(systemName: "plus")
+                        .foregroundColor(.cyan)
+                       
+
                 })
                 .navigationDestination(for: FeedDestination.self) { destination in
                     switch destination {
@@ -96,7 +156,8 @@ struct PostView: View {
             KFImage(URL(string: post.imageURL))
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .frame(maxWidth: .infinity, maxHeight: 600)
+                .frame(maxWidth: .infinity, maxHeight: 400)
+                .padding()
                 .clipped()
                 .overlay( HStack {
                     Spacer()
@@ -118,14 +179,12 @@ struct PostView: View {
                 Spacer()
                 Button(action: {
                     toggleLike()
-
                 }) {
-                    Image(systemName: isStarred ?"aqi.medium" :"aqi.medium" )
+                    Image(systemName: isStarred ?"capsule.fill" :"capsule" )
                         .padding()
                         .background(Color.black.opacity(0.5))
                         .foregroundColor(isStarred ? .cyan  : .white) // Change color based on state
                         .clipShape(Circle())
-                        .symbolEffect(.variableColor.cumulative.dimInactiveLayers.reversing, options: .nonRepeating)
 
                 }
                 .buttonStyle(PlainButtonStyle())
@@ -135,7 +194,6 @@ struct PostView: View {
                 }) {
                     Image(systemName: "bubble.right")
                         .padding()
-
                         .background(Color.black.opacity(0.5))
                         .foregroundColor(.white)
                         .clipShape(Circle())
@@ -148,10 +206,10 @@ struct PostView: View {
             }
             // Display Post Text
             Text(post.text)
-                .font(.body)
-                .padding([.top, .leading, .trailing])
+                .font(.title)
+                .padding()
             PostInfoView(post: post, path: $path)
-                .padding([.top, .leading, .trailing])
+
         }
         .background(Color.black)
         .frame(maxWidth: .infinity, maxHeight: 800)
@@ -259,10 +317,10 @@ struct PostButtonsView: View {
                 print("Navigating to applyCard with card \(card.cardName)")  // Debugging print
             }) {
                 Text(card.cardName)
-                    .font(.caption)
-                    .padding(8)
+                    .font(.title3)
                     .cornerRadius(10)
                     .foregroundColor(.white)
+
             }
             .buttonStyle(PlainButtonStyle())
             Spacer()
@@ -274,36 +332,61 @@ struct PostButtonsView: View {
             }) {
                 KFImage(URL(string: card.imageURL))
                     .resizable()
-                    .frame(width: 60, height: 60)
+                    .frame(width: 40, height: 40)
                     .cornerRadius(10)
+
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(.white, lineWidth: 2)
+                    )
             }
+
             .buttonStyle(PlainButtonStyle())
         }
-        .padding()
+        .padding(.bottom, 30)
+        .padding(.trailing, 15)
+        .padding(.leading, 15)
     }
 }
 
 struct PostInfoView: View {
     let post: Post
     @Binding var path: [FeedDestination]
+    let db = Firestore.firestore()
+    @State private var userName: String = ""
     var body: some View {
 
         VStack {
             Button {
                 path.append(.visitProfile(userID: post.creatorID))
             } label: {
-                Text(post.creatorID)
-                    .font(.title3)
+                Text(userName)
+                    .font(.caption)
                     .foregroundColor(.white)
-
 
                 Spacer()
                 Text("\(formattedDate(from: post.createdTime))")
-                    .font(.title3)
+                    .font(.caption)
                     .foregroundColor(.gray)
-                    .padding([.leading, .trailing, .bottom])
+
             }
             .buttonStyle(PlainButtonStyle())
+            .padding()
+        }
+        .onAppear {
+            fetchUserName(for: post.creatorID)
+        }
+    }
+    func fetchUserName(for userID: String) {
+        let userRef = db.collection("users").whereField("id", isEqualTo: userID)
+        userRef.getDocuments { snapshot, error in
+            if let error = error {
+                print("Error fetching user: \(error)")
+            } else if let snapshot = snapshot, let document = snapshot.documents.first {
+                if let user = try? document.data(as: User.self) {
+                    userName = user.userName  // 更新用户名
+                }
+            }
         }
     }
     func formattedDate(from timestamp: Timestamp) -> String {

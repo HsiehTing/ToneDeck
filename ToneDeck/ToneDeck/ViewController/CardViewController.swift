@@ -25,6 +25,7 @@ struct CardViewController: View {
     @State private var isSearchActive = false
     @State var textFieldText : String = ""
     @State private var showingImageSourceAlert = false
+
     init() {
         UINavigationBar.appearance().largeTitleTextAttributes = [.font : UIFont(name: "PlayfairDisplayRoman-Bold", size: 52)!]
     }
@@ -37,13 +38,16 @@ struct CardViewController: View {
                             CardRow(card: card, path: $path)
                                 .padding(.vertical, 10)
                                 .clipped()
+                                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+                                .transition(.slide)
+                                .animation(.easeInOut)
                         }
                     }
+
+                    .listStyle(PlainListStyle())
                     .onAppear {
                         firestoreService.fetchCards()
                     }
-                    
-                    .listStyle(PlainListStyle())
                     .frame(maxWidth: .infinity)
                     .edgesIgnoringSafeArea(.horizontal)
                     .navigationTitle(Text("Cards"))
@@ -88,15 +92,15 @@ struct CardViewController: View {
                                     path.append(.addCard)
                                 } label: {
                                     Image(systemName: "plus")
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.cyan)
                                 }
                             }
                             // Magnifying glass button (toggle search mode)
                             Button {
                                 withAnimation {
-                                    isSearchActive.toggle() // Toggle search bar visibility
+                                    isSearchActive.toggle()
                                     if !isSearchActive {
-                                        textFieldText = "" // Clear the search text when closing the search
+                                        textFieldText = ""
                                     }
                                 }
                             } label: {
@@ -131,6 +135,7 @@ struct CardViewController: View {
 struct CardRow: View {
     let card: Card
     @Binding var path: [CardDestination]
+    @State private var isAnimationTriggered: Bool = false
     var body: some View {
 
         ZStack(alignment: .bottomLeading) {
@@ -138,7 +143,7 @@ struct CardRow: View {
             KFImage(URL(string: card.imageURL))
                 .resizable()
                 .scaledToFill()
-                .frame(height: 200)
+                .frame(width: 400, height: 200)
                 .cornerRadius(20)
                 .clipped()
                 .onTapGesture {
@@ -156,8 +161,6 @@ struct CardRow: View {
                 HStack {
                     Spacer()
                     OptionMenuButton(card: card)
-                        .padding(.top, 20)
-                        .padding(.trailing, 10)
                 }
                 Spacer()
                 HStack {
@@ -180,19 +183,28 @@ struct CardRow: View {
                 }
             }
         }
+        .offsetAnimation(isTriggered: isAnimationTriggered, delay: 0.3)
         .cornerRadius(10)
         .clipped()
+        .onAppear {
+            isAnimationTriggered = true
+        }
+        .onDisappear {
+            isAnimationTriggered = false
+        }
     }
+
 }
 struct OptionMenuButton: View {
     @State private var showRenameAlert = false
     @State private var showShareAlert = false
     @State private var newName = ""
-    let alertView = AlertAppleMusic17View(title: "Copy to ClipBoard", subtitle: nil, icon: .done)
+    let alertcopyView = AlertAppleMusic17View(title: "Copy to ClipBoard", subtitle: nil, icon: .done)
     let db = Firestore.firestore()
     let firestoreService = FirestoreService()
     let card: Card
     var body: some View {
+
         Menu { Button(action: {
             // 顯示改名彈出框
             showRenameAlert = true
@@ -207,12 +219,12 @@ struct OptionMenuButton: View {
                 // 添加分享操作
                 showShareAlert = true
                 UIPasteboard.general.string = card.id
-                alertView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
-                alertView.titleLabel?.textColor = .white
+                alertcopyView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
+                alertcopyView.titleLabel?.textColor = .white
 
                 print("Share tapped")
             }) { Label("Share", systemImage: "square.and.arrow.up")
-                    .alert(isPresent: $showShareAlert, view: alertView)
+                    .alert(isPresent: $showShareAlert, view: alertcopyView)
             }
         } label: {
             Image(systemName: "ellipsis")
@@ -223,6 +235,8 @@ struct OptionMenuButton: View {
                 .buttonStyle(PlainButtonStyle())
         }
         .buttonStyle(PlainButtonStyle())
+        .padding(.top, 30)
+        .padding(.trailing, 10)
         .alert("Rename Card", isPresented: $showRenameAlert) {
             TextField("Enter new name", text: $newName)
             Button("Cancel", role: .cancel) { }
@@ -248,5 +262,22 @@ struct OptionMenuButton: View {
 }
 #Preview {
     CardViewController()
+}
+extension View {
+
+    func offsetAnimation(isTriggered: Bool, delay: CGFloat) -> some View {
+        return self
+            .offset(y: isTriggered ? 0 : 30)
+            .opacity(isTriggered ? 1 : 0)
+            .animation(.smooth(duration: 1.4, extraBounce: 0.2).delay(delay), value: isTriggered)
+    }
+
+    func bannerAnimation(isTriggered: Bool) -> some View {
+        return self
+            .scaleEffect(isTriggered ? 1 : 0.95)
+            .opacity(isTriggered ? 1 : 0)
+            .animation(.easeOut(duration: 1), value: isTriggered)
+    }
+
 }
 

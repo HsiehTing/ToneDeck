@@ -5,7 +5,7 @@
 //  Created by 謝霆 on 2024/9/24.
 //
 
-import MijickCameraView
+//import MijickCameraView
 import AVFoundation
 import CoreImage
 import SwiftUI
@@ -33,6 +33,7 @@ struct NoFilterCameraView: View {
     }
     var body: some View {
         MCameraController(manager: manager)
+            //.cameraScreen(CustomCameraView.init)
             .onImageCaptured { image in
                 print("IMAGE CAPTURED")
                 PhotoSaver().savePhotoToLibrary(image: image)
@@ -53,4 +54,5 @@ struct NoFilterCameraView: View {
 
             }
     }
+    
 }

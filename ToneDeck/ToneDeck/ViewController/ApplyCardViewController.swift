@@ -20,27 +20,29 @@ struct ApplyCardViewControllerWrapper: UIViewControllerRepresentable {
         return viewController
     }
     func updateUIViewController(_ uiViewController: ApplyCardViewController, context: Context) {}
+
 }
 
-
-// UIKit ViewController (ApplyCardViewController)
 class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CameraViewControllerDelegate {
     var card: Card?
     let imageView = UIImageView()
     let targetImageView = UIImageView()
     var filterImage = UIImage()
+    let nameLabel = UILabel()
     let applyButton = UIButton()
+
     let cameraButton = UIButton(type: .system)
     let histogram = ImageHistogramCalculator()
     var targetImage: UIImage? // 用來保存選取的圖片
     var tBrightness: Float = 1  // 較平滑的亮度變化
-    var tContrast: Float = 1.1    // 中等強度的對比度變化
+    var tContrast: Float = 1.3    // 中等強度的對比度變化
     var tSaturation: Float = 1  // 更強的飽和度變化
     var scaledValues: [Float]?
     var filterColorValue: Float?
     var colorVector: [Float] = []
     var hueColor: Float?
     let fireStoreService = FirestoreService()
+    let meshGradientView = UIKitMeshGradient(frame: CGRect(x: 0, y: 0, width: 250, height: 320))
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     override func viewDidLoad() {
            super.viewDidLoad()
@@ -50,69 +52,100 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
            if let card = card {
                imageView.kf.setImage(with: URL(string: card.imageURL))
                filterImage = imageView.image ?? UIImage()
-               let nameLabel = UILabel()
                nameLabel.text = card.cardName
-               nameLabel.textColor = .white
-               nameLabel.font = UIFont.systemFont(ofSize: 18, weight: .bold)
-               view.addSubview(imageView)
-               view.addSubview(nameLabel)
-               view.addSubview(applyButton)
-               // Layout card imageView and label
-               imageView.translatesAutoresizingMaskIntoConstraints = false
-               imageView.contentMode = .scaleAspectFit
-               nameLabel.translatesAutoresizingMaskIntoConstraints = false
-               NSLayoutConstraint.activate([
-                   imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-                   imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-                   imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-                   imageView.heightAnchor.constraint(equalToConstant: 200),
-                   nameLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 10),
-                   nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10)
-               ])
            }
+           //targetImageView.backgroundColor = UIColor(white: 0.1, alpha: 1)
 
-           targetImageView.backgroundColor = UIColor(white: 0.1, alpha: 1)
-           targetImageView.contentMode = .scaleAspectFit
-           targetImageView.image = UIImage(systemName: "square.and.arrow.down.fill")
-           targetImageView.tintColor = .white
-           targetImageView.isUserInteractionEnabled = true
-           view.addSubview(targetImageView)
+        nameLabel.textColor = .white
+        nameLabel.font = UIFont(name: "PlayfairDisplayItalic-Black", size: 52)
+        view.addSubview(imageView)
+        view.addSubview(nameLabel)
+        view.addSubview(applyButton)
+        // Layout card imageView and label
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
+            nameLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            imageView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: -25),
+            imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            imageView.heightAnchor.constraint(equalToConstant: 300),
+            imageView.widthAnchor.constraint(equalToConstant: 400)
+        ])
+
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 25
+        targetImageView.tintColor = .white
+        targetImageView.isUserInteractionEnabled = true
+        view.addSubview(targetImageView)
 
            // 添加虛線邊框
-           targetImageView.layer.borderColor = UIColor.white.cgColor
+           //targetImageView.layer.borderColor = UIColor.white.cgColor
            targetImageView.layer.borderWidth = 2
-           targetImageView.layer.cornerRadius = 10
+           targetImageView.layer.cornerRadius = 20
            targetImageView.layer.masksToBounds = true
-
-//           let dashBorder = CAShapeLayer()
-//           dashBorder.strokeColor = UIColor.white.cgColor
-//           dashBorder.lineDashPattern = [6, 3] // 虛線的樣式：6點劃線，3點空白
-//           dashBorder.frame = targetImageView.bounds
-//           dashBorder.fillColor = nil
-//           dashBorder.path = UIBezierPath(roundedRect: targetImageView.bounds, cornerRadius: 10).cgPath
-//           targetImageView.layer.addSublayer(dashBorder)
-
+           let dashBorder = CAShapeLayer()
+           dashBorder.strokeColor = UIColor.white.cgColor
+           dashBorder.lineDashPattern = [16, 8] // 虛線的樣式：6點劃線，3點空白
+           dashBorder.frame = targetImageView.bounds
+           dashBorder.fillColor = nil
+           dashBorder.path = UIBezierPath(roundedRect: targetImageView.bounds, cornerRadius: 10).cgPath
+           targetImageView.layer.addSublayer(dashBorder)
+           targetImageView.contentMode = .scaleAspectFill
+           targetImageView.clipsToBounds = true
            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(targetImageTapped))
            targetImageView.addGestureRecognizer(tapGesture)
 
            // Layout the target imageView
            targetImageView.translatesAutoresizingMaskIntoConstraints = false
            NSLayoutConstraint.activate([
-               targetImageView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 50),
+               targetImageView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 12),
                targetImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-               targetImageView.widthAnchor.constraint(equalToConstant: 250),
-               targetImageView.heightAnchor.constraint(equalToConstant: 250)
+               targetImageView.widthAnchor.constraint(equalToConstant: 400),
+               targetImageView.heightAnchor.constraint(equalToConstant: 270)
            ])
+        guard let dominantColor = card?.dominantColor else {return}
+        meshGradientView.setTargetColorRGBA(red: dominantColor.red , green: dominantColor.green , blue: dominantColor.blue , alpha: 1)
+        targetImageView.addSubview(meshGradientView)
+        let iconImageView = UIImageView()
+        let importLabel = UILabel()
+        iconImageView.image = UIImage(systemName: "square.and.arrow.down.fill")
+        meshGradientView.addSubview(iconImageView)
+        meshGradientView.addSubview(importLabel)
+        importLabel.text = "Import photo"
+        importLabel.font = UIFont(name: "PlayfairDisplay-Regular", size: 32)
+        importLabel.textAlignment = .center
+        meshGradientView.translatesAutoresizingMaskIntoConstraints = false
+        importLabel.translatesAutoresizingMaskIntoConstraints = false
+        iconImageView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            meshGradientView.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
+            meshGradientView.centerYAnchor.constraint(equalTo: targetImageView.centerYAnchor),
+            meshGradientView.widthAnchor.constraint(equalToConstant: 400),
+            meshGradientView.heightAnchor.constraint(equalToConstant: 300),
 
+            iconImageView.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
+            iconImageView.centerYAnchor.constraint(equalTo: meshGradientView.centerYAnchor),
+            iconImageView.widthAnchor.constraint(equalToConstant: 120),  // Set a width for the icon
+            iconImageView.heightAnchor.constraint(equalToConstant: 120),  // Set a height for the icon
+            importLabel.topAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: 10),
+            importLabel.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
+            importLabel.widthAnchor.constraint(equalToConstant: 200),
+            importLabel.heightAnchor.constraint(equalToConstant: 36),
+        ])
+        iconImageView.alpha = 0.3
            applyButton.translatesAutoresizingMaskIntoConstraints = false
-           applyButton.layer.cornerRadius = 10
+           applyButton.layer.cornerRadius = 15
            applyButton.backgroundColor = .white
-           applyButton.setTitleColor(.black, for: .normal)
+
            let applyTapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapApply))
            applyButton.addGestureRecognizer(applyTapGesture)
-           applyButton.setTitle("Apply Card", for: .normal)
+        applyButton.setTitleColor(.darkGray, for: .normal)
+        applyButton.setTitle("Apply Card", for: .normal)
            NSLayoutConstraint.activate([
-               applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 50),
+               applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 20),
+               applyButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
                applyButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
                applyButton.widthAnchor.constraint(equalToConstant: 100),
                applyButton.heightAnchor.constraint(equalToConstant: 40)
@@ -121,71 +154,60 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
            filterColorValue = card.filterData[3]
        }
 
-       // 在 viewDidLayoutSubviews 中更新虛線邊框的大小
-//       override func viewDidLayoutSubviews() {
-//           super.viewDidLayoutSubviews()
-//           if let dashBorder = targetImageView.layer.sublayers?.first as? CAShapeLayer {
-//               dashBorder.frame = targetImageView.bounds
-//               dashBorder.path = UIBezierPath(roundedRect: targetImageView.bounds, cornerRadius: 10).cgPath
-//           }
-//       }
-       @objc func didTapApply() {
+    @objc func didTapApply() {
         print("tap apply button")
-        if applyButton.title(for: .normal) == "Apply Card" {
-            guard let targetImage = targetImage else {
-                print("No image selected from photo library.")
-                return
-            }            
-            // 確保 UIImage 能成功轉換為 CIImage
-            guard CIImage(image: targetImage) != nil else {
-                print("Failed to convert UIImage to CIImage.")
-                return
-            }
-            //        // 計算直方圖
-            let targetHistogramData = histogram.calculateHistogram(for: targetImage)
-            let filterHistogramData = histogram.calculateHistogram(for: filterImage)
-            //        // 確認是否成功計算
-            let targetValues = [calculateBrightness(from: targetHistogramData),
-                                calculateContrastFromHistogram(histogramData: targetHistogramData),
-                                calculateSaturation(from: targetHistogramData)]
-            guard let card = card else {return}
-            let filterValues = [card.filterData[0],card.filterData[1], card.filterData[2] ]
-            let tValues = [tBrightness, tContrast, tSaturation]
-            print("targetValues: \(targetValues)")
-            print("filterValues: \(filterValues)")
-            let smoothTargetValues = applySmoothFilterWithDifferentT(targetValues: targetValues, filterValues: filterValues, tValues: tValues)
-            print(smoothTargetValues)
-            let targetColorValue = getDominantColor(from: targetImage)
-            if let filterColorValue = filterColorValue, targetColorValue != 0 {
-                self.hueColor = fabsf(filterColorValue - targetColorValue) 
-                print("hueColor: \(hueColor)")
-            } else {
-                print("One or both color values are missing or targetColorValue is 0. Skipping calculation.")
-            }
-            print("targetColor\(targetColorValue)")
-            print("filterColor\(filterColorValue)")
-            targetImageView.image = applyImageAdjustments(image: targetImage, smoothValues: scaledValues ?? [0, 0, 0], hueAdjustment: hueColor ?? 10)
-            applyButton.setTitle("Customize", for: .normal)
-            if fromUserID != card.creatorID{
-                sendNotification(card: card)
-            }
-        } else if applyButton.title(for: .normal) == "Customize" {
-            guard let targetImage = targetImageView.image, let card = card else { return }
-
-                // Wrap ImageAdjustmentView in a UIHostingController
-            let imageAdjustmentView = ImageAdjustmentView(card: card, originalImage: targetImage) { [weak self] in
-                    // This completion block will be called when the ImageAdjustmentView is dismissed
-                    self?.dismiss(animated: true, completion: {
-                        // After dismissing ImageAdjustmentView, navigate back to the CardView
-                        self?.navigationController?.popViewController(animated: true)
-                    })
-                }
-                let hostingController = UIHostingController(rootView: imageAdjustmentView)
-
-                // Present the UIHostingController modally
-            self.present(hostingController, animated: true, completion: nil)
-            applyButton.setTitle("Apply Card", for: .normal)
+        guard let targetImage = targetImage else {
+            print("No image selected from photo library.")
+            return
         }
+        // 確保 UIImage 能成功轉換為 CIImage
+        guard CIImage(image: targetImage) != nil else {
+            print("Failed to convert UIImage to CIImage.")
+            return
+        }
+        // 計算直方圖
+        let targetHistogramData = histogram.calculateHistogram(for: targetImage)
+        let filterHistogramData = histogram.calculateHistogram(for: filterImage)
+        // 確認是否成功計算
+        let targetValues = [calculateBrightness(from: targetHistogramData),
+                            calculateContrastFromHistogram(histogramData: targetHistogramData),
+                            calculateSaturation(from: targetHistogramData)]
+        guard let card = card else { return }
+        let filterValues = [card.filterData[0], card.filterData[1], card.filterData[2]]
+        let tValues = [tBrightness, tContrast, tSaturation]
+        print("targetValues: \(targetValues)")
+        print("filterValues: \(filterValues)")
+        let smoothTargetValues = applySmoothFilterWithDifferentT(targetValues: targetValues, filterValues: filterValues, tValues: tValues)
+        print(smoothTargetValues)
+        let targetColorValue = getDominantColor(from: targetImage)
+        if let filterColorValue = filterColorValue, targetColorValue != 0 {
+            self.hueColor = filterColorValue - targetColorValue
+            print("hueColor: \(hueColor)")
+        } else {
+            print("One or both color values are missing or targetColorValue is 0. Skipping calculation.")
+        }
+        print("targetColor\(targetColorValue)")
+        print("filterColor\(filterColorValue)")
+        let outputImage = applyImageAdjustments(image: targetImage, smoothValues: scaledValues ?? [0, 0, 0], hueAdjustment: hueColor ?? 10)!
+
+        self.meshGradientView.isHidden = true
+
+        if fromUserID != card.creatorID {
+            sendNotification(card: card)
+        }
+
+        // Directly present the ImageAdjustmentView
+        let imageAdjustmentView = ImageAdjustmentView(card: card, originalImage: outputImage) { [weak self] in
+            // This completion block will be called when the ImageAdjustmentView is dismissed
+            self?.dismiss(animated: true, completion: {
+                // After dismissing ImageAdjustmentView, navigate back to the CardView
+                self?.navigationController?.popViewController(animated: true)
+            })
+        }
+        let hostingController = UIHostingController(rootView: imageAdjustmentView)
+
+        // Present the UIHostingController modally
+        self.present(hostingController, animated: true, completion: nil)
     }
     func applySmoothFilterWithDifferentT(targetValues: [Float], filterValues: [Float], tValues: [Float]) {
         var result = [Float]()
@@ -253,14 +275,20 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
            if let selectedImage = info[.originalImage] as? UIImage {
                targetImage = selectedImage // 保存選取的圖片
+               self.meshGradientView.isHidden = true
                targetImageView.image = selectedImage
-               targetImageView.contentMode = .scaleAspectFit
+
+
            }
            dismiss(animated: true, completion: nil)
        }
     func didCapturePhoto(_ image: UIImage) {
             // 接收到照片後處理
+        print("image picked")
+        self.meshGradientView.isHidden = true
             targetImage = image
+        targetImageView.contentMode = .scaleAspectFill
+        targetImageView.clipsToBounds = true
             targetImageView.image = image
             applyButton.setTitle("Apply Card", for: .normal) // Reset button after capturing photo
         }

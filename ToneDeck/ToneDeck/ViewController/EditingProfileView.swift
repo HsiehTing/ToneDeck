@@ -9,16 +9,16 @@ import SwiftUI
 import PhotosUI
 import FirebaseStorage
 import Firebase
+import Kingfisher
 
 struct EditingProfileView: View {
     @State private var userName: String = ""
     @State private var avatarImage: UIImage?
     @State private var avatarItem: PhotosPickerItem?
-    @State private var isStatusActive: Bool = false
+    @State private var isStatusActive: Bool = UserDefaults.standard.bool(forKey: "privacyStatus")
+    @Binding var userData: User?
     let firestoreService = FirestoreService()
-
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
-    
     var body: some View {
         VStack(spacing: 20) {
             // Avatar
@@ -30,14 +30,20 @@ struct EditingProfileView: View {
                         .frame(width: 100, height: 100)
                         .clipShape(Circle())
                         .overlay(Circle().stroke(Color.white, lineWidth: 2))
+
                 } else {
-                    Image(systemName: firestoreService.user?.avatar ?? "")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 100, height: 100)
-                        .foregroundColor(.gray)
+                    if let userData = userData {
+                        KFImage(URL(string: userData.avatar) )
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.gray, lineWidth: 2))
+                            .shadow(radius: 10)
+                    }
                 }
             }
+            .buttonStyle(PlainButtonStyle())
             .onChange(of: avatarItem) { _ in
                 Task {
                     if let data = try? await avatarItem?.loadTransferable(type: Data.self) {
@@ -56,16 +62,44 @@ struct EditingProfileView: View {
                     updateUserName()
                 }
             // Status Toggle
-            Toggle("Active Status", isOn: $isStatusActive)
+            Toggle("Private account", isOn: $isStatusActive)
                 .padding()
                 .background(Color.gray.opacity(0.2))
                 .cornerRadius(10)
+                .onChange(of: isStatusActive) { oldValue, newValue in
+                    guard let fromUserID = fromUserID else {return}
+                    UserDefaults.standard.set(isStatusActive, forKey: "privacyStatus")
+                    firestoreService.updateUserStatus(status: isStatusActive)
+                }
+            Button {
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                   let window = windowScene.windows.first {
+                                    window.rootViewController = UIHostingController(rootView: ContentView())
+                                    window.makeKeyAndVisible()
+                                }
+            } label: {
+                Image(systemName: "rectangle.portrait.and.arrow.forward")
+            }
+            .buttonStyle(PlainButtonStyle())
+            Button {
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                   let window = windowScene.windows.first {
+                                    window.rootViewController = UIHostingController(rootView: ContentView())
+                                    window.makeKeyAndVisible()
+                                }
+                firestoreService.updateDeleteStatus(status: true)
+
+            } label: {
+                Text("Delete Account")
+            }
+            .buttonStyle(PlainButtonStyle())
             Spacer()
         }
         .padding()
         .onAppear {
-            guard let fromUserID = fromUserID else {return}
-            firestoreService.fetchUserData(userID: fromUserID)
+//            guard let fromUserID = fromUserID else {return}
+//            firestoreService.fetchUserData(userID: fromUserID)
+
         }
         .background(Color.black.edgesIgnoringSafeArea(.all))
         .foregroundColor(.white)
@@ -90,7 +124,4 @@ struct EditingProfileView: View {
         }
 }
 
-#Preview {
-    EditingProfileView()
-}
 

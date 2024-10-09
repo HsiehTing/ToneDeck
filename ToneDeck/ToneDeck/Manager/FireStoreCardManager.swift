@@ -21,7 +21,7 @@ class FirestoreService: ObservableObject {
     let db = Firestore.firestore()
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     
-    func fetchPosts() {
+     func fetchPosts() {
         db.collection("posts").getDocuments { snapshot, error in
             if let error = error {
                 print("Error fetching posts: \(error.localizedDescription)")
@@ -65,6 +65,10 @@ class FirestoreService: ObservableObject {
     func fetchCardDetails(for cardID: String, completion: @escaping () -> Void) {
         let cardRef = db.collection("cards").document(cardID)
         cardRef.getDocument { snapshot, error in
+            if let error = error {
+                print("Error fetching cards: \(error.localizedDescription)")
+                return
+            }
             guard let document = snapshot, document.exists, let data = document.data() else {
                 print("No card found for ID: \(cardID)")
                 completion()
@@ -73,18 +77,35 @@ class FirestoreService: ObservableObject {
             let cardName = data["cardName"] as? String ?? "Unknown Card"
             let imageURL = data["imageURL"] as? String ?? ""
             let createdTIme = data["createdTime"] as? Timestamp ?? Timestamp()
-            let userID = data["userID"] as? String ?? ""
+            let userID = data["creatorID"] as? String ?? ""
             let filterData = data["filterData"] as? [Float] ?? [0]
-            let card = Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID)
-            DispatchQueue.main.async {
-                self.cardsDict[cardID] = card
-                completion()
+            if let dominantColorData = data["dominantColor"] as? [String: Any],
+               let red = dominantColorData["red"] as? Double,
+               let green = dominantColorData["green"] as? Double,
+               let blue = dominantColorData["blue"] as? Double,
+               let alpha = dominantColorData["alpha"] as? Double {
+
+                let dominantColor = DominantColor(red: red, green: green, blue: blue, alpha: alpha)
+
+                let card = Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID, dominantColor: dominantColor)
+                DispatchQueue.main.async {
+                   self.cardsDict[cardID] = card
+                   completion()
+               }
+            } else {
+                // Handle case where dominantColor data is missing or not in the expected format
+                let card = Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID,
+                dominantColor: DominantColor(red: 0, green: 0, blue: 0, alpha: 1))
+                DispatchQueue.main.async {
+                   self.cardsDict[cardID] = card
+                   completion()
+               }
             }
         }
     }
 
     func fetchCards() {
-        db.collection("cards").getDocuments { (snapshot, error) in
+        db.collection("cards").whereField("creatorID", isEqualTo: fromUserID).addSnapshotListener { (snapshot, error) in
             if let error = error {
                 print("Error fetching cards: \(error)")
             } else {
@@ -95,9 +116,24 @@ class FirestoreService: ObservableObject {
                         let cardName = data["cardName"] as? String ?? "Unknown Card"
                         let imageURL = data["imageURL"] as? String ?? ""
                         let createdTIme = data["createdTime"] as? Timestamp ?? Timestamp()
-                        let userID = data["userID"] as? String ?? ""
+                        let userID = data["creatorID"] as? String ?? ""
                         let filterData = data["filterData"] as? [Float] ?? [0]
-                        return Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID)
+                        let dominantColor = data["dominantColor"] as?  DominantColor
+                        if let dominantColorData = data["dominantColor"] as? [String: Any],
+                           let red = dominantColorData["red"] as? Double,
+                           let green = dominantColorData["green"] as? Double,
+                           let blue = dominantColorData["blue"] as? Double,
+                           let alpha = dominantColorData["alpha"] as? Double {
+
+                            let dominantColor = DominantColor(red: red, green: green, blue: blue, alpha: alpha)
+
+                            return Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID, dominantColor: dominantColor)
+                        } else {
+                            // Handle case where dominantColor data is missing or not in the expected format
+                            return Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme,
+                                filterData: filterData, creatorID: userID, dominantColor: DominantColor(red: 0, green: 0, blue: 0, alpha: 1))
+                        }
+
                     }
                 }
             }
@@ -180,7 +216,7 @@ class FirestoreService: ObservableObject {
     }
 
     func fetchNotifications() {
-            db.collection("notifications").whereField("to", isEqualTo: fromUserID).addSnapshotListener { querySnapshot, error in
+        db.collection("notifications").whereField("to", isEqualTo: fromUserID).whereField("from", isNotEqualTo: fromUserID).addSnapshotListener { querySnapshot, error in
                 if let error = error {
                     print("Error fetching notifications: \(error)")
                     return
@@ -198,6 +234,18 @@ class FirestoreService: ObservableObject {
                 }
             }
         }
+//    func fetchUserName(for userID: String) {
+//            let userRef = db.collection("users").whereField("id", isEqualTo: userID)
+//            userRef.getDocuments { snapshot, error in
+//                if let error = error {
+//                    print("Error fetching user: \(error)")
+//                } else if let snapshot = snapshot, let document = snapshot.documents.first {
+//                    if let user = try? document.data(as: User.self) {
+//                        userName = user.userName  // 更新用户名
+//                    }
+//                }
+//            }
+//        }
     func fetchPostsfromProfile(postIDs: [String]) {
         let validPostIDs = postIDs.filter { !$0.isEmpty }
         guard !validPostIDs.isEmpty else {

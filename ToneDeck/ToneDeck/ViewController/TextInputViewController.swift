@@ -15,7 +15,6 @@ struct TextInputView: View {
     var onDismiss: (() -> Void)?
     @Binding var path: [FeedDestination]
     @Environment(\.presentationMode) var presentationMode // 讓視圖能夠返回前一頁
-
     var body: some View {
         VStack {
             KFImage(URL(string: photo.imageURL))
@@ -23,11 +22,29 @@ struct TextInputView: View {
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 300, height: 300)
                 .padding()
-            TextEditor(text: $postText)
-                .frame(height: 200)
-                .border(Color.gray, width: 1)
-                .cornerRadius(20)
-                .padding()
+
+            ZStack(alignment: .topLeading) {
+                // Placeholder
+                if postText.isEmpty {
+                    Text("Enter your text here...")
+                        .foregroundColor(.gray)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                }
+
+                // TextEditor
+                TextEditor(text: $postText)
+                    .frame(height: 200)
+                    .cornerRadius(20)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.white, lineWidth: 1)
+                    )
+
+            }
+            .padding()
             Button(action: {
                 publishPost()
             }) {
@@ -49,7 +66,6 @@ struct TextInputView: View {
                         }
                 )
     }
-    
     // 將貼文儲存到 Firebase Firestore
     func publishPost() {
         let db = Firestore.firestore()
@@ -64,7 +80,7 @@ struct TextInputView: View {
             "createdTime": Timestamp(),
             "cardID": photo.cardID,
             "photoIDArray": [photo.id],
-            "isPrivate": false,
+            "isPrivate": UserDefaults.standard.bool(forKey: "privacyStatus"),
             "likerIDArray": [],
             "id": postID,
             "commentArray": []
