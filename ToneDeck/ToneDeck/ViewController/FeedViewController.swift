@@ -179,7 +179,6 @@ struct PostView: View {
                 Spacer()
                 Button(action: {
                     toggleLike()
-
                 }) {
                     Image(systemName: isStarred ?"capsule.fill" :"capsule" )
                         .padding()
@@ -195,7 +194,6 @@ struct PostView: View {
                 }) {
                     Image(systemName: "bubble.right")
                         .padding()
-
                         .background(Color.black.opacity(0.5))
                         .foregroundColor(.white)
                         .clipShape(Circle())
@@ -341,8 +339,6 @@ struct PostButtonsView: View {
                         RoundedRectangle(cornerRadius: 10)
                             .stroke(.white, lineWidth: 2)
                     )
-
-
             }
 
             .buttonStyle(PlainButtonStyle())

@@ -9,6 +9,8 @@ import SwiftUI
 import PhotosUI
 import Firebase
 import FirebaseStorage
+import Kingfisher
+import AlertKit
 
 struct AddCardViewController: View {
     @Binding var path: [CardDestination]
@@ -16,6 +18,10 @@ struct AddCardViewController: View {
     @State private var selectedImage: UIImage?
     @State private var isShowingPhotoPicker = false
     @State private var isFillOutInfo = false
+    @State private var showingTextAlert = false
+    @State private var showingCompleteAlert = false
+    let alertView = AlertAppleMusic17View(title: "Card name error", subtitle: " should not be more than 14 texts", icon: .error)
+    let successView = AlertAppleMusic17View(title: "Add card complete", subtitle: nil, icon: .done)
     var body: some View {
         VStack {
             TextField("Enter Card Name", text: $cardName)
@@ -26,25 +32,40 @@ struct AddCardViewController: View {
                 Image(uiImage: selectedImage)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 200, height: 200)
+                    .frame(width: .infinity)
+                    .padding()
                     .onTapGesture {
                         isShowingPhotoPicker = true
                     }
             }
 
             Button(action: {
-                if isFillOutInfo {
-                    addCard()
-                } else {
-                    isShowingPhotoPicker = true
-                }
-            }) {
-                Image(systemName: !cardName.isEmpty && selectedImage != nil ? "camera.filters" : "camera.metering.center.weighted.average")
+                if cardName.count > 14 {
+                        // 顯示 alert
+                    showingTextAlert = true
+                    } else {
+                        // 如果資料已填寫完成，執行 addCard()
+                        if isFillOutInfo {
+                            showingCompleteAlert = true
+                            addCard()
+                        } else {
+                            isShowingPhotoPicker = true
+                        }
+                    }
+                successView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
+                successView.titleLabel?.textColor = .white
+                alertView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
+                   alertView.titleLabel?.textColor = .white
+            }) { Image(systemName: !cardName.isEmpty && selectedImage != nil ? "camera.filters" : "camera.metering.center.weighted.average")
                     .padding()
                     .foregroundColor(.white)
-                    .background(Color.blue)
+                    .background(Color.gray)
                     .cornerRadius(10)
+                    .alert(isPresent: $showingTextAlert, view: alertView)
+                    .alert(isPresent: $showingCompleteAlert, view: successView)
             }
+            
+            .buttonStyle(PlainButtonStyle())
             .contentTransition(.symbolEffect(.replace, options: .nonRepeating))
         }
         .sheet(isPresented: $isShowingPhotoPicker) {

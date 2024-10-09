@@ -25,21 +25,10 @@ struct CommentView: View {
             Text("Comments")
                 .frame(height: 100)
                 .font(.title)
+
             ScrollView {
-
                 ForEach(comments, id: \.createdTime) { comment in
-                    HStack(alignment: .center) {
-                        Text(comment.userID)
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                            Spacer()
-                        Text(comment.text)
-                            .font(.body)
-
-                    }
-                    .padding(.vertical, 10)
-                    .padding(.horizontal)
-
+                    CommentRow(comment: comment)  // Use CommentRow here
                 }
                 Spacer(minLength: 50)
             }
@@ -74,12 +63,62 @@ struct CommentView: View {
         }
         .background(
             Color.black
-                        .onTapGesture {
-                            UIApplication.shared.endEditing()
-                        }
-                )
+                .onTapGesture {
+                    UIApplication.shared.endEditing()
+                }
+        )
     }
+    struct CommentRow: View {
+        let comment: Comment
+        @State private var user: User?
+        var body: some View {
+            HStack(alignment: .center) {
+                // Replace comment.userID with userName logic once user data is fetched
+                if let user = user {
+                    Text(user.userName)
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+                Text(comment.text)
+                    .font(.body)
+            }
+            .padding(.vertical, 10)
+            .padding(.horizontal)
+            .onAppear {
+                fetchUser(fromUserID: comment.userID)
+            }
+            .background(
+                Color.black
+                    .onTapGesture {
+                        UIApplication.shared.endEditing()
+                    }
+            )
+        }
 
+        func fetchUser(fromUserID: String) {
+            let db = Firestore.firestore()
+            let userRef = db.collection("users").whereField("id", isEqualTo: fromUserID)
+            // 使用 snapshot listener 來監聽實時變化
+            userRef.addSnapshotListener { querySnapshot, error in
+                if let error = error {
+                    print("Error fetching user data: \(error)")
+                    return
+                }
+                guard let documents = querySnapshot?.documents, !documents.isEmpty else {
+                    print("User not found")
+                    return
+                }
+                // 獲取第一個文檔（假設 id 是唯一的）
+                let document = documents[0]
+                do {
+                    self.user = try document.data(as: User.self)
+                } catch {
+                    print("Error decoding user: \(error)")
+                }
+            }
+        }
+    }
     // Function to load comments from Firestore
     private func loadComments() {
         let postRef = Firestore.firestore().collection("posts").document(postID)

@@ -140,7 +140,7 @@ struct ImageAdjustmentView: View {
         adjustedImage = applyImageAdjustments(
             image: originalImage,
             smoothValues: [Float(brightness), Float(contrast), Float(saturation)],
-            hueAdjustment: Float(hueAdjustment), grainIntensity: Float(grain), grainSize: 6
+            hueAdjustment: Float(hueAdjustment), grainIntensity: Float(grain), grainSize: 2
         )
     }
 }

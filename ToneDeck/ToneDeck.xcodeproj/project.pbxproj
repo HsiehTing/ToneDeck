@@ -819,6 +819,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ToneDeck/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Cardi;
 				INFOPLIST_KEY_NSCameraUsageDescription = "\"use camera\"";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "\"use microphone\"";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "\"use library\"";
@@ -855,6 +856,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ToneDeck/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Cardi;
 				INFOPLIST_KEY_NSCameraUsageDescription = "\"use camera\"";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "\"use microphone\"";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "\"use library\"";

@@ -152,9 +152,21 @@ struct ProfilePageView: View {
                                 .buttonStyle(PlainButtonStyle())
                         }
                     }
+                    
                 }
             }
+
         }
+//        .navigationDestination(for: ProfileDestination.self) { destination in
+//            switch destination {
+//            case .applyCard(let card):
+//                SecondApplyCardViewControllerWrapper(card: card)
+//
+//            case .visitProfile(let postCreatorID):
+//                ProfilePostView()
+//
+//            }
+//        }
     }
 
     func fetchPostsfromProfile(postIDs: [String]) {
@@ -197,7 +209,7 @@ enum ProfileDestination: Hashable {
     case postView
     case applyCard(card: Card)
     case visitProfile(userID: String)
-    // case editingProfile(Void)
+
 }
 
 struct ProfilePostView: View {
@@ -215,7 +227,8 @@ struct ProfilePostView: View {
             KFImage(URL(string: post.imageURL))
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .frame(maxWidth: .infinity, maxHeight: 600)
+                .frame(maxWidth: .infinity, maxHeight: 400)
+                .padding()
                 .clipped()
                 .overlay( HStack {
                     Spacer()
@@ -223,9 +236,7 @@ struct ProfilePostView: View {
                         Spacer()
                         if let fetchedCard = fetchedCard {
                             PostButtonsView(card: fetchedCard, path: $path)
-
                         }
-
                     }
                 }
                     .cornerRadius(10)
@@ -237,12 +248,11 @@ struct ProfilePostView: View {
                 Button(action: {
                     toggleLike()
                 }) {
-                    Image(systemName: isStarred ?"aqi.medium" :"aqi.medium" )
+                    Image(systemName: isStarred ?"capsule.fill" :"capsule" )
                         .padding()
                         .background(Color.black.opacity(0.5))
                         .foregroundColor(isStarred ? .cyan  : .white) // Change color based on state
                         .clipShape(Circle())
-                        .symbolEffect(.variableColor.cumulative.dimInactiveLayers.reversing, options: .nonRepeating)
                 }
                 .buttonStyle(PlainButtonStyle())
                 Button(action: {
@@ -263,12 +273,11 @@ struct ProfilePostView: View {
             }
             // Display Post Text
             Text(post.text)
-                .font(.body)
-                .padding([.horizontal])
+                .font(.title)
+                .padding()
             PostInfoView(post: post, path: $path)
-                .padding([.top, .leading, .trailing])
         }
-        .padding([])
+
         .background(Color.black)
         .frame(maxWidth: .infinity, maxHeight: 800)
         .onAppear {
@@ -376,11 +385,11 @@ struct ProfilePostView: View {
                 }) {
                     Text(card.cardName)
                         .font(.title3)
-                       
                         .cornerRadius(10)
                         .foregroundColor(.white)
 
                 }
+                .buttonStyle(PlainButtonStyle())
                 Spacer()
 
                 // Button for navigating to apply card view using image
@@ -396,10 +405,12 @@ struct ProfilePostView: View {
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(.white, lineWidth: 2)
                         )
-
                 }
+                .buttonStyle(PlainButtonStyle())
             }
-            .padding()
+            .padding(.bottom, 30)
+            .padding(.trailing, 15)
+            .padding(.leading, 15)
         }
     }
 
@@ -416,14 +427,14 @@ struct ProfilePostView: View {
                     Text(userName)
                         .font(.caption)
                         .foregroundColor(.white)
-                        .padding([.leading, .trailing, .bottom])
+
                     Spacer()
                     Text("\(formattedDate(from: post.createdTime))")
                         .font(.caption)
                         .foregroundColor(.gray)
-                        .padding([.leading, .trailing, .bottom])
                 }
                 .buttonStyle(PlainButtonStyle())
+                .padding()
             }
             .onAppear {
                 fetchUserName(for: post.creatorID)
@@ -451,5 +462,3 @@ struct ProfilePostView: View {
 
     }
 }
-
-

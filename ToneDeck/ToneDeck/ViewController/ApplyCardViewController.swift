@@ -35,7 +35,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     let histogram = ImageHistogramCalculator()
     var targetImage: UIImage? // 用來保存選取的圖片
     var tBrightness: Float = 1  // 較平滑的亮度變化
-    var tContrast: Float = 1.1    // 中等強度的對比度變化
+    var tContrast: Float = 1.3    // 中等強度的對比度變化
     var tSaturation: Float = 1  // 更強的飽和度變化
     var scaledValues: [Float]?
     var filterColorValue: Float?
@@ -63,17 +63,15 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         view.addSubview(applyButton)
         // Layout card imageView and label
         imageView.translatesAutoresizingMaskIntoConstraints = false
-
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
             nameLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             imageView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: -25),
             imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             imageView.heightAnchor.constraint(equalToConstant: 300),
             imageView.widthAnchor.constraint(equalToConstant: 400)
         ])
-        print("===========================\(view.safeAreaInsets.top)")
 
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
@@ -105,7 +103,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
                targetImageView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 12),
                targetImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
                targetImageView.widthAnchor.constraint(equalToConstant: 400),
-               targetImageView.heightAnchor.constraint(equalToConstant: 300)
+               targetImageView.heightAnchor.constraint(equalToConstant: 270)
            ])
         guard let dominantColor = card?.dominantColor else {return}
         meshGradientView.setTargetColorRGBA(red: dominantColor.red , green: dominantColor.green , blue: dominantColor.blue , alpha: 1)
@@ -147,7 +145,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         applyButton.setTitle("Apply Card", for: .normal)
            NSLayoutConstraint.activate([
                applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 20),
-//               applyButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 20),
+               applyButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
                applyButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
                applyButton.widthAnchor.constraint(equalToConstant: 100),
                applyButton.heightAnchor.constraint(equalToConstant: 40)
@@ -183,7 +181,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         print(smoothTargetValues)
         let targetColorValue = getDominantColor(from: targetImage)
         if let filterColorValue = filterColorValue, targetColorValue != 0 {
-            self.hueColor = fabsf(filterColorValue /*- targetColorValue*/)
+            self.hueColor = filterColorValue - targetColorValue
             print("hueColor: \(hueColor)")
         } else {
             print("One or both color values are missing or targetColorValue is 0. Skipping calculation.")

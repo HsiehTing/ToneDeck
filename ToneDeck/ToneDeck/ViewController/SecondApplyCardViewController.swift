@@ -65,7 +65,7 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
 
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
             nameLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             imageView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: -25),
             imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -144,7 +144,7 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
         applyButton.setTitle("Apply Card", for: .normal)
            NSLayoutConstraint.activate([
                applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 20),
-               applyButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 20),
+               //applyButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 20),
                applyButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
                applyButton.widthAnchor.constraint(equalToConstant: 100),
                applyButton.heightAnchor.constraint(equalToConstant: 40)

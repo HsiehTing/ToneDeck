@@ -98,9 +98,9 @@ struct CardViewController: View {
                             // Magnifying glass button (toggle search mode)
                             Button {
                                 withAnimation {
-                                    isSearchActive.toggle() // Toggle search bar visibility
+                                    isSearchActive.toggle()
                                     if !isSearchActive {
-                                        textFieldText = "" // Clear the search text when closing the search
+                                        textFieldText = ""
                                     }
                                 }
                             } label: {
@@ -161,7 +161,6 @@ struct CardRow: View {
                 HStack {
                     Spacer()
                     OptionMenuButton(card: card)
-
                 }
                 Spacer()
                 HStack {
@@ -200,11 +199,12 @@ struct OptionMenuButton: View {
     @State private var showRenameAlert = false
     @State private var showShareAlert = false
     @State private var newName = ""
-    let alertView = AlertAppleMusic17View(title: "Copy to ClipBoard", subtitle: nil, icon: .done)
+    let alertcopyView = AlertAppleMusic17View(title: "Copy to ClipBoard", subtitle: nil, icon: .done)
     let db = Firestore.firestore()
     let firestoreService = FirestoreService()
     let card: Card
     var body: some View {
+
         Menu { Button(action: {
             // 顯示改名彈出框
             showRenameAlert = true
@@ -219,12 +219,12 @@ struct OptionMenuButton: View {
                 // 添加分享操作
                 showShareAlert = true
                 UIPasteboard.general.string = card.id
-                alertView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
-                alertView.titleLabel?.textColor = .white
+                alertcopyView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
+                alertcopyView.titleLabel?.textColor = .white
 
                 print("Share tapped")
             }) { Label("Share", systemImage: "square.and.arrow.up")
-                    .alert(isPresent: $showShareAlert, view: alertView)
+                    .alert(isPresent: $showShareAlert, view: alertcopyView)
             }
         } label: {
             Image(systemName: "ellipsis")
@@ -235,7 +235,7 @@ struct OptionMenuButton: View {
                 .buttonStyle(PlainButtonStyle())
         }
         .buttonStyle(PlainButtonStyle())
-        .padding(.top, 20)
+        .padding(.top, 30)
         .padding(.trailing, 10)
         .alert("Rename Card", isPresented: $showRenameAlert) {
             TextField("Enter new name", text: $newName)

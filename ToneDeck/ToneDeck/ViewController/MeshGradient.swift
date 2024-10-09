@@ -132,7 +132,7 @@ class UIKitMeshGradient: UIView {
         }
         private func adjustColor(_ color: Color, brightnessAdjustment: Double, saturationAdjustment: Double) -> Color {
             let components = color.hsbaComponents
-            let adjustedBrightness = min(max(components.brightness * brightnessAdjustment, 0.3), 1)
+            let adjustedBrightness = min(max(components.brightness * brightnessAdjustment, 0.5), 1.2)
             let adjustedSaturation = min(max(components.saturation + saturationAdjustment, 0), 1)
             return Color(hue: components.hue, saturation: adjustedSaturation, brightness: adjustedBrightness, opacity: 1)
         }
