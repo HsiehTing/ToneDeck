@@ -97,23 +97,25 @@ struct NotificationRow: View {
             fetchUser(fromUserID: notification.from)  // 根據 fromUserID 取得對應的 User
         }
     }
-    
-    // 使用 enum 來處理不同類型的通知
+
     func getNotificationText(notification: Notification) -> String {
-        switch notification.type {
-        case .like:
-            return "\(notification.from) just liked your post"
-        case .comment:
-            return "\(notification.from) commented on your post"
-        case .useCard:
-            return "\(notification.from) used your card"
-        case .follow:
-            return "\(notification.from) started following you"
-        }
+        guard let userName = user?.userName else {
+                return "Unknown user"
+            }
+
+            switch notification.type {
+            case .like:
+                return "\(userName) just liked your post"
+            case .comment:
+                return "\(userName) commented on your post"
+            case .useCard:
+                return "\(userName) used your card"
+            case .follow:
+                return "\(userName) started following you"
+            }
     }
     private func toggleFollow(user: User) {
         let firestoreService = FirestoreService()
-        
         if isFollowed {
             // If already starred, remove the user's ID from the likerIDArray
             firestoreService.addUserToFollowingArray(userID: user.id)
@@ -127,22 +129,20 @@ struct NotificationRow: View {
     }
     func fetchUser(fromUserID: String) {
         let db = Firestore.firestore()
-        let userRef = db.collection("users").document(fromUserID)
-        
+        let userRef = db.collection("users").whereField("id", isEqualTo: fromUserID)
         // 使用 snapshot listener 來監聽實時變化
-        userRef.addSnapshotListener { documentSnapshot, error in
+        userRef.addSnapshotListener { querySnapshot, error in
             if let error = error {
                 print("Error fetching user data: \(error)")
                 return
             }
-            
-            guard let document = documentSnapshot, document.exists else {
+            guard let documents = querySnapshot?.documents, !documents.isEmpty else {
                 print("User not found")
                 return
             }
-            
+            // 獲取第一個文檔（假設 id 是唯一的）
+            let document = documents[0]
             do {
-                // 嘗試將 Firestore 的資料轉換成 User 結構
                 self.user = try document.data(as: User.self)
             } catch {
                 print("Error decoding user: \(error)")

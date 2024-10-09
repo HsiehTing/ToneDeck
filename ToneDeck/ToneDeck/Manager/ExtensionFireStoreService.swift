@@ -53,6 +53,26 @@ extension FirestoreService {
         }
 
     }
+    func updateUserStatus (status: Bool) {
+        let userRef = Firestore.firestore().collection("posts").whereField("creatorID", isEqualTo: fromUserID)
+        userRef.getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {return}
+            for document in  documents {
+                document.reference.updateData(["isPrivate": status])
+            }
+        }
+
+    }
+    func updateDeleteStatus (status: Bool) {
+        let userRef = Firestore.firestore().collection("posts").whereField("creatorID", isEqualTo: fromUserID)
+        userRef.getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {return}
+            for document in  documents {
+                document.reference.updateData(["isDelete": status])
+            }
+        }
+
+    }
     func updateUserName (userID: String, newName: String) {
         let userRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: userID)
         userRef.getDocuments { querySnapshot, error in
@@ -61,8 +81,42 @@ extension FirestoreService {
                 document.reference.updateData(["userName": newName])
             }
         }
-
     }
+    func addBlockUserData(to targetID: String) {
+        guard let fromUserID = fromUserID else { return }
+        let userRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: fromUserID)
+        userRef.getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents, let document = documents.first else {return}
+            let documentRef = document.reference
+            documentRef.setData([
+                "blockUserArray": FieldValue.arrayUnion([targetID])
+            ]){ error in
+                if let error = error {
+                    print("Error updating blockUserArray: \(error.localizedDescription)")
+                } else {
+                    print("Successfully added targetID to blockUserArray")
+                }
+            }
+        }
+    }
+    func addReportUserData(to targetID: String) {
+        guard let fromUserID = fromUserID else { return }
+        let userRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: fromUserID)
+        userRef.getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents, let document = documents.first else {return}
+            let documentRef = document.reference
+            documentRef.setData([
+                "reportUserArray": FieldValue.arrayUnion([targetID])
+            ]){ error in
+                if let error = error {
+                    print("Error updating blockUserArray: \(error.localizedDescription)")
+                } else {
+                    print("Successfully added targetID to reportUserArray")
+                }
+            }
+        }
+    }
+    
 }
 func checkUserData() {
     let mockUserName = "default user name"
@@ -115,13 +169,16 @@ func saveNewUser(userName: String, avatar: String, postIDArray: [String], follow
     let document = users.document() // 自動生成 document ID
     let userData: [String: Any] = [
         "id": UserDefaults.standard.string(forKey: "userDocumentID"),
+        //"id": document.documentID,
         "userName": userName,
         "avatar": avatar,
         "postIDArray": postIDArray,
         "followingArray": followingIDArray,
         "followerArray": followerIDArray,
         "photoIDArray": photoIDArray,
-        "createdTime": timeStamp
+        "blockUserArray": [],
+        "createdTime": timeStamp,
+        "isPrivate": false
     ]
 
     document.setData(userData) { error in
@@ -131,7 +188,8 @@ func saveNewUser(userName: String, avatar: String, postIDArray: [String], follow
             print("User successfully saved!")
             // 儲存 document ID 到 UserDefaults
             let defaults = UserDefaults.standard
-            defaults.set(document.documentID, forKey: "userDocumentID")
+            //defaults.set(document.documentID, forKey: "userDocumentID")
+            defaults.set(false, forKey: "privacyStatus")
         }
     }
 
@@ -157,6 +215,13 @@ struct Card: Identifiable, Decodable, Hashable, Equatable {
     var createdTime: Timestamp
     var filterData: [Float]
     var creatorID: String
+    var dominantColor: DominantColor
+}
+struct DominantColor:Codable, Equatable, Hashable{
+    var red: Double
+    var green: Double
+    var blue: Double
+    var alpha: Double
 }
 
 struct User: Identifiable, Codable {
@@ -166,7 +231,8 @@ struct User: Identifiable, Codable {
     var postIDArray: [String]
     var followingArray: [String]
     var followerArray: [String]
-    //var photoIDArray: [String]
+    var blockUserArray: [String]
+    var photoIDArray: [String]
 }
 
 struct Photo: Identifiable, Decodable {

@@ -9,6 +9,7 @@ import Foundation
 import CoreImage
 import UIKit
 
+var dominantColor: UIColor?
 func calculateBrightness(from histogramData: [String: [Float]]) -> Float {
     guard let grayHistogram = histogramData["gray"] else {
         return 0.0
@@ -158,12 +159,13 @@ func getDominantColor(from image: UIImage) -> Float {
     let green = CGFloat(pixel[1]) / 255.0
     let blue = CGFloat(pixel[2]) / 255.0
     let alpha = CGFloat(pixel[3]) / 255.0
-    let dominantColor = UIColor(red: red, green: green, blue: blue, alpha: alpha)
+     dominantColor = UIColor(red: red, green: green, blue: blue, alpha: alpha)
 
     // 獲取顏色的 Hue 值
     var hue: CGFloat = 0
     var saturation: CGFloat = 0
     var brightness: CGFloat = 0
+    guard let dominantColor = dominantColor else {return 0}
     dominantColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: nil)
 
     // 返回弧度值 (0 到 2π)
