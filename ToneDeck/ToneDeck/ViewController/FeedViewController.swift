@@ -8,6 +8,8 @@ import SwiftUI
 import FirebaseFirestore
 import Kingfisher
 import FirebaseCore
+import AlertKit
+
 
 // 定義導航目的地
 enum FeedDestination: Hashable {
@@ -36,99 +38,101 @@ struct Comment: Codable {
 struct FeedView: View {
     @StateObject private var firestoreService = FirestoreService()
     @State private var path = [FeedDestination]()
+    @State private var blockPostsArray = [String]()
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     let segments: [String] = ["For you", "Following"]
     @State private var selected: String = "For you"
     @Namespace var name
+
     var body: some View {
         NavigationStack(path: $path) {
-            HStack{
-                ForEach(segments, id: \.self) { segment in
-                    Button {
+            VStack {
+                // Segment control
+                HStack {
+                    ForEach(segments, id: \.self) { segment in
+                        Button {
                             selected = segment
-                    } label: {
-                        VStack{
-                            Text(segment)
-                                .font(.footnote)
-                                .fontWeight(.medium)
-                                .foregroundColor(selected == segment ? .white : Color(uiColor: .darkGray))
-                                .animation(.easeInOut)
+                        } label: {
+                            VStack {
+                                Text(segment)
+                                    .font(.footnote)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(selected == segment ? .white : Color(uiColor: .darkGray))
+                                    .animation(.easeInOut)
 
-                            ZStack{
-                                Capsule()
-                                    .fill(Color.clear)
-                                    .frame(height: 2)
-                                if selected == segment {
+                                ZStack {
                                     Capsule()
-                                        .fill(Color.secondary)
-                                        .matchedGeometryEffect(id: "Tab", in: name)
-                                        .frame(width: 100, height: 2)
-                                        .animation(.easeInOut)
-
+                                        .fill(Color.clear)
+                                        .frame(height: 2)
+                                    if selected == segment {
+                                        Capsule()
+                                            .fill(Color.secondary)
+                                            .matchedGeometryEffect(id: "Tab", in: name)
+                                            .frame(width: 100, height: 2)
+                                            .animation(.easeInOut)
+                                    }
                                 }
                             }
                         }
-
+                        .buttonStyle(PlainButtonStyle())
+                        .padding()
                     }
-                    .buttonStyle(PlainButtonStyle())
-                    .padding()
                 }
-            }
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 40) {
-                    ForEach(
-                        firestoreService.posts
-                        
-                            .filter { post in
-                                // 确保 post.creatorID 不在 blockUserArray 中
 
-                                guard let blockUserArray = firestoreService.user?.blockUserArray else {
-                                    return true
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 10) {
+                        ForEach(
+                            firestoreService.posts
+                                .filter { post in
+                                    !blockPostsArray.contains(post.id ?? "") &&
+                                    {
+                                        guard let blockUserArray = firestoreService.user?.blockUserArray else {
+                                            return true
+                                        }
+                                        guard let followingUserArray = firestoreService.user?.followingArray else {
+                                            return true
+                                        }
+                                        if selected == segments[0] {
+                                            return !blockUserArray.contains(post.creatorID) && post.isPrivate == false
+                                        } else {
+                                            return !blockUserArray.contains(post.creatorID) && followingUserArray.contains(post.creatorID)
+                                        }
+                                    }()
                                 }
-                                guard let followingUserArray = firestoreService.user?.followingArray else {
-                                    return true
-                                }
-                                if selected == segments[0] {
-                                               return !blockUserArray.contains(post.creatorID) && post.isPrivate == false
-                                           } else {
-                                               return !blockUserArray.contains(post.creatorID) && followingUserArray.contains(post.creatorID)
-                                           }
+                                .sorted(by: { ($0.createdTime.dateValue()) > ($1.createdTime.dateValue()) })
+                        ) { post in
+                            VStack {
 
+                                if let cardID = post.cardID,
+                                   let card = firestoreService.cardsDict[cardID] {
+                                    PostView(post: post, card: card, path: $path, blockPostsArray: $blockPostsArray)
+                                } else {
+                                    PostView(post: post, card: nil, path: $path, blockPostsArray: $blockPostsArray)
+                                }
                             }
-                            .sorted(by: { ($0.createdTime.dateValue()) > ($1.createdTime.dateValue()) })
-                    ) { post in
-                        if let cardID = post.cardID,
-                           let card = firestoreService.cardsDict[cardID] {
-                            PostView(post: post, card: card, path: $path)
-                        } else {
-                            PostView(post: post, card: nil, path: $path)
                         }
                     }
                 }
                 .navigationTitle("Feed")
                 .onAppear {
-                    firestoreService.fetchPosts()  // Load posts on view appear
+                    firestoreService.fetchPosts()
                     firestoreService.fetchUserData(userID: fromUserID ?? "")
+                    loadBlockedPosts()
                 }
                 .navigationBarItems(trailing: Button(action: {
                     if path.last != .addPost {
                         path.append(.addPost)
                     }
-                    print("Navigating to addPost")  // Debugging print
                 }) {
                     Image(systemName: "plus")
                         .foregroundColor(.cyan)
-                       
-
                 })
                 .navigationDestination(for: FeedDestination.self) { destination in
                     switch destination {
                     case .addPost:
                         PhotoGridView(path: $path)
-
                     case .applyCard(let card):
                         SecondApplyCardViewControllerWrapper(card: card)
-
                     case .visitProfile(let postCreatorID):
                         ProfilePageView(userID: postCreatorID)
                             .onDisappear {
@@ -137,6 +141,14 @@ struct FeedView: View {
                     }
                 }
             }
+        }
+    }
+
+
+
+    private func loadBlockedPosts() {
+        if let blockedPosts = UserDefaults.standard.array(forKey: "blockPostsArray") as? [String] {
+            blockPostsArray = blockedPosts
         }
     }
 }
@@ -150,6 +162,10 @@ struct PostView: View {
     @State private var isStarred: Bool = false
     @State private var isCommentViewPresented: Bool = false
     @State private var userAvatarURL: String = ""
+    @State private var showReportAlert = false
+    @Binding var blockPostsArray:  [String]
+    let alertcopyView = AlertAppleMusic17View(title: nil, subtitle: "Thanks for reporting this post", icon: .done)
+
     var body: some View {
         VStack(alignment: .leading) {
             // Display Post Image
@@ -176,6 +192,31 @@ struct PostView: View {
 
                 )
             HStack {
+                if post.creatorID != fromUserID {
+                    HStack {
+                        Menu {
+                            Button {
+                                reportPost(post: post)
+                                showReportAlert = true
+                            } label: {
+                                Text("Report Post")
+                                    .alert(isPresent: $showReportAlert, view: alertcopyView)
+
+                            }
+
+                        } label: {
+                            Image(systemName: "ellipsis")
+                                .foregroundColor(.white)
+                                .padding(20)
+                                .background(Color.black.opacity(0.5))
+                                .clipShape(Circle())
+
+                        }
+                        .padding(.trailing)
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                }
+
                 Spacer()
                 Button(action: {
                     toggleLike()
@@ -301,6 +342,12 @@ struct PostView: View {
                 self.userAvatarURL = document.data()?["avatarURL"] as? String ?? ""
             }
         }
+    }
+    private func reportPost(post: Post) {
+        let postID = post.id
+        blockPostsArray.append(postID)
+        UserDefaults.standard.set(blockPostsArray, forKey: "blockPostsArray")
+
     }
 }
 struct PostButtonsView: View {

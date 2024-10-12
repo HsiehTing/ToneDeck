@@ -74,6 +74,10 @@ struct EditingProfileView: View {
             Button {
                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                                    let window = windowScene.windows.first {
+                    let defaults = UserDefaults.standard
+                    defaults.set(false, forKey: "isSignedIn")
+                    defaults.removeObject(forKey: "userDocumentID")
+                    defaults.removeObject( forKey: "blockPostsArray")
                                     window.rootViewController = UIHostingController(rootView: ContentView())
                                     window.makeKeyAndVisible()
                                 }
@@ -84,6 +88,10 @@ struct EditingProfileView: View {
             Button {
                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                                    let window = windowScene.windows.first {
+                    let defaults = UserDefaults.standard
+                    defaults.set(false, forKey: "isSignedIn")
+                    defaults.removeObject(forKey: "userDocumentID")
+                    defaults.removeObject( forKey: "blockPostsArray")
                                     window.rootViewController = UIHostingController(rootView: ContentView())
                                     window.makeKeyAndVisible()
                                 }

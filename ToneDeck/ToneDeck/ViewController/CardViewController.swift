@@ -25,33 +25,41 @@ struct CardViewController: View {
     @State private var isSearchActive = false
     @State var textFieldText : String = ""
     @State private var showingImageSourceAlert = false
-
+    
     init() {
         UINavigationBar.appearance().largeTitleTextAttributes = [.font : UIFont(name: "PlayfairDisplayRoman-Bold", size: 52)!]
     }
     var body: some View {
         NavigationStack(path: $path) {
+            
             ZStack {
+                
                 VStack{
-                    List {
-                        ForEach(firestoreService.cards.sorted(by: {  ($0.createdTime.dateValue()) > ($1.createdTime.dateValue())  })) { card in
-                            CardRow(card: card, path: $path)
-                                .padding(.vertical, 10)
-                                .clipped()
-                                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
-                                .transition(.slide)
-                                .animation(.easeInOut)
+                    if firestoreService.cards.count == 0 {
+                        Text("Add Card to Card List")
+                            .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
+                            .foregroundStyle(Color.gray)
+                    } else{
+                        List {
+                            ForEach(firestoreService.cards.sorted(by: {  ($0.createdTime.dateValue()) > ($1.createdTime.dateValue())  })) { card in
+                                CardRow(card: card, path: $path)
+                                    .clipped()
+                                    .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+                                    .transition(.slide)
+                                // .frame(width: geometry.size.width, height: geometry.size.width * 0.5)
+                                    .animation(.easeInOut)
+                            }
                         }
+                        
+                        .listStyle(PlainListStyle())
                     }
-
-                    .listStyle(PlainListStyle())
-                    .onAppear {
-                        firestoreService.fetchCards()
-                    }
-                    .frame(maxWidth: .infinity)
-                    .edgesIgnoringSafeArea(.horizontal)
-                    .navigationTitle(Text("Cards"))
                 }
+                .onAppear {
+                    firestoreService.fetchCards()
+                }
+                .frame(maxWidth: .infinity)
+                .edgesIgnoringSafeArea(.horizontal)
+                .navigationTitle(Text("Cards"))
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         HStack {
@@ -61,7 +69,7 @@ struct CardViewController: View {
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
                                     .frame(width: 270)
                                     .padding(.leading, 10)
-
+                                
                                 Button {
                                     let db = Firestore.firestore()
                                     db.collection("cards")
@@ -123,13 +131,14 @@ struct CardViewController: View {
                     }
                 }
             }
+            
         }
         .background(
             Color.black
-                        .onTapGesture {
-                            UIApplication.shared.endEditing()
-                        }
-                )
+                .onTapGesture {
+                    UIApplication.shared.endEditing()
+                }
+        )
     }
 }
 struct CardRow: View {
@@ -137,13 +146,14 @@ struct CardRow: View {
     @Binding var path: [CardDestination]
     @State private var isAnimationTriggered: Bool = false
     var body: some View {
-
+        
         ZStack(alignment: .bottomLeading) {
             // Load image using Kingfisher, and make it tappable to trigger push navigation
             KFImage(URL(string: card.imageURL))
                 .resizable()
                 .scaledToFill()
-                .frame(width: 400, height: 200)
+                .frame(width: 370, height: 200)
+            // .padding()
                 .cornerRadius(20)
                 .clipped()
                 .onTapGesture {
@@ -155,7 +165,7 @@ struct CardRow: View {
                 .fontWeight(.bold)
                 .padding(8)
                 .foregroundColor(.white)
-
+            
             // Buttons overlay
             VStack {
                 HStack {
@@ -165,7 +175,7 @@ struct CardRow: View {
                 Spacer()
                 HStack {
                     Spacer()
-
+                    
                     // Directly including the Camera Button in bottom-right
                     Button(action: {
                         // Push CameraView onto the navigation stack
@@ -185,6 +195,7 @@ struct CardRow: View {
         }
         .offsetAnimation(isTriggered: isAnimationTriggered, delay: 0.3)
         .cornerRadius(10)
+        
         .clipped()
         .onAppear {
             isAnimationTriggered = true
@@ -192,8 +203,9 @@ struct CardRow: View {
         .onDisappear {
             isAnimationTriggered = false
         }
+        
     }
-
+    
 }
 struct OptionMenuButton: View {
     @State private var showRenameAlert = false
@@ -204,7 +216,6 @@ struct OptionMenuButton: View {
     let firestoreService = FirestoreService()
     let card: Card
     var body: some View {
-
         Menu { Button(action: {
             // 顯示改名彈出框
             showRenameAlert = true
@@ -221,7 +232,7 @@ struct OptionMenuButton: View {
                 UIPasteboard.general.string = card.id
                 alertcopyView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
                 alertcopyView.titleLabel?.textColor = .white
-
+                
                 print("Share tapped")
             }) { Label("Share", systemImage: "square.and.arrow.up")
                     .alert(isPresent: $showShareAlert, view: alertcopyView)
@@ -264,20 +275,20 @@ struct OptionMenuButton: View {
     CardViewController()
 }
 extension View {
-
+    
     func offsetAnimation(isTriggered: Bool, delay: CGFloat) -> some View {
         return self
             .offset(y: isTriggered ? 0 : 30)
             .opacity(isTriggered ? 1 : 0)
             .animation(.smooth(duration: 1.4, extraBounce: 0.2).delay(delay), value: isTriggered)
     }
-
+    
     func bannerAnimation(isTriggered: Bool) -> some View {
         return self
             .scaleEffect(isTriggered ? 1 : 0.95)
             .opacity(isTriggered ? 1 : 0)
             .animation(.easeOut(duration: 1), value: isTriggered)
     }
-
+    
 }
 

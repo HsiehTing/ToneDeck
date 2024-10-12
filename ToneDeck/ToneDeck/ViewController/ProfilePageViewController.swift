@@ -62,6 +62,7 @@ struct ProfilePageView: View {
                                         toggleFollow(user: user)
                                     }) {
                                         Text(isFollowed ? "Unfollow" : "Follow")
+                                            .font(.callout)
                                             .frame(width: isFollowed ?  80 : 50)
                                     }
                                     .buttonStyle(.borderedProminent)
@@ -133,7 +134,7 @@ struct ProfilePageView: View {
                                 firestoreService.addBlockUserData(to: userID)
                                 alertView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
                                 alertView.titleLabel?.textColor = .white                                
-                            }) { Label("Block", systemImage: "pencil")
+                            }) { Label("Block", systemImage: "shield")
                                 .alert(isPresent: $showBlockAlert, view: alertView)}
                             Button(action: {
                                 showReportAlert = true
@@ -141,7 +142,7 @@ struct ProfilePageView: View {
                                 reportView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
                                 reportView.titleLabel?.textColor = .white
                                 print("Report")
-                            }) { Label("Delete", systemImage: "trash")
+                            }) { Label("Report", systemImage: "exclamationmark.bubble")
                                 .alert(isPresent: $showReportAlert, view: reportView)}
                         } label: {
                             Image(systemName: "ellipsis")

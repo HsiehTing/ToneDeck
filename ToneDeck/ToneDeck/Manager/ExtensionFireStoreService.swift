@@ -119,7 +119,7 @@ extension FirestoreService {
     
 }
 func checkUserData() {
-    let mockUserName = "default user name"
+    let mockUserName = "user"
     let userName = mockUserName
     let timeStamp = Date()
     let avatar = 
@@ -167,6 +167,10 @@ func saveNewUser(userName: String, avatar: String, postIDArray: [String], follow
     let db = Firestore.firestore()
     let users = db.collection("users")
     let document = users.document() // 自動生成 document ID
+    let defaults = UserDefaults.standard
+    if  defaults.bool(forKey: "signinWithApple") == false {
+        defaults.set(document.documentID, forKey: "userDocumentID")
+    }
     let userData: [String: Any] = [
         "id": UserDefaults.standard.string(forKey: "userDocumentID"),
         //"id": document.documentID,

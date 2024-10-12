@@ -12,15 +12,14 @@ import Firebase
 
 @main
 struct ToneDeckApp: App {
-    // register app delegate for Firebase setup
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+
     var body: some Scene {
-      WindowGroup {
-        NavigationView {
-           // AfterSignInContentView()
-            ContentView()
+        WindowGroup {
+            NavigationView {
+                ContentView()
+            }
         }
-      }
     }
 }
 
@@ -28,14 +27,14 @@ struct ContentView: View {
     @State private var isSignedIn = false
 
     var body: some View {
-        ZStack{
+        ZStack {
             MeshGradient.AnimatedGrayscaleMeshView()
                 .ignoresSafeArea()
+
             if isSignedIn {
-                // Navigate to AfterSignInContentView after login
                 AfterSignInContentView()
             } else {
-                VStack{
+                VStack {
                     Spacer()
                     SignInWithAppleButton(
                         onRequest: { request in
@@ -46,7 +45,6 @@ struct ContentView: View {
                             case .success(let authResults):
                                 switch authResults.credential {
                                 case let appleIDCredential as ASAuthorizationAppleIDCredential:
-                                    print(appleIDCredential.fullName, appleIDCredential.email, appleIDCredential.user)
                                     let defaults = UserDefaults.standard
                                     defaults.set(appleIDCredential.user, forKey: "userDocumentID")
                                     if let fullName = appleIDCredential.fullName {
@@ -55,13 +53,14 @@ struct ContentView: View {
                                     }
                                     defaults.set(appleIDCredential.email, forKey: "userEmail")
                                     checkAndAddCredentialsData(id: appleIDCredential.user, email: appleIDCredential.email ?? "")
+                                    defaults.set(true, forKey: "isSignedIn")
                                     isSignedIn = true
                                 case let passwordCredential as ASPasswordCredential:
-                                    let username = passwordCredential.user
-                                    let password = passwordCredential.password
                                     let defaults = UserDefaults.standard
                                     defaults.set(passwordCredential.user, forKey: "userDocumentID")
                                     defaults.set(passwordCredential.password, forKey: "password")
+                                    defaults.set(true, forKey: "isSignedIn")
+                                    defaults.set(true, forKey: "signinWithApple")
                                     isSignedIn = true
                                 default:
                                     break
@@ -72,40 +71,67 @@ struct ContentView: View {
                             }
                         }
                     )
-                    .frame(width: 170,height: 50)
+                    .frame(width: 170, height: 50)
                     .signInWithAppleButtonStyle(.whiteOutline)
-                }
-            }
-
-        }
-
-    }
-    func checkAndAddCredentialsData(id: String, email: String) {
-       let credentialsCollection = Firestore.firestore().collection("credentials")
-        credentialsCollection.whereField("id", isEqualTo: id).getDocuments { (snapshot, error) in
-            if let error = error {
-                print("Error fetching documents: \(error)")
-                return
-            }
-            if let snapshot = snapshot, !snapshot.isEmpty {
-                print("ID already exists. No need to add.")
-            } else {
-                let document = credentialsCollection.document() // Firestore auto-generates a new document ID
-                let data: [String: Any] = [
-                    "id": id,
-                    "email": email
-                ]
-                document.setData(data) { error in
-                    if let error = error {
-                        print("Error adding document: \(error)")
-                    } else {
-                        print("Document successfully added.")
+                    .padding()
+                    Button(action: {
+                        let defaults = UserDefaults.standard
+                        defaults.set(false, forKey: "signinWithApple") // Set signinWithApple to false
+                        isSignedIn = true // Allow the user to continue
+                        checkUserData() // Call checkUserData()
+                    }) {
+                        Text("Continue without Sign In")
+                            .font(.system(size: 16))
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(Color.gray)
+                            .cornerRadius(8)
                     }
+                    .buttonStyle(PlainButtonStyle())
                 }
             }
         }
-   }
+        .onAppear {
+            checkIfSignedIn()
+        }
+    }
+
+    private func checkIfSignedIn() {
+        let defaults = UserDefaults.standard
+        // Check if "isSignedIn" is false, meaning the user has logged in before
+        if defaults.bool(forKey: "isSignedIn") == true {
+            isSignedIn = true
+        } else {
+            defaults.set(false, forKey: "isSignedIn")
+        }
+    }
 }
+func checkAndAddCredentialsData(id: String, email: String) {
+    let credentialsCollection = Firestore.firestore().collection("credentials")
+    credentialsCollection.whereField("id", isEqualTo: id).getDocuments { (snapshot, error) in
+        if let error = error {
+            print("Error fetching documents: \(error)")
+            return
+        }
+        if let snapshot = snapshot, !snapshot.isEmpty {
+            print("ID already exists. No need to add.")
+        } else {
+            let document = credentialsCollection.document() // Firestore auto-generates a new document ID
+            let data: [String: Any] = [
+                "id": id,
+                "email": email
+            ]
+            document.setData(data) { error in
+                if let error = error {
+                    print("Error adding document: \(error)")
+                } else {
+                    print("Document successfully added.")
+                }
+            }
+        }
+    }
+}
+
 class MeshGradient {
 
     struct AnimatedGrayscaleMeshView: View {
@@ -195,7 +221,3 @@ class MeshGradient {
     }
 }
 
-
-#Preview {
-   ContentView()
-}

@@ -18,6 +18,7 @@ struct AfterSignInContentView: View {
                     CardViewController()
                 }
             }
+            .padding()
             .tabItem {
                 Label("", systemImage: "square.stack")
             }
