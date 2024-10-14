@@ -42,7 +42,7 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
     var colorVector: [Float] = []
     var hueColor: Float?
     let fireStoreService = FirestoreService()
-    let meshGradientView = UIKitMeshGradient(frame: CGRect(x: 0, y: 0, width: 250, height: 320))
+    var meshGradientView = UIKitMeshGradient(frame: CGRect(x: 0, y: 0, width: 250, height: 320))
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     override func viewDidLoad() {
            super.viewDidLoad()
@@ -55,23 +55,29 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
                nameLabel.text = card.cardName
            }
            //targetImageView.backgroundColor = UIColor(white: 0.1, alpha: 1)
+
+
         nameLabel.textColor = .white
-        nameLabel.font = UIFont(name: "PlayfairDisplayItalic-Black", size: 52)
+               nameLabel.font = UIFont(name: "PlayfairDisplayItalic-Black", size: 42)
+
+
         view.addSubview(imageView)
         view.addSubview(nameLabel)
         view.addSubview(applyButton)
         // Layout card imageView and label
         imageView.translatesAutoresizingMaskIntoConstraints = false
-
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
+            nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0),
+            imageView.heightAnchor.constraint(equalToConstant: 120),
             nameLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             imageView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: -25),
             imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            imageView.heightAnchor.constraint(equalToConstant: 300),
-            imageView.widthAnchor.constraint(equalToConstant: 400)
+            imageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
+            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 0.675),
+
         ])
+
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 25
@@ -101,10 +107,12 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
            NSLayoutConstraint.activate([
                targetImageView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 12),
                targetImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-               targetImageView.widthAnchor.constraint(equalToConstant: 400),
-               targetImageView.heightAnchor.constraint(equalToConstant: 300)
+               targetImageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
+                          targetImageView.heightAnchor.constraint(equalTo: targetImageView.widthAnchor, multiplier: 0.675),
+
            ])
         guard let dominantColor = card?.dominantColor else {return}
+        meshGradientView = UIKitMeshGradient(frame: CGRect(x: 0, y: 0, width: targetImageView.frame.width, height: targetImageView.frame.height))
         meshGradientView.setTargetColorRGBA(red: dominantColor.red , green: dominantColor.green , blue: dominantColor.blue , alpha: 1)
         targetImageView.addSubview(meshGradientView)
         let iconImageView = UIImageView()
@@ -121,8 +129,8 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
         NSLayoutConstraint.activate([
             meshGradientView.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
             meshGradientView.centerYAnchor.constraint(equalTo: targetImageView.centerYAnchor),
-            meshGradientView.widthAnchor.constraint(equalToConstant: 400),
-            meshGradientView.heightAnchor.constraint(equalToConstant: 300),
+            meshGradientView.widthAnchor.constraint(equalTo: targetImageView.widthAnchor),
+            meshGradientView.heightAnchor.constraint(equalTo: targetImageView.heightAnchor),
 
             iconImageView.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
             iconImageView.centerYAnchor.constraint(equalTo: meshGradientView.centerYAnchor),
@@ -144,7 +152,7 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
         applyButton.setTitle("Apply Card", for: .normal)
            NSLayoutConstraint.activate([
                applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 20),
-               applyButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20),
+               applyButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
                applyButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
                applyButton.widthAnchor.constraint(equalToConstant: 100),
                applyButton.heightAnchor.constraint(equalToConstant: 40)

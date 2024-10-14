@@ -70,6 +70,10 @@
 		781D3A772CAFAC7C00273755 /* Public+MTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 781D3A6F2CAFAC7C00273755 /* Public+MTimer.swift */; };
 		781D3A7A2CAFED7100273755 /* MeshGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 781D3A792CAFED7000273755 /* MeshGradient.swift */; };
 		784E6BE72C9A773D004533C0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 784E6BE62C9A773D004533C0 /* GoogleService-Info.plist */; };
+		7855CCEF2CBCC50A0014453D /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 7855CCEE2CBCC50A0014453D /* FirebaseAnalytics */; };
+		7855CCF12CBCC50A0014453D /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 7855CCF02CBCC50A0014453D /* FirebaseAnalyticsOnDeviceConversion */; };
+		7855CCF32CBCC50A0014453D /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 7855CCF22CBCC50A0014453D /* FirebaseAnalyticsWithoutAdIdSupport */; };
+		7855CCF52CBCC50A0014453D /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 7855CCF42CBCC50A0014453D /* FirebaseCrashlytics */; };
 		7870462A2CA29A1700BA7CC2 /* SecondApplyCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787046292CA29A1700BA7CC2 /* SecondApplyCardViewController.swift */; };
 		7870462C2CA2E5F200BA7CC2 /* NoFilterCameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7870462B2CA2E5F200BA7CC2 /* NoFilterCameraView.swift */; };
 		787046302CA5638F00BA7CC2 /* AlertKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7870462F2CA5638F00BA7CC2 /* AlertKit */; };
@@ -176,8 +180,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				787046302CA5638F00BA7CC2 /* AlertKit in Frameworks */,
+				7855CCF32CBCC50A0014453D /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				7807103A2C9190130039B44C /* FirebaseDatabase in Frameworks */,
+				7855CCEF2CBCC50A0014453D /* FirebaseAnalytics in Frameworks */,
 				7807103E2C9190130039B44C /* FirebaseStorage in Frameworks */,
+				7855CCF52CBCC50A0014453D /* FirebaseCrashlytics in Frameworks */,
+				7855CCF12CBCC50A0014453D /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
 				780710382C9190130039B44C /* FirebaseAuth in Frameworks */,
 				7807103C2C9190130039B44C /* FirebaseFirestore in Frameworks */,
 				780710492C9286FB0039B44C /* Kingfisher in Frameworks */,
@@ -528,6 +536,10 @@
 				780710482C9286FB0039B44C /* Kingfisher */,
 				78BAF0582C980FF300A5B418 /* IQKeyboardManagerSwift */,
 				7870462F2CA5638F00BA7CC2 /* AlertKit */,
+				7855CCEE2CBCC50A0014453D /* FirebaseAnalytics */,
+				7855CCF02CBCC50A0014453D /* FirebaseAnalyticsOnDeviceConversion */,
+				7855CCF22CBCC50A0014453D /* FirebaseAnalyticsWithoutAdIdSupport */,
+				7855CCF42CBCC50A0014453D /* FirebaseCrashlytics */,
 			);
 			productName = ToneDeck;
 			productReference = 78070FF02C918C1B0039B44C /* ToneDeck.app */;
@@ -967,6 +979,22 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 780710472C9286FB0039B44C /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		7855CCEE2CBCC50A0014453D /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseAnalytics;
+		};
+		7855CCF02CBCC50A0014453D /* FirebaseAnalyticsOnDeviceConversion */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseAnalyticsOnDeviceConversion;
+		};
+		7855CCF22CBCC50A0014453D /* FirebaseAnalyticsWithoutAdIdSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseAnalyticsWithoutAdIdSupport;
+		};
+		7855CCF42CBCC50A0014453D /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseCrashlytics;
 		};
 		7870462F2CA5638F00BA7CC2 /* AlertKit */ = {
 			isa = XCSwiftPackageProductDependency;

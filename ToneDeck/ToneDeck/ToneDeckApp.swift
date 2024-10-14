@@ -88,6 +88,11 @@ struct ContentView: View {
                             .cornerRadius(8)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    Text("By using this app, you agree to our [Privacy Policy and EULA](https://www.privacypolicies.com/live/482dec4c-94f8-40c8-abed-ca3645ed7912)")
+                        .font(.footnote)
+                        .foregroundColor(.white)
+                        .padding()
+                        .multilineTextAlignment(.center)
                 }
             }
         }

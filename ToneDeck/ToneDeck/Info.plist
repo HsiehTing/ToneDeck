@@ -6,6 +6,8 @@
 	<false/>
 	<key>Non-Exempt Encryption</key>
 	<false/>
+	<key>NSApplicationCrashOnExceptions</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>PlayfairDisplay-Italic-VariableFont_wght.ttf</string>

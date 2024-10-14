@@ -31,9 +31,7 @@ struct CardViewController: View {
     }
     var body: some View {
         NavigationStack(path: $path) {
-            
             ZStack {
-                
                 VStack{
                     if firestoreService.cards.count == 0 {
                         Text("Add Card to Card List")
@@ -141,71 +139,77 @@ struct CardViewController: View {
         )
     }
 }
+
+
 struct CardRow: View {
     let card: Card
     @Binding var path: [CardDestination]
     @State private var isAnimationTriggered: Bool = false
+
     var body: some View {
-        
-        ZStack(alignment: .bottomLeading) {
-            // Load image using Kingfisher, and make it tappable to trigger push navigation
-            KFImage(URL(string: card.imageURL))
-                .resizable()
-                .scaledToFill()
-                .frame(width: 370, height: 200)
-            // .padding()
-                .cornerRadius(20)
-                .clipped()
-                .onTapGesture {
-                    path.append(.applyCard(card: card))
-                }
-            // Text overlay
-            Text(card.cardName)
-                .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
-                .fontWeight(.bold)
-                .padding(8)
-                .foregroundColor(.white)
-            
-            // Buttons overlay
-            VStack {
-                HStack {
+        GeometryReader { geometry in
+            ZStack(alignment: .bottomLeading) {
+                // Image
+                KFImage(URL(string: card.imageURL))
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .cornerRadius(20)
+                    .clipped()
+                    .onTapGesture {
+                        path.append(.applyCard(card: card))
+                    }
+
+                // Overlay elements
+                VStack {
+                    HStack {
+                        Spacer()
+                        OptionMenuButton(card: card)
+                            .padding(.top, 10)
+                            .padding(.trailing, 10)
+                    }
                     Spacer()
-                    OptionMenuButton(card: card)
-                }
-                Spacer()
-                HStack {
-                    Spacer()
-                    
-                    // Directly including the Camera Button in bottom-right
-                    Button(action: {
-                        // Push CameraView onto the navigation stack
-                        path.append(.camera(filterData: card.filterData))
-                    }) { Image(systemName: "camera.fill")
-                            .font(.system(size: 18, weight: .bold))
-                            .padding(10)
-                            .background(Color.gray.opacity(0.6))
-                            .clipShape(Circle())
+                    HStack {
+                        // Card name
+                        Text(card.cardName)
+                            .font(.custom("PlayfairDisplayRoman-Semibold", size: min(52, geometry.size.width * 0.06)))
+                            .fontWeight(.bold)
+                            .padding(8)
                             .foregroundColor(.white)
-                            .buttonStyle(PlainButtonStyle())
+
+                        Spacer()
+
+                        // Camera button
+                        Button(action: {
+                            path.append(.camera(filterData: card.filterData))
+                        }) {
+                            Image(systemName: "camera.fill")
+                                .font(.system(size: min(18, geometry.size.width * 0.05), weight: .bold))
+                                .padding(8)
+                                .background(Color.white.opacity(0.2))
+                                .clipShape(Circle())
+                                .foregroundColor(.white)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
                     .padding(.bottom, 10)
+                    .padding(.leading, 10)
                     .padding(.trailing, 10)
                 }
             }
+            .frame(width: geometry.size.width, height: geometry.size.height)
+            .offsetAnimation(isTriggered: isAnimationTriggered, delay: 0.3)
+            .cornerRadius(10)
+            .clipped()
         }
-        .offsetAnimation(isTriggered: isAnimationTriggered, delay: 0.3)
-        .cornerRadius(10)
-        
-        .clipped()
+        .aspectRatio(370/200, contentMode: .fit)
         .onAppear {
             isAnimationTriggered = true
         }
         .onDisappear {
             isAnimationTriggered = false
         }
-        
     }
-    
 }
 struct OptionMenuButton: View {
     @State private var showRenameAlert = false
@@ -241,13 +245,13 @@ struct OptionMenuButton: View {
             Image(systemName: "ellipsis")
                 .font(.system(size: 20, weight: .bold))
                 .padding(10) // Reduced padding
-                .background(Circle().fill(Color.gray.opacity(0.6)))
+                .background(Circle().fill(Color.white.opacity(0.2)))
                 .foregroundColor(.white)
                 .buttonStyle(PlainButtonStyle())
         }
         .buttonStyle(PlainButtonStyle())
-        .padding(.top, 30)
-        .padding(.trailing, 10)
+        .padding(.top, 10)
+       
         .alert("Rename Card", isPresented: $showRenameAlert) {
             TextField("Enter new name", text: $newName)
             Button("Cancel", role: .cancel) { }

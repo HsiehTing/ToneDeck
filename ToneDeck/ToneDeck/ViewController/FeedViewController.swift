@@ -247,7 +247,7 @@ struct PostView: View {
             }
             // Display Post Text
             Text(post.text)
-                .font(.title)
+                .font(.caption)
                 .padding()
             PostInfoView(post: post, path: $path)
 
