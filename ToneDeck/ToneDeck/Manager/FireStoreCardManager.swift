@@ -18,6 +18,7 @@ class FirestoreService: ObservableObject {
     @Published var notifications: [Notification] = []
     @Published var collections: [CardCollection] = []
     @Published var user: User? = nil
+    @Published var isLoading = true
     let db = Firestore.firestore()
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     
@@ -126,8 +127,8 @@ class FirestoreService: ObservableObject {
                            let alpha = dominantColorData["alpha"] as? Double {
 
                             let dominantColor = DominantColor(red: red, green: green, blue: blue, alpha: alpha)
-
                             return Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme, filterData: filterData, creatorID: userID, dominantColor: dominantColor)
+
                         } else {
                             // Handle case where dominantColor data is missing or not in the expected format
                             return Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTIme,
@@ -135,6 +136,7 @@ class FirestoreService: ObservableObject {
                         }
 
                     }
+                    self.isLoading = false
                 }
             }
         }

@@ -74,6 +74,7 @@
 		7855CCF12CBCC50A0014453D /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 7855CCF02CBCC50A0014453D /* FirebaseAnalyticsOnDeviceConversion */; };
 		7855CCF32CBCC50A0014453D /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 7855CCF22CBCC50A0014453D /* FirebaseAnalyticsWithoutAdIdSupport */; };
 		7855CCF52CBCC50A0014453D /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 7855CCF42CBCC50A0014453D /* FirebaseCrashlytics */; };
+		7855CCF82CBCE5530014453D /* Initial Page View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7855CCF72CBCE5530014453D /* Initial Page View.swift */; };
 		7870462A2CA29A1700BA7CC2 /* SecondApplyCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787046292CA29A1700BA7CC2 /* SecondApplyCardViewController.swift */; };
 		7870462C2CA2E5F200BA7CC2 /* NoFilterCameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7870462B2CA2E5F200BA7CC2 /* NoFilterCameraView.swift */; };
 		787046302CA5638F00BA7CC2 /* AlertKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7870462F2CA5638F00BA7CC2 /* AlertKit */; };
@@ -155,6 +156,7 @@
 		781D3A6F2CAFAC7C00273755 /* Public+MTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Public+MTimer.swift"; sourceTree = "<group>"; };
 		781D3A792CAFED7000273755 /* MeshGradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshGradient.swift; sourceTree = "<group>"; };
 		784E6BE62C9A773D004533C0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
+		7855CCF72CBCE5530014453D /* Initial Page View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Initial Page View.swift"; sourceTree = "<group>"; };
 		787046292CA29A1700BA7CC2 /* SecondApplyCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondApplyCardViewController.swift; sourceTree = "<group>"; };
 		7870462B2CA2E5F200BA7CC2 /* NoFilterCameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoFilterCameraView.swift; sourceTree = "<group>"; };
 		787046332CA5B03400BA7CC2 /* PlayfairDisplay-Italic-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Italic-VariableFont_wght.ttf"; sourceTree = "<group>"; };
@@ -260,6 +262,7 @@
 				78CA2F7A2CABC9FB004E8414 /* EditingProfileView.swift */,
 				78AC68E72C9EF90800260BB3 /* NotificationCenterViewController.swift */,
 				781D3A792CAFED7000273755 /* MeshGradient.swift */,
+				7855CCF72CBCE5530014453D /* Initial Page View.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -522,6 +525,7 @@
 				78070FED2C918C1B0039B44C /* Frameworks */,
 				78070FEE2C918C1B0039B44C /* Resources */,
 				78BAF0502C97D8BA00A5B418 /* ShellScript */,
+				7855CCF62CBCC6750014453D /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -601,6 +605,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		7855CCF62CBCC6750014453D /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
+				"$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"${BUILD_DIR%Build/*}SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
+		};
 		78BAF0502C97D8BA00A5B418 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -690,6 +713,7 @@
 				781D3A642CAFAA5D00273755 /* Public+CameraUtilities.swift in Sources */,
 				781D3A432CAFAA5D00273755 /* CameraConfig.swift in Sources */,
 				780710572C9414FD0039B44C /* ApplyCardViewController.swift in Sources */,
+				7855CCF82CBCE5530014453D /* Initial Page View.swift in Sources */,
 				7807105A2C9565320039B44C /* HistogramManager.swift in Sources */,
 				78BAF0542C980B0900A5B418 /* PhotoGridViewController.swift in Sources */,
 				781D3A4D2CAFAA5D00273755 /* CaseIterable++.swift in Sources */,
@@ -733,7 +757,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -846,7 +870,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.StingHsieh.ToneDeck;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -885,7 +909,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.StingHsieh.ToneDeck;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

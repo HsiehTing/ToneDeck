@@ -9,13 +9,14 @@ import SwiftUI
 
 struct AfterSignInContentView: View {
 
+
     var body: some View {
-        
         TabView {
             // First Tab
             VStack {
                 NavigationView {
-                    CardViewController()
+                            CardViewController()
+
                 }
             }
             .padding()

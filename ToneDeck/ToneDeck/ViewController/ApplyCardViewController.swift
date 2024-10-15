@@ -14,15 +14,42 @@ import Firebase
 
 struct ApplyCardViewControllerWrapper: UIViewControllerRepresentable {
     let card: Card?
+
     func makeUIViewController(context: Context) -> ApplyCardViewController {
         let viewController = ApplyCardViewController()
         viewController.card = card
         return viewController
     }
+
     func updateUIViewController(_ uiViewController: ApplyCardViewController, context: Context) {}
-
 }
+struct ApplyCardView: View {
+    @Environment(\.presentationMode) var presentationMode
+    let card: Card?
 
+    var body: some View {
+        ZStack {
+            ApplyCardViewControllerWrapper(card: card)
+                .edgesIgnoringSafeArea(.all)
+
+            VStack {
+                HStack {
+                    Button(action: {
+                        self.presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.white)
+                            .padding()
+                    }
+                    //.buttonStyle(PlainButtonStyle())
+                    Spacer()
+                }
+                Spacer()
+            }
+        }
+        .navigationBarHidden(true)
+    }
+}
 class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CameraViewControllerDelegate {
     var card: Card?
     let imageView = UIImageView()
@@ -46,7 +73,9 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     override func viewDidLoad() {
            super.viewDidLoad()
+        self.navigationController?.isNavigationBarHidden = true
            view.backgroundColor = .black
+        configUI()
            // Configure the card imageView and label
            fireStoreService.fetchUserData(userID: fromUserID ?? "")
            if let card = card {
@@ -54,8 +83,23 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
                filterImage = imageView.image ?? UIImage()
                nameLabel.text = card.cardName
            }
-        let screenWidth = UIScreen.main.bounds.width
 
+           let applyTapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapApply))
+           applyButton.addGestureRecognizer(applyTapGesture)
+
+           guard let card = card else {print("did not find card"); return}
+           filterColorValue = card.filterData[3]
+       }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+           navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+           super.viewWillDisappear(animated)
+           navigationController?.setNavigationBarHidden(false, animated: animated)
+       }
+    func configUI() {
+        let screenWidth = UIScreen.main.bounds.width
         nameLabel.textColor = .white
                nameLabel.font = UIFont(name: "PlayfairDisplayItalic-Black", size: 42)
         view.addSubview(imageView)
@@ -66,16 +110,15 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            nameLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 0),
+            nameLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 0.1 * screenWidth),
             nameLabel.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.1 ),
             nameLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            imageView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: -0.1 * screenWidth),
+            imageView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: -0.07 * screenWidth),
             imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             imageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
             imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 0.8),
 
         ])
-
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 25
@@ -133,34 +176,32 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
 
             // Position iconImageView and set dynamic size based on screen width
             iconImageView.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
-            iconImageView.centerYAnchor.constraint(equalTo: meshGradientView.centerYAnchor),
+            iconImageView.centerYAnchor.constraint(equalTo: meshGradientView.centerYAnchor, constant: screenWidth * -0.025),
             iconImageView.widthAnchor.constraint(equalToConstant: screenWidth * 0.3),
             iconImageView.heightAnchor.constraint(equalToConstant: screenWidth * 0.3),
             importLabel.topAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: screenWidth * 0.025),
+            //importLabel.bottomAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: screenWidth * -0.025),
             importLabel.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
             importLabel.widthAnchor.constraint(equalToConstant: screenWidth * 0.5),
             importLabel.heightAnchor.constraint(equalToConstant: screenWidth * 0.09)
         ])
         iconImageView.alpha = 0.3
            applyButton.translatesAutoresizingMaskIntoConstraints = false
-           applyButton.layer.cornerRadius = 15
-           applyButton.backgroundColor = .white
+           applyButton.layer.cornerRadius = 10
+        applyButton.tintColor = UIColor(red: dominantColor.red, green: dominantColor.green, blue: dominantColor.blue, alpha: 1)
+        applyButton.backgroundColor = UIColor(red: dominantColor.red, green: dominantColor.green, blue: dominantColor.blue, alpha: 0.5)
         applyButton.alpha = 0.7
-           let applyTapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapApply))
-           applyButton.addGestureRecognizer(applyTapGesture)
-        applyButton.setTitleColor(.lightGray, for: .normal)
-        applyButton.setTitle("Apply Card", for: .normal)
+        let config = UIImage.SymbolConfiguration(pointSize: 30, weight: .medium, scale: .default)
+               let image = UIImage(systemName: "apple.image.playground.fill", withConfiguration: config)
+               applyButton.setImage(image, for: .normal)
            NSLayoutConstraint.activate([
-            applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 0.07 * screenWidth),
+            applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 0.05 * screenWidth),
                applyButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
                applyButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
                applyButton.widthAnchor.constraint(equalToConstant: 100),
-               applyButton.heightAnchor.constraint(equalToConstant: 40)
+               applyButton.heightAnchor.constraint(equalToConstant: 30)
            ])
-           guard let card = card else {print("did not find card"); return}
-           filterColorValue = card.filterData[3]
-       }
-
+    }
     @objc func didTapApply() {
         print("tap apply button")
         guard let targetImage = targetImage else {
@@ -297,7 +338,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         targetImageView.contentMode = .scaleAspectFill
         targetImageView.clipsToBounds = true
             targetImageView.image = image
-            applyButton.setTitle("Apply Card", for: .normal) // Reset button after capturing photo
+
         }
     func sendNotification(card: Card) {
         let notifications = Firestore.firestore().collection("notifications")

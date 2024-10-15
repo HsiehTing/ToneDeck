@@ -20,18 +20,24 @@ enum CardDestination: Hashable {
 }
 
 struct CardViewController: View {
+    @State var isLoading = true
     @StateObject private var firestoreService = FirestoreService()
     @State var path: [CardDestination] = []
     @State private var isSearchActive = false
     @State var textFieldText : String = ""
     @State private var showingImageSourceAlert = false
-    
+    @State var animate = false
+    @State private var loadingOpacity = 1.0
+    @State private var mainContentOpacity = 0.0
     init() {
         UINavigationBar.appearance().largeTitleTextAttributes = [.font : UIFont(name: "PlayfairDisplayRoman-Bold", size: 52)!]
     }
+    
     var body: some View {
         NavigationStack(path: $path) {
             ZStack {
+                InitialView(isLoading: $isLoading, animate: $animate)
+                                   .opacity(loadingOpacity)
                 VStack{
                     if firestoreService.cards.count == 0 {
                         Text("Add Card to Card List")
@@ -44,7 +50,6 @@ struct CardViewController: View {
                                     .clipped()
                                     .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
                                     .transition(.slide)
-                                // .frame(width: geometry.size.width, height: geometry.size.width * 0.5)
                                     .animation(.easeInOut)
                             }
                         }
@@ -52,8 +57,22 @@ struct CardViewController: View {
                         .listStyle(PlainListStyle())
                     }
                 }
+                .opacity(mainContentOpacity)
                 .onAppear {
-                    firestoreService.fetchCards()
+                    animateLoading()  // 開始執行無限重複動畫
+                    firestoreService.fetchCardsCompletion { success in
+                        if success {
+
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                                withAnimation(.easeInOut(duration: 1.0)) {
+
+                                    loadingOpacity = 0
+                                    mainContentOpacity = 1
+                                    animate = false
+                                }
+                            }
+                        }
+                    }
                 }
                 .frame(maxWidth: .infinity)
                 .edgesIgnoringSafeArea(.horizontal)
@@ -63,7 +82,7 @@ struct CardViewController: View {
                         HStack {
                             if isSearchActive {
                                 // Show TextField when search is active
-                                TextField("Search...", text: $textFieldText)
+                                TextField("Search by Card ID", text: $textFieldText)
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
                                     .frame(width: 270)
                                     .padding(.leading, 10)
@@ -121,11 +140,11 @@ struct CardViewController: View {
                     case .camera(let filterData):
                         CameraView(filterData: filterData, path: $path)
                     case .applyCard(let card):
-                        ApplyCardViewControllerWrapper(card: card)
+                        ApplyCardView(card: card)
                     case .addCard:
                         AddCardViewController(path: $path)
                     case .searchCard(card: let card):
-                        ApplyCardViewControllerWrapper(card: card)
+                        ApplyCardView(card: card)
                     }
                 }
             }
@@ -138,6 +157,11 @@ struct CardViewController: View {
                 }
         )
     }
+    func animateLoading() {
+            withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
+                animate.toggle()
+            }
+        }
 }
 
 
@@ -274,7 +298,10 @@ struct OptionMenuButton: View {
             }
         }
     }
+
 }
+
+
 #Preview {
     CardViewController()
 }

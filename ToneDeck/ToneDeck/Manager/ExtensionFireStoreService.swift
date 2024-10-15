@@ -27,6 +27,41 @@ extension FirestoreService {
             } ?? []
         }
     }
+    func fetchCardsCompletion(completion: @escaping (Bool) -> Void) {
+        db.collection("cards").whereField("creatorID", isEqualTo: fromUserID).addSnapshotListener { (snapshot, error) in
+            if let error = error {
+                print("Error fetching cards: \(error)")
+                completion(false) // 在發生錯誤的時候通知外部
+            } else {
+                if let snapshot = snapshot {
+                    self.cards = snapshot.documents.compactMap { document -> Card? in
+                        let data = document.data()
+                        let cardID = data["id"] as? String ?? "Unknown Card"
+                        let cardName = data["cardName"] as? String ?? "Unknown Card"
+                        let imageURL = data["imageURL"] as? String ?? ""
+                        let createdTime = data["createdTime"] as? Timestamp ?? Timestamp()
+                        let userID = data["creatorID"] as? String ?? ""
+                        let filterData = data["filterData"] as? [Float] ?? [0]
+                        if let dominantColorData = data["dominantColor"] as? [String: Any],
+                           let red = dominantColorData["red"] as? Double,
+                           let green = dominantColorData["green"] as? Double,
+                           let blue = dominantColorData["blue"] as? Double,
+                           let alpha = dominantColorData["alpha"] as? Double {
+
+                            let dominantColor = DominantColor(red: red, green: green, blue: blue, alpha: alpha)
+                            return Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTime, filterData: filterData, creatorID: userID, dominantColor: dominantColor)
+                        } else {
+                            return Card(id: cardID, cardName: cardName, imageURL: imageURL, createdTime: createdTime,
+                                        filterData: filterData, creatorID: userID, dominantColor: DominantColor(red: 0, green: 0, blue: 0, alpha: 1))
+                        }
+                    }
+                    completion(true) // 資料成功獲取後呼叫 completion
+                } else {
+                    completion(false) // 若無 snapshot，則通知失敗
+                }
+            }
+        }
+    }
 
     func createCollection(name: String, cardIds: [String]) {
         let db = Firestore.firestore()
