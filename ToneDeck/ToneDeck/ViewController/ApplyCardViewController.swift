@@ -189,7 +189,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
            applyButton.translatesAutoresizingMaskIntoConstraints = false
            applyButton.layer.cornerRadius = 10
         applyButton.tintColor = UIColor(red: dominantColor.red, green: dominantColor.green, blue: dominantColor.blue, alpha: 1)
-        applyButton.backgroundColor = UIColor(red: dominantColor.red, green: dominantColor.green, blue: dominantColor.blue, alpha: 0.5)
+        applyButton.backgroundColor = UIColor(red: dominantColor.red, green: dominantColor.green, blue: dominantColor.blue, alpha: 0.6)
         applyButton.alpha = 0.7
         let config = UIImage.SymbolConfiguration(pointSize: 30, weight: .medium, scale: .default)
                let image = UIImage(systemName: "apple.image.playground.fill", withConfiguration: config)
@@ -198,7 +198,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 0.05 * screenWidth),
                applyButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
                applyButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-               applyButton.widthAnchor.constraint(equalToConstant: 100),
+               applyButton.widthAnchor.constraint(equalToConstant: 80),
                applyButton.heightAnchor.constraint(equalToConstant: 30)
            ])
     }
@@ -263,7 +263,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             let newValue = (filterValues[targetValue] - targetValues[targetValue]) * tValues[targetValue]
             result.append(newValue)
         }
-        scaleFactor(newValue: result, brightnessScale: 1, contrastScale: 1, saturationScale: 1)
+        scaleFactor(newValue: result, brightnessScale: 1.0, contrastScale: 1.2, saturationScale: 1)
     }
     func scaleFactor(newValue: [Float], brightnessScale: Float, contrastScale: Float, saturationScale: Float) {
         let scaledBrightness = newValue[0] * brightnessScale

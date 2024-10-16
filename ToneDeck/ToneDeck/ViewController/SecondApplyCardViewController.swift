@@ -14,14 +14,42 @@ import Firebase
 
 struct SecondApplyCardViewControllerWrapper: UIViewControllerRepresentable {
     let card: Card?
-    func makeUIViewController(context: Context) -> SecondApplyCardViewController {
-        let viewController = SecondApplyCardViewController()
+
+    func makeUIViewController(context: Context) -> ApplyCardViewController {
+        let viewController = ApplyCardViewController()
         viewController.card = card
         return viewController
     }
-    func updateUIViewController(_ uiViewController: SecondApplyCardViewController, context: Context) {}
-}
 
+    func updateUIViewController(_ uiViewController: ApplyCardViewController, context: Context) {}
+}
+struct SecondApplyCardView: View {
+    @Environment(\.presentationMode) var presentationMode
+    let card: Card?
+
+    var body: some View {
+        ZStack {
+            SecondApplyCardViewControllerWrapper(card: card)
+                .edgesIgnoringSafeArea(.all)
+
+            VStack {
+                HStack {
+                    Button(action: {
+                        self.presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.white)
+                            .padding()
+                    }
+                    //.buttonStyle(PlainButtonStyle())
+                    Spacer()
+                }
+                Spacer()
+            }
+        }
+        .navigationBarHidden(true)
+    }
+}
 // UIKit ViewController (ApplyCardViewController)
 class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CameraViewControllerDelegate {
     var card: Card?
@@ -46,7 +74,9 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     override func viewDidLoad() {
            super.viewDidLoad()
+        self.navigationController?.isNavigationBarHidden = true
            view.backgroundColor = .black
+        configUI()
            // Configure the card imageView and label
            fireStoreService.fetchUserData(userID: fromUserID ?? "")
            if let card = card {
@@ -54,30 +84,42 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
                filterImage = imageView.image ?? UIImage()
                nameLabel.text = card.cardName
            }
-           //targetImageView.backgroundColor = UIColor(white: 0.1, alpha: 1)
 
+           let applyTapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapApply))
+           applyButton.addGestureRecognizer(applyTapGesture)
 
+           guard let card = card else {print("did not find card"); return}
+           filterColorValue = card.filterData[3]
+       }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+           navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+           super.viewWillDisappear(animated)
+           navigationController?.setNavigationBarHidden(false, animated: animated)
+       }
+    func configUI() {
+        let screenWidth = UIScreen.main.bounds.width
         nameLabel.textColor = .white
                nameLabel.font = UIFont(name: "PlayfairDisplayItalic-Black", size: 42)
-
-
         view.addSubview(imageView)
         view.addSubview(nameLabel)
         view.addSubview(applyButton)
         // Layout card imageView and label
         imageView.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
+
         NSLayoutConstraint.activate([
-            nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0),
-            imageView.heightAnchor.constraint(equalToConstant: 120),
+            nameLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 0.1 * screenWidth),
+            nameLabel.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.1 ),
             nameLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            imageView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: -25),
+            imageView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: -0.07 * screenWidth),
             imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             imageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
-            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 0.675),
+            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 0.8),
 
         ])
-
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 25
@@ -108,7 +150,7 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
                targetImageView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 12),
                targetImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
                targetImageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
-                          targetImageView.heightAnchor.constraint(equalTo: targetImageView.widthAnchor, multiplier: 0.675),
+               targetImageView.heightAnchor.constraint(equalTo: targetImageView.widthAnchor, multiplier: 0.8),
 
            ])
         guard let dominantColor = card?.dominantColor else {return}
@@ -127,39 +169,40 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
         importLabel.translatesAutoresizingMaskIntoConstraints = false
         iconImageView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
+            // Position and size meshGradientView relative to targetImageView
             meshGradientView.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
             meshGradientView.centerYAnchor.constraint(equalTo: targetImageView.centerYAnchor),
             meshGradientView.widthAnchor.constraint(equalTo: targetImageView.widthAnchor),
             meshGradientView.heightAnchor.constraint(equalTo: targetImageView.heightAnchor),
 
+            // Position iconImageView and set dynamic size based on screen width
             iconImageView.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
-            iconImageView.centerYAnchor.constraint(equalTo: meshGradientView.centerYAnchor),
-            iconImageView.widthAnchor.constraint(equalToConstant: 120),  // Set a width for the icon
-            iconImageView.heightAnchor.constraint(equalToConstant: 120),  // Set a height for the icon
-            importLabel.topAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: 10),
+            iconImageView.centerYAnchor.constraint(equalTo: meshGradientView.centerYAnchor, constant: screenWidth * -0.025),
+            iconImageView.widthAnchor.constraint(equalToConstant: screenWidth * 0.3),
+            iconImageView.heightAnchor.constraint(equalToConstant: screenWidth * 0.3),
+            importLabel.topAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: screenWidth * 0.025),
+            //importLabel.bottomAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: screenWidth * -0.025),
             importLabel.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
-            importLabel.widthAnchor.constraint(equalToConstant: 200),
-            importLabel.heightAnchor.constraint(equalToConstant: 36),
+            importLabel.widthAnchor.constraint(equalToConstant: screenWidth * 0.5),
+            importLabel.heightAnchor.constraint(equalToConstant: screenWidth * 0.09)
         ])
         iconImageView.alpha = 0.3
            applyButton.translatesAutoresizingMaskIntoConstraints = false
-           applyButton.layer.cornerRadius = 15
-           applyButton.backgroundColor = .white
-
-           let applyTapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapApply))
-           applyButton.addGestureRecognizer(applyTapGesture)
-        applyButton.setTitleColor(.darkGray, for: .normal)
-        applyButton.setTitle("Apply Card", for: .normal)
+           applyButton.layer.cornerRadius = 10
+        applyButton.tintColor = UIColor(red: dominantColor.red, green: dominantColor.green, blue: dominantColor.blue, alpha: 1)
+        applyButton.backgroundColor = UIColor(red: dominantColor.red, green: dominantColor.green, blue: dominantColor.blue, alpha: 0.5)
+        applyButton.alpha = 0.7
+        let config = UIImage.SymbolConfiguration(pointSize: 30, weight: .medium, scale: .default)
+               let image = UIImage(systemName: "apple.image.playground.fill", withConfiguration: config)
+               applyButton.setImage(image, for: .normal)
            NSLayoutConstraint.activate([
-               applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 20),
+            applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 0.05 * screenWidth),
                applyButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
                applyButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
                applyButton.widthAnchor.constraint(equalToConstant: 100),
-               applyButton.heightAnchor.constraint(equalToConstant: 40)
+               applyButton.heightAnchor.constraint(equalToConstant: 30)
            ])
-           guard let card = card else {print("did not find card"); return}
-           filterColorValue = card.filterData[3]
-       }
+    }
     @objc func didTapApply() {
         print("tap apply button")
         guard let targetImage = targetImage else {

@@ -26,7 +26,9 @@ struct NotificationPageView: View {
                 }
             }
             .onAppear {
-                firestoreService.fetchNotifications()
+
+                    firestoreService.fetchNotifications()
+                
             }
         }
         .navigationTitle("Notifications")

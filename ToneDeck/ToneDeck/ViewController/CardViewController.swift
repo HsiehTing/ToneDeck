@@ -59,12 +59,13 @@ struct CardViewController: View {
                 }
                 .opacity(mainContentOpacity)
                 .onAppear {
+                    animate = false
                     animateLoading()  // 開始執行無限重複動畫
                     firestoreService.fetchCardsCompletion { success in
                         if success {
 
                             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                                withAnimation(.easeInOut(duration: 1.0)) {
+                                withAnimation(.easeInOut(duration: 1.3)) {
 
                                     loadingOpacity = 0
                                     mainContentOpacity = 1

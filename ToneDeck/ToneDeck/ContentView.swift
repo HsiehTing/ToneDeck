@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AfterSignInContentView: View {
-
+    //var badgeValue: Int
 
     var body: some View {
         TabView {
@@ -32,6 +32,7 @@ struct AfterSignInContentView: View {
             .tabItem {
                 Label("", systemImage: "bell")
             }
+            //.badge(badgeValue)
             // Third Tab
             VStack {
                 NavigationView {

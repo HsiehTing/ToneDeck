@@ -55,7 +55,7 @@ struct EditingProfileView: View {
                 }
             }
             // Username
-            TextField("Username", text: $userName)
+            TextField("Username", text: $userName)                
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal)
                 .onChange(of: userName) { oldValue, newValue in

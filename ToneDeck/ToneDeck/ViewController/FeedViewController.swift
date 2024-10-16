@@ -132,7 +132,7 @@ struct FeedView: View {
                     case .addPost:
                         PhotoGridView(path: $path)
                     case .applyCard(let card):
-                        SecondApplyCardViewControllerWrapper(card: card)
+                        SecondApplyCardView(card: card)
                     case .visitProfile(let postCreatorID):
                         ProfilePageView(userID: postCreatorID)
                             .onDisappear {
