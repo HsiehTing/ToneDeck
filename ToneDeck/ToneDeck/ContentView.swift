@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct AfterSignInContentView: View {
-    //var badgeValue: Int
-
+    var badgeValue: Int
+    let firestoreService = FirestoreService()
     var body: some View {
         TabView {
             // First Tab
@@ -32,7 +32,6 @@ struct AfterSignInContentView: View {
             .tabItem {
                 Label("", systemImage: "bell")
             }
-            //.badge(badgeValue)
             // Third Tab
             VStack {
                 NavigationView {
@@ -54,6 +53,8 @@ struct AfterSignInContentView: View {
         }
         .tint(.gray)
         .onAppear {
+            firestoreService.fetchNotifications()
+            //badgeValue = firestoreService.notifications.count
                        //let defaults = UserDefaults.standard
                 //defaults.set( "jJmDCF0Fzr0JMAWRuzKZ", forKey: "userDocumentID")
             //checkUserData()
