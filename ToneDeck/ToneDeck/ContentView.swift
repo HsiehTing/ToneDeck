@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AfterSignInContentView: View {
-    var badgeValue: Int
+    
     let firestoreService = FirestoreService()
     var body: some View {
         TabView {
@@ -59,7 +59,10 @@ struct AfterSignInContentView: View {
                 //defaults.set( "jJmDCF0Fzr0JMAWRuzKZ", forKey: "userDocumentID")
             //checkUserData()
                    }
+       
     }
+
+
 }
 
 #Preview {

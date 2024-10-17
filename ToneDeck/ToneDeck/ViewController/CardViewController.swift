@@ -148,8 +148,7 @@ struct CardViewController: View {
                         ApplyCardView(card: card)
                     }
                 }
-            }
-            
+            }            
         }
         .background(
             Color.black
@@ -157,6 +156,7 @@ struct CardViewController: View {
                     UIApplication.shared.endEditing()
                 }
         )
+
     }
     func animateLoading() {
             withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {

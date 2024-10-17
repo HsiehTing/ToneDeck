@@ -223,71 +223,73 @@ struct ProfilePostView: View {
     @State private var isCommentViewPresented: Bool = false
     @State private var userAvatarURL: String = ""
     var body: some View {
-        LazyVStack(alignment: .leading, spacing: 40) {
-            // Display Post Image
-            KFImage(URL(string: post.imageURL))
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(maxWidth: .infinity, maxHeight: 400)
-                .padding()
-                .clipped()
-                .overlay( HStack {
-                    Spacer()
-                    VStack {
+        GeometryReader { geometry in
+            LazyVStack(alignment: .leading, spacing: 40) {
+                // Display Post Image
+                KFImage(URL(string: post.imageURL))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(maxWidth: .infinity, maxHeight: 400)
+                    .padding()
+                    .clipped()
+                    .overlay( HStack {
                         Spacer()
-                        if let fetchedCard = fetchedCard {
-                            PostButtonsView(card: fetchedCard, path: $path)
+                        VStack {
+                            Spacer()
+                            if let fetchedCard = fetchedCard {
+                                PostButtonsView(card: fetchedCard, path: $path)
+                            }
                         }
                     }
-                }
-                    .cornerRadius(10)
-                    .shadow(radius: 5)
-                    .padding([.leading, .trailing])
-                )
-            HStack {
-                Spacer()
-                Button(action: {
-                    toggleLike()
-                }) {
-                    Image(systemName: isStarred ?"capsule.fill" :"capsule" )
-                        .padding()
-                        .background(Color.black.opacity(0.5))
-                        .foregroundColor(isStarred ? .cyan  : .white) // Change color based on state
-                        .clipShape(Circle())
-                }
-                .buttonStyle(PlainButtonStyle())
-                Button(action: {
-                    loadUserAvatar()  // Load user avatar before presenting the view
-                    isCommentViewPresented = true
-                }) {
-                    Image(systemName: "bubble.right")
-                        .padding()
-                        .background(Color.black.opacity(0.5))
-                        .foregroundColor(.white)
-                        .clipShape(Circle())
+                        .cornerRadius(10)
+                        .shadow(radius: 5)
+                        .padding([.leading, .trailing])
+                    )
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        toggleLike()
+                    }) {
+                        Image(systemName: isStarred ?"capsule.fill" :"capsule" )
+                            .padding()
+                            .background(Color.black.opacity(0.5))
+                            .foregroundColor(isStarred ? .cyan  : .white) // Change color based on state
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    Button(action: {
+                        loadUserAvatar()  // Load user avatar before presenting the view
+                        isCommentViewPresented = true
+                    }) {
+                        Image(systemName: "bubble.right")
+                            .padding()
+                            .background(Color.black.opacity(0.5))
+                            .foregroundColor(.white)
+                            .clipShape(Circle())
 
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .sheet(isPresented: $isCommentViewPresented) {
+                        CommentView(post: post, postID: post.id, userID: fromUserID ?? "", userAvatarURL: userAvatarURL)
+                    }
                 }
-                .buttonStyle(PlainButtonStyle())
-                .sheet(isPresented: $isCommentViewPresented) {
-                    CommentView(post: post, postID: post.id, userID: fromUserID ?? "", userAvatarURL: userAvatarURL)
-                }
+                // Display Post Text
+                Text(post.text)
+                    .font(.title)
+                    .padding()
+                //PostInfoView(post: post, path: $path)
             }
-            // Display Post Text
-            Text(post.text)
-                .font(.title)
-                .padding()
-            PostInfoView(post: post, path: $path)
-        }
 
-        .background(Color.black)
-        .frame(maxWidth: .infinity, maxHeight: 800)
-        .onAppear {
-            fireStoreService.fetchUserData(userID: fromUserID ?? "")
-            checkIfStarred()
-            fireStoreService.fetchCardsFromProfile(for: post.cardID ?? "") { card in
+            .background(Color.black)
+            .frame(maxWidth: .infinity, maxHeight: geometry.size.height)
+            .onAppear {
+                fireStoreService.fetchUserData(userID: fromUserID ?? "")
+                checkIfStarred()
+                fireStoreService.fetchCardsFromProfile(for: post.cardID ?? "") { card in
 
-                guard let card = card else {return}
-                self.fetchedCard = card
+                    guard let card = card else {return}
+                    self.fetchedCard = card
+                }
             }
         }
     }

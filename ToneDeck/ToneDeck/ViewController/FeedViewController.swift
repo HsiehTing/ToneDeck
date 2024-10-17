@@ -406,6 +406,7 @@ struct PostInfoView: View {
         VStack {
             Button {
                 path.append(.visitProfile(userID: post.creatorID))
+                print("=======")
             } label: {
                 Text(userName)
                     .font(.caption)
@@ -417,7 +418,7 @@ struct PostInfoView: View {
                     .foregroundColor(.gray)
 
             }
-            .buttonStyle(PlainButtonStyle())
+            //.buttonStyle(PlainButtonStyle())
             .padding()
         }
         .onAppear {
