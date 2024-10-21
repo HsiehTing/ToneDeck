@@ -58,3 +58,23 @@ You can share a card by its ID. Other users can search for and apply the card by
 - Enabled photo library access to select, save, and edit images.
 
 - Added social features like like, comment, and follow.
+## Libraries
+ - [AlertKit](https://github.com/sparrowcode/AlertKit)
+ - [FireBase](https://firebase.google.com/)
+  - [IQKeyboardManagerSwift](https://github.com/hackiftekhar/IQKeyboardManager) 
+ - [Kingfisher](https://github.com/onevcat/Kingfisher)
+
+
+## Requirements
+- [x] Xcode 13.0
+- [x] Swift 5
+- [x] iOS 13 or higher
+### Release Notes
+
+| Version | Date       | Notes                                                                 |
+|---------|------------|-----------------------------------------------------------------------|
+| 1.0.1   | 2024.10.13 | Released in App Store.                                                |
+| 1.0.2   | 2024.10.14 | Update UI Layout and Initial animation
+
+### Author
+**Hsieh Ting** ｜ sting20210@gmail.com
