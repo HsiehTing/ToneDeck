@@ -18,8 +18,78 @@ enum CardDestination: Hashable {
     case searchCard(card: Card)
     case addCard
 }
+class CardViewViewModel: ObservableObject {
+    @Published var isLoading = true
+    @Published var firestoreService = FirestoreService()
+    @Published var path: [CardDestination] = []
+    @Published var isSearchActive = false
+    @Published var textFieldText: String = ""
+    @Published var showingImageSourceAlert = false
+    @Published var animate = false
+    @Published var loadingOpacity = 1.0
+    @Published var mainContentOpacity = 0.0
 
+    func animateLoading() {
+        withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
+            animate.toggle()
+        }
+    }
+
+    func fetchCards() {
+        firestoreService.fetchCardsCompletion{ success in
+            if success {
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                    withAnimation(.easeInOut(duration: 1.3)) {
+
+                        self.loadingOpacity = 0
+                        self.mainContentOpacity = 1
+                        self.animate = false
+                    }
+                }
+            }
+        }
+    }
+    func searchForCard() {
+        let db = Firestore.firestore()
+        db.collection("cards")
+            .whereField("id", isEqualTo: textFieldText)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error fetching card: \(error.localizedDescription)")
+                } else if let snapshot = snapshot, let document = snapshot.documents.first {
+                    if let card = try? document.data(as: Card.self) {
+                        DispatchQueue.main.async {
+                            self.path.append(CardDestination.searchCard(card: card))
+                        }
+                    } else {
+                        print("Failed to parse card data")
+                    }
+                } else {
+                    print("No card found with the provided cardID")
+                }
+            }
+    }
+    func deleteCard (card: Card) {
+        firestoreService.deleteCard(card: card)
+    }
+    func renameCard(card: Card, newName: String)  {
+        let cardID = card.id
+        let db = Firestore.firestore()
+        db.collection("cards").document(cardID).updateData([
+            "cardName": newName
+        ]) { error in
+            if let error = error {
+                print("Error updating card name: \(error)")
+            } else {
+                print("Card name successfully updated")
+            }
+        }
+    }
+
+}
 struct CardViewController: View {
+    @StateObject private var viewModel = CardViewViewModel()
     @State var isLoading = true
     @StateObject private var firestoreService = FirestoreService()
     @State var path: [CardDestination] = []
@@ -32,18 +102,18 @@ struct CardViewController: View {
     init() {
         UINavigationBar.appearance().largeTitleTextAttributes = [.font : UIFont(name: "PlayfairDisplayRoman-Bold", size: 52)!]
     }
-    
+
     var body: some View {
         NavigationStack(path: $path) {
             ZStack {
                 InitialView(isLoading: $isLoading, animate: $animate)
-                                   .opacity(loadingOpacity)
+                    .opacity(loadingOpacity)
                 VStack{
                     if firestoreService.cards.count == 0 {
                         Text("Add Card to Card List")
                             .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
                             .foregroundStyle(Color.gray)
-                    } else{
+                    } else {
                         List {
                             ForEach(firestoreService.cards.sorted(by: {  ($0.createdTime.dateValue()) > ($1.createdTime.dateValue())  })) { card in
                                 CardRow(card: card, path: $path)
@@ -53,27 +123,15 @@ struct CardViewController: View {
                                     .animation(.easeInOut)
                             }
                         }
-                        
+
                         .listStyle(PlainListStyle())
                     }
                 }
                 .opacity(mainContentOpacity)
                 .onAppear {
-                    animate = false
-                    animateLoading()  // 開始執行無限重複動畫
-                    firestoreService.fetchCardsCompletion { success in
-                        if success {
-
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                                withAnimation(.easeInOut(duration: 1.3)) {
-
-                                    loadingOpacity = 0
-                                    mainContentOpacity = 1
-                                    animate = false
-                                }
-                            }
-                        }
-                    }
+                    viewModel.animate = true
+                    viewModel.animateLoading()
+                    viewModel.fetchCards()
                 }
                 .frame(maxWidth: .infinity)
                 .edgesIgnoringSafeArea(.horizontal)
@@ -87,26 +145,9 @@ struct CardViewController: View {
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
                                     .frame(width: 270)
                                     .padding(.leading, 10)
-                                
+
                                 Button {
-                                    let db = Firestore.firestore()
-                                    db.collection("cards")
-                                        .whereField("id", isEqualTo: textFieldText)
-                                        .getDocuments { snapshot, error in
-                                            if let error = error {
-                                                print("Error fetching card: \(error.localizedDescription)")
-                                            } else if let snapshot = snapshot, let document = snapshot.documents.first {
-                                                if let card = try? document.data(as: Card.self) {
-                                                    DispatchQueue.main.async {
-                                                        path.append(CardDestination.searchCard(card: card))
-                                                    }
-                                                } else {
-                                                    print("Failed to parse card data")
-                                                }
-                                            } else {
-                                                print("No card found with the provided cardID")
-                                            }
-                                        }
+                                    viewModel.searchForCard()
                                 } label: {
                                     Image(systemName: "magnifyingglass")
                                         .foregroundColor(.white)
@@ -148,7 +189,7 @@ struct CardViewController: View {
                         ApplyCardView(card: card)
                     }
                 }
-            }            
+            }
         }
         .background(
             Color.black
@@ -158,11 +199,6 @@ struct CardViewController: View {
         )
 
     }
-    func animateLoading() {
-            withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
-                animate.toggle()
-            }
-        }
 }
 
 
@@ -201,9 +237,7 @@ struct CardRow: View {
                             .fontWeight(.bold)
                             .padding(8)
                             .foregroundColor(.white)
-
                         Spacer()
-
                         // Camera button
                         Button(action: {
                             path.append(.camera(filterData: card.filterData))
@@ -236,58 +270,15 @@ struct CardRow: View {
         }
     }
 }
-struct OptionMenuButton: View {
-    @State private var showRenameAlert = false
-    @State private var showShareAlert = false
-    @State private var newName = ""
-    let alertcopyView = AlertAppleMusic17View(title: "Copy to ClipBoard", subtitle: nil, icon: .done)
+class OptionMenuButtonViewModel: ObservableObject{
     let db = Firestore.firestore()
     let firestoreService = FirestoreService()
-    let card: Card
-    var body: some View {
-        Menu { Button(action: {
-            // 顯示改名彈出框
-            showRenameAlert = true
-        }) { Label("Rename", systemImage: "pencil")
-        }
-            Button(action: {
-                // 添加刪除操作
-                print("Delete tapped")
-                firestoreService.deleteCard(card: card)
-            }) { Label("Delete", systemImage: "trash")}
-            Button(action: {
-                // 添加分享操作
-                showShareAlert = true
-                UIPasteboard.general.string = card.id
-                alertcopyView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
-                alertcopyView.titleLabel?.textColor = .white
-                
-                print("Share tapped")
-            }) { Label("Share", systemImage: "square.and.arrow.up")
-                    .alert(isPresent: $showShareAlert, view: alertcopyView)
-            }
-        } label: {
-            Image(systemName: "ellipsis")
-                .font(.system(size: 20, weight: .bold))
-                .padding(10) // Reduced padding
-                .background(Circle().fill(Color.white.opacity(0.2)))
-                .foregroundColor(.white)
-                .buttonStyle(PlainButtonStyle())
-        }
-        .buttonStyle(PlainButtonStyle())
-        .padding(.top, 10)
-       
-        .alert("Rename Card", isPresented: $showRenameAlert) {
-            TextField("Enter new name", text: $newName)
-            Button("Cancel", role: .cancel) { }
-            Button("Save") {
-                renameCard()
-            }
-        } message: {
-            Text("Please enter a new name for the card.")
-        }
-    }
-    private func renameCard() {
+    @Published var showRenameAlert = false
+    @Published var showShareAlert = false
+    @Published var newName = ""
+
+     func renameCard(card: Card) {
+
         let cardID = card.id
         db.collection("cards").document(cardID).updateData([
             "cardName": newName
@@ -299,7 +290,55 @@ struct OptionMenuButton: View {
             }
         }
     }
+}
+struct OptionMenuButton: View {
+@StateObject private var viewModel = OptionMenuButtonViewModel()
+    var alertCopyView = AlertAppleMusic17View(title: "Copy to ClipBoard", subtitle: nil, icon: .done)
+    let card: Card
+    let firestoreService = FirestoreService()
+    var body: some View {
+        Menu { Button(action: {
+            // 顯示改名彈出框
+            viewModel.showRenameAlert = true
+        }) { Label("Rename", systemImage: "pencil")
+        }
+            Button(action: {
+                // 添加刪除操作
+                print("Delete tapped")
+                firestoreService.deleteCard(card: card)
+            }) { Label("Delete", systemImage: "trash")}
+            Button(action: {
+                // 添加分享操作
+                viewModel.showShareAlert = true
+                UIPasteboard.general.string = card.id
+                alertCopyView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
+                alertCopyView.titleLabel?.textColor = .white
 
+                print("Share tapped")
+            }) { Label("Share", systemImage: "square.and.arrow.up")
+                    .alert(isPresent: $viewModel.showShareAlert, view: alertCopyView)
+            }
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 20, weight: .bold))
+                .padding(10) // Reduced padding
+                .background(Circle().fill(Color.white.opacity(0.2)))
+                .foregroundColor(.white)
+                .buttonStyle(PlainButtonStyle())
+        }
+        .buttonStyle(PlainButtonStyle())
+        .padding(.top, 10)
+
+        .alert("Rename Card", isPresented: $viewModel.showRenameAlert) {
+            TextField("Enter new name", text: $viewModel.newName)
+            Button("Cancel", role: .cancel) { }
+            Button("Save") {
+                viewModel.renameCard(card: card)
+            }
+        } message: {
+            Text("Please enter a new name for the card.")
+        }
+    }
 }
 
 
@@ -307,20 +346,20 @@ struct OptionMenuButton: View {
     CardViewController()
 }
 extension View {
-    
+
     func offsetAnimation(isTriggered: Bool, delay: CGFloat) -> some View {
         return self
             .offset(y: isTriggered ? 0 : 30)
             .opacity(isTriggered ? 1 : 0)
             .animation(.smooth(duration: 1.4, extraBounce: 0.2).delay(delay), value: isTriggered)
     }
-    
+
     func bannerAnimation(isTriggered: Bool) -> some View {
         return self
             .scaleEffect(isTriggered ? 1 : 0.95)
             .opacity(isTriggered ? 1 : 0)
             .animation(.easeOut(duration: 1), value: isTriggered)
     }
-    
+
 }
 

@@ -81,6 +81,8 @@
 		787046342CA5B03500BA7CC2 /* PlayfairDisplay-Italic-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 787046332CA5B03400BA7CC2 /* PlayfairDisplay-Italic-VariableFont_wght.ttf */; };
 		787046362CA5B03F00BA7CC2 /* PlayfairDisplay-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 787046352CA5B03F00BA7CC2 /* PlayfairDisplay-VariableFont_wght.ttf */; };
 		787DB7CF2C998F5300350DEC /* ProfilePageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */; };
+		788349FD2CC6973C00385ECA /* RefactorApplyCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 788349FC2CC6973C00385ECA /* RefactorApplyCard.swift */; };
+		78834A052CC770DA00385ECA /* ToneDeckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78834A042CC770DA00385ECA /* ToneDeckTests.swift */; };
 		78AC68E22C9D1BE000260BB3 /* CommentViewCOntroller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AC68E12C9D1BE000260BB3 /* CommentViewCOntroller.swift */; };
 		78AC68E62C9D79E800260BB3 /* ImageAdjustmentVIewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AC68E52C9D79E800260BB3 /* ImageAdjustmentVIewController.swift */; };
 		78AC68E82C9EF90800260BB3 /* NotificationCenterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AC68E72C9EF90800260BB3 /* NotificationCenterViewController.swift */; };
@@ -94,6 +96,16 @@
 		78CA2F7D2CAC376F004E8414 /* Shader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 78CA2F7C2CAC376E004E8414 /* Shader.metal */; };
 		78ECFDE62CA93D0E008B4226 /* SwiftUIApplyCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78ECFDE52CA93D0E008B4226 /* SwiftUIApplyCardView.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		78834A062CC770DA00385ECA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 78070FE82C918C1B0039B44C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 78070FEF2C918C1B0039B44C;
+			remoteInfo = ToneDeck;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		78070FF02C918C1B0039B44C /* ToneDeck.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToneDeck.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -162,6 +174,9 @@
 		787046332CA5B03400BA7CC2 /* PlayfairDisplay-Italic-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Italic-VariableFont_wght.ttf"; sourceTree = "<group>"; };
 		787046352CA5B03F00BA7CC2 /* PlayfairDisplay-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-VariableFont_wght.ttf"; sourceTree = "<group>"; };
 		787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePageViewController.swift; sourceTree = "<group>"; };
+		788349FC2CC6973C00385ECA /* RefactorApplyCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefactorApplyCard.swift; sourceTree = "<group>"; };
+		78834A022CC770DA00385ECA /* ToneDeckTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ToneDeckTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		78834A042CC770DA00385ECA /* ToneDeckTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneDeckTests.swift; sourceTree = "<group>"; };
 		78AC68E12C9D1BE000260BB3 /* CommentViewCOntroller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewCOntroller.swift; sourceTree = "<group>"; };
 		78AC68E52C9D79E800260BB3 /* ImageAdjustmentVIewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAdjustmentVIewController.swift; sourceTree = "<group>"; };
 		78AC68E72C9EF90800260BB3 /* NotificationCenterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCenterViewController.swift; sourceTree = "<group>"; };
@@ -195,6 +210,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		788349FF2CC770DA00385ECA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -202,6 +224,7 @@
 			isa = PBXGroup;
 			children = (
 				78070FF22C918C1B0039B44C /* ToneDeck */,
+				78834A032CC770DA00385ECA /* ToneDeckTests */,
 				78070FF12C918C1B0039B44C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -210,6 +233,7 @@
 			isa = PBXGroup;
 			children = (
 				78070FF02C918C1B0039B44C /* ToneDeck.app */,
+				78834A022CC770DA00385ECA /* ToneDeckTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -251,6 +275,7 @@
 				7870462B2CA2E5F200BA7CC2 /* NoFilterCameraView.swift */,
 				78AC68EA2CA1137A00260BB3 /* CustomCameraViewController.swift */,
 				780710562C9414FC0039B44C /* ApplyCardViewController.swift */,
+				788349FC2CC6973C00385ECA /* RefactorApplyCard.swift */,
 				787046292CA29A1700BA7CC2 /* SecondApplyCardViewController.swift */,
 				78ECFDE52CA93D0E008B4226 /* SwiftUIApplyCardView.swift */,
 				78AC68E52C9D79E800260BB3 /* ImageAdjustmentVIewController.swift */,
@@ -514,6 +539,14 @@
 			path = Fonts;
 			sourceTree = "<group>";
 		};
+		78834A032CC770DA00385ECA /* ToneDeckTests */ = {
+			isa = PBXGroup;
+			children = (
+				78834A042CC770DA00385ECA /* ToneDeckTests.swift */,
+			);
+			path = ToneDeckTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -549,6 +582,24 @@
 			productReference = 78070FF02C918C1B0039B44C /* ToneDeck.app */;
 			productType = "com.apple.product-type.application";
 		};
+		78834A012CC770DA00385ECA /* ToneDeckTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 78834A082CC770DA00385ECA /* Build configuration list for PBXNativeTarget "ToneDeckTests" */;
+			buildPhases = (
+				788349FE2CC770DA00385ECA /* Sources */,
+				788349FF2CC770DA00385ECA /* Frameworks */,
+				78834A002CC770DA00385ECA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				78834A072CC770DA00385ECA /* PBXTargetDependency */,
+			);
+			name = ToneDeckTests;
+			productName = ToneDeckTests;
+			productReference = 78834A022CC770DA00385ECA /* ToneDeckTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -561,6 +612,10 @@
 				TargetAttributes = {
 					78070FEF2C918C1B0039B44C = {
 						CreatedOnToolsVersion = 15.4;
+					};
+					78834A012CC770DA00385ECA = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = 78070FEF2C918C1B0039B44C;
 					};
 				};
 			};
@@ -584,6 +639,7 @@
 			projectRoot = "";
 			targets = (
 				78070FEF2C918C1B0039B44C /* ToneDeck */,
+				78834A012CC770DA00385ECA /* ToneDeckTests */,
 			);
 		};
 /* End PBXProject section */
@@ -599,6 +655,13 @@
 				78070FF82C918C1E0039B44C /* Assets.xcassets in Resources */,
 				781D3A422CAFAA5D00273755 /* Icons.xcassets in Resources */,
 				784E6BE72C9A773D004533C0 /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		78834A002CC770DA00385ECA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -680,6 +743,7 @@
 				781D3A502CAFAA5D00273755 /* FileManager++.swift in Sources */,
 				781D3A652CAFAA5D00273755 /* Public+MCameraErrorView.swift in Sources */,
 				781D3A5F2CAFAA5D00273755 /* Public+MCameraController.swift in Sources */,
+				788349FD2CC6973C00385ECA /* RefactorApplyCard.swift in Sources */,
 				781D3A722CAFAC7C00273755 /* NotificationCenter++.swift in Sources */,
 				7807105C2C9605430039B44C /* FilterManager.swift in Sources */,
 				78070FF42C918C1B0039B44C /* ToneDeckApp.swift in Sources */,
@@ -720,7 +784,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		788349FE2CC770DA00385ECA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				78834A052CC770DA00385ECA /* ToneDeckTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		78834A072CC770DA00385ECA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 78070FEF2C918C1B0039B44C /* ToneDeck */;
+			targetProxy = 78834A062CC770DA00385ECA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		78070FFC2C918C1E0039B44C /* Debug */ = {
@@ -920,6 +1000,47 @@
 			};
 			name = Release;
 		};
+		78834A092CC770DA00385ECA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 9CYNC2N5UU;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.StingHsieh.ToneDeckTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ToneDeck.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ToneDeck";
+			};
+			name = Debug;
+		};
+		78834A0A2CC770DA00385ECA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9CYNC2N5UU;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.StingHsieh.ToneDeckTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ToneDeck.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ToneDeck";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -937,6 +1058,15 @@
 			buildConfigurations = (
 				78070FFF2C918C1E0039B44C /* Debug */,
 				780710002C918C1E0039B44C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		78834A082CC770DA00385ECA /* Build configuration list for PBXNativeTarget "ToneDeckTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				78834A092CC770DA00385ECA /* Debug */,
+				78834A0A2CC770DA00385ECA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

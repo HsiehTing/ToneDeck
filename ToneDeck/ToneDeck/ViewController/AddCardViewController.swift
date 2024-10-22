@@ -11,68 +11,152 @@ import Firebase
 import FirebaseStorage
 import Kingfisher
 import AlertKit
-
-struct AddCardViewController: View {
+class AddCardViewModel: ObservableObject {
     @Binding var path: [CardDestination]
-    @State private var cardName: String = ""
-    @State private var selectedImage: UIImage?
-    @State private var isShowingPhotoPicker = false
-    @State private var isFillOutInfo = false
-    @State private var showingTextAlert = false
-    @State private var showingCompleteAlert = false
+    @Published var cardName: String = ""
+    @Published var selectedImage: UIImage?
+    @Published var isFillOutInfo: Bool = false
+    @Published var isShowingPhotoPicker: Bool = false
+    @Published var showingTextAlert: Bool = false
+    @Published var showingCompleteAlert: Bool = false
+    init(path: Binding<[CardDestination]>) {
+            _path = path
+        }
     let alertView = AlertAppleMusic17View(title: "Card name error", subtitle: " should not be more than 14 texts", icon: .error)
     let successView = AlertAppleMusic17View(title: "Add card complete", subtitle: nil, icon: .done)
+
+    // Add Card Action
+    func addCard() {
+        guard let image = selectedImage, !cardName.isEmpty else {
+            print("Card name or image is missing")
+            return
+        }
+
+        let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
+        let timeStamp = Date()
+        let histogram = ImageHistogramCalculator()
+        let filterHistogramData = histogram.calculateHistogram(for: image)
+        let filterData = [calculateBrightness(from: filterHistogramData),
+                          calculateContrastFromHistogram(histogramData: filterHistogramData),
+                          calculateSaturation(from: filterHistogramData),
+                          getDominantColor(from: image)]
+
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            print("Unable to get image data")
+            return
+        }
+
+        let storageRef = Storage.storage().reference().child("cards/\(UUID().uuidString).jpg")
+        storageRef.putData(imageData, metadata: nil) { metadata, error in
+            if let error = error {
+                print("Error uploading image: \(error)")
+                return
+            }
+            storageRef.downloadURL { url, error in
+                if let error = error {
+                    print("Error getting image URL: \(error)")
+                    return
+                }
+                if let imageURL = url?.absoluteString {
+                    self.saveCardData(imageURL: imageURL, filterData: filterData, fromUserID: fromUserID ?? "", timeStamp: timeStamp)
+                }
+            }
+        }
+    }
+
+    private func saveCardData(imageURL: String, filterData: [Any], fromUserID: String, timeStamp: Date) {
+        let db = Firestore.firestore()
+        let cards = db.collection("cards")
+        if let selectedImage = selectedImage {
+            guard let dominantColor = dominantColor else {return}
+           let rgbaComponents = dominantColor.rgbaComponents
+           let dominantColorData: [String: Any] = [
+                "red": rgbaComponents.red,
+                "green": rgbaComponents.green,
+                "blue": rgbaComponents.blue,
+                "alpha": rgbaComponents.alpha
+            ]
+            let document = cards.document()
+            let cardData: [String: Any] = [
+                "id": document.documentID,
+                "creatorID": fromUserID,
+                "cardName": cardName,
+                "createdTime": timeStamp,
+                "filterData": filterData,
+                "imageURL": imageURL,
+                "dominantColor": dominantColorData
+            ]
+            document.setData(cardData) { error in
+                if let error = error {
+                    print("Error saving card: \(error)")
+                } else {
+                    print("Card successfully saved!")
+                    if !self.path.isEmpty {
+                        self.path.removeLast()
+                    } else {
+                        print("Path is already empty, cannot remove last.")
+                    }
+                }
+            }
+        }
+    }
+
+    func validateCardName() {
+        if cardName.count > 14 {
+            showingTextAlert = true
+        } else if isFillOutInfo {
+            showingCompleteAlert = true
+            addCard()
+        } else {
+            isShowingPhotoPicker = true
+        }
+    }
+}
+
+struct AddCardViewController: View {
+
+    @Binding var path: [CardDestination]
+    @ObservedObject var viewModel: AddCardViewModel
+    init(path: Binding<[CardDestination]>) {
+        self._path = path
+        self.viewModel = AddCardViewModel(path: path)
+    }
     var body: some View {
         VStack {
-            TextField("Enter Card Name", text: $cardName)
+            TextField("Enter Card Name", text: $viewModel.cardName)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
 
-            if let selectedImage = selectedImage {
+            if let selectedImage = viewModel.selectedImage {
                 Image(uiImage: selectedImage)
                     .resizable()
                     .scaledToFit()
                     .frame(width: .infinity)
                     .padding()
                     .onTapGesture {
-                        isShowingPhotoPicker = true
+                        viewModel.isShowingPhotoPicker = true
                     }
             }
 
             Button(action: {
-                if cardName.count > 14 {
-                        // 顯示 alert
-                    showingTextAlert = true
-                    } else {
-                        // 如果資料已填寫完成，執行 addCard()
-                        if isFillOutInfo {
-                            showingCompleteAlert = true
-                            addCard()
-                        } else {
-                            isShowingPhotoPicker = true
-                        }
-                    }
-                successView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
-                successView.titleLabel?.textColor = .white
-                alertView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
-                   alertView.titleLabel?.textColor = .white
-            }) { Image(systemName: !cardName.isEmpty && selectedImage != nil ? "camera.filters" : "camera.metering.center.weighted.average")
+                viewModel.validateCardName()
+            }) {
+                Image(systemName: !viewModel.cardName.isEmpty && viewModel.selectedImage != nil ? "camera.filters" : "camera.metering.center.weighted.average")
                     .padding()
                     .foregroundColor(.white)
                     .background(Color.gray)
                     .cornerRadius(10)
-                    .alert(isPresent: $showingTextAlert, view: alertView)
-                    .alert(isPresent: $showingCompleteAlert, view: successView)
+                    .alert(isPresent: $viewModel.showingTextAlert, view: viewModel.alertView)
+                    .alert(isPresent: $viewModel.showingCompleteAlert, view: viewModel.successView)
             }
-            
             .buttonStyle(PlainButtonStyle())
             .contentTransition(.symbolEffect(.replace, options: .nonRepeating))
         }
-        .sheet(isPresented: $isShowingPhotoPicker) {
-            ImagePicker(image: $selectedImage, isPresented: $isShowingPhotoPicker)
+        .sheet(isPresented: $viewModel.isShowingPhotoPicker) {
+            ImagePicker(image: $viewModel.selectedImage, isPresented: $viewModel.isShowingPhotoPicker)
         }
-        .onChange(of: selectedImage) { _ in
-            isFillOutInfo = true
+        .onChange(of: viewModel.selectedImage) { _ in
+            viewModel.isFillOutInfo = true
         }
         .padding()
         .navigationTitle("Add Card")
@@ -82,77 +166,6 @@ struct AddCardViewController: View {
                     UIApplication.shared.endEditing()
                 }
         )
-    }
-
-    // MARK: - Add Card Action
-    func addCard() {
-        guard let image = selectedImage, !cardName.isEmpty else {
-            print("Card name or image is missing")
-            return
-        }
-        // Mock data for testing
-        let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
-        let timeStamp = Date()
-        let histogram = ImageHistogramCalculator()
-        let filterHistogramData = histogram.calculateHistogram(for: image)
-        let filterData = [calculateBrightness(from: filterHistogramData),
-                          calculateContrastFromHistogram(histogramData: filterHistogramData),
-                          calculateSaturation(from: filterHistogramData),
-                          getDominantColor(from: image)]
-        // Save the image to Firebase Storage
-        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
-            print("Unable to get image data")
-            return
-        }
-        let storageRef = Storage.storage().reference().child("cards/\(UUID().uuidString).jpg")
-        storageRef.putData(imageData, metadata: nil) { metadata, error in
-            if let error = error {
-                print("Error uploading image: \(error)")
-                return
-            }
-            // Get the image URL
-            storageRef.downloadURL { url, error in
-                if let error = error {
-                    print("Error getting image URL: \(error)")
-                    return
-                }
-                if let imageURL = url?.absoluteString {
-                    // Save the card data to Firestore
-                    let db = Firestore.firestore()
-                    let cards = Firestore.firestore().collection("cards")
-                    guard let dominantColor = dominantColor else {return}
-                    let rgbaComponents = dominantColor.rgbaComponents
-                    let document = cards.document()
-                    let dominantColorData: [String: Any] = [
-                        "red": rgbaComponents.red,
-                        "green": rgbaComponents.green,
-                        "blue": rgbaComponents.blue,
-                        "alpha": rgbaComponents.alpha
-                    ]
-                    let cardData: [String: Any] = [
-                        "id": document.documentID,
-                        "creatorID": fromUserID ?? "",
-                        "cardName": cardName,
-                        "createdTime": timeStamp,
-                        "filterData": filterData,
-                        "imageURL": imageURL,
-                        "dominantColor": dominantColorData
-                    ]
-                    document.setData(cardData) { error in
-                        if let error = error {
-                            print("Error saving card: \(error)")
-                        } else {
-                            print("Card successfully saved!")
-                            if !path.isEmpty {
-                                path.removeLast() // Remove last only if the path array is not empty
-                            } else {
-                                print("Path is already empty, cannot remove last.")
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 #Preview {
