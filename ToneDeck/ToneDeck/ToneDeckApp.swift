@@ -169,7 +169,7 @@ class MeshGradient {
                             CGPoint(x: CGFloat(point.x) * width, y: CGFloat(point.y) * height)
                         }
 
-                        // Draw gradient mesh
+                        
                         for ivalue in 0..<2 {
                             for jvalue in 0..<2 {
                                 let path = Path { pvalue in

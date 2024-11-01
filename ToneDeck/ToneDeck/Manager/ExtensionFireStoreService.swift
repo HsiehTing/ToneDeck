@@ -31,7 +31,7 @@ extension FirestoreService {
         db.collection("cards").whereField("creatorID", isEqualTo: fromUserID).addSnapshotListener { (snapshot, error) in
             if let error = error {
                 print("Error fetching cards: \(error)")
-                completion(false) // 在發生錯誤的時候通知外部
+                completion(false)
             } else {
                 if let snapshot = snapshot {
                     self.cards = snapshot.documents.compactMap { document -> Card? in
@@ -163,10 +163,10 @@ func checkUserData() {
     let followingIDArray = [""]
     let followerIDArray = [""]
     let photoIDArray = [""]
-    // 檢查 user defaults 中是否有儲存 document ID
+
     let defaults = UserDefaults.standard
     if let savedUserID = defaults.string(forKey: "userDocumentID") {
-        // 如果有，檢查 Firestore 中是否有該使用者的資料
+
         Firestore.firestore().collection("users").whereField("id", isEqualTo: savedUserID).getDocuments { (snapshot, error) in
             if let error = error {
                 print("Error fetching documents: \(error)")
@@ -175,7 +175,7 @@ func checkUserData() {
             if let snapshot = snapshot, !snapshot.isEmpty {
                         print("ID already exists. No need to add.")
                     } else {
-                // 使用者資料不存在，新增資料
+
                 saveNewUser(userName: userName,
                             avatar: avatar,
                             postIDArray: postIDArray,
@@ -186,7 +186,7 @@ func checkUserData() {
             }
         }
     } else {
-        // 沒有儲存的 document ID，直接新增資料
+
         saveNewUser(userName: userName,
                     avatar: avatar,
                     postIDArray: postIDArray,
@@ -208,7 +208,7 @@ func saveNewUser(userName: String, avatar: String, postIDArray: [String], follow
     }
     let userData: [String: Any] = [
         "id": UserDefaults.standard.string(forKey: "userDocumentID"),
-        //"id": document.documentID,
+
         "userName": userName,
         "avatar": avatar,
         "postIDArray": postIDArray,
@@ -225,9 +225,9 @@ func saveNewUser(userName: String, avatar: String, postIDArray: [String], follow
             print("Error saving card: \(error)")
         } else {
             print("User successfully saved!")
-            // 儲存 document ID 到 UserDefaults
+
             let defaults = UserDefaults.standard
-            //defaults.set(document.documentID, forKey: "userDocumentID")
+
             defaults.set(false, forKey: "privacyStatus")
         }
     }

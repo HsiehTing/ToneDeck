@@ -25,7 +25,7 @@ class AddCardViewModel: ObservableObject {
     let alertView = AlertAppleMusic17View(title: "Card name error", subtitle: " should not be more than 14 texts", icon: .error)
     let successView = AlertAppleMusic17View(title: "Add card complete", subtitle: nil, icon: .done)
 
-    // Add Card Action
+
     func addCard() {
         guard let image = selectedImage, !cardName.isEmpty else {
             print("Card name or image is missing")

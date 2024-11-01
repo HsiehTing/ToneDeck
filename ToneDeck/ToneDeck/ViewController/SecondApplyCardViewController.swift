@@ -209,15 +209,15 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
             print("No image selected from photo library.")
             return
         }
-        // 確保 UIImage 能成功轉換為 CIImage
+        
         guard CIImage(image: targetImage) != nil else {
             print("Failed to convert UIImage to CIImage.")
             return
         }
-        // 計算直方圖
+
         let targetHistogramData = histogram.calculateHistogram(for: targetImage)
         let filterHistogramData = histogram.calculateHistogram(for: filterImage)
-        // 確認是否成功計算
+
         let targetValues = [calculateBrightness(from: targetHistogramData),
                             calculateContrastFromHistogram(histogramData: targetHistogramData),
                             calculateSaturation(from: targetHistogramData)]

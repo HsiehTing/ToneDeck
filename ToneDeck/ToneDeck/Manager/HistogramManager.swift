@@ -15,27 +15,27 @@ class ImageHistogramCalculator: ObservableObject {
 
     @Published var filterHistogramData: [String: [Float]] = [:]
 
-    // 計算目標圖像的四種直方圖數據：紅、綠、藍、灰
+
     func calculateHistogram(for image: UIImage) -> [String: [Float]] {
         guard let ciImage = CIImage(image: image) else {
             print("+++++ Failed to convert UIImage to CIImage.")
             return ["none": [0]]
         }
 
-        // 計算圖像的像素數以動態調整縮放比例
+
         let totalPixels = getTotalPixels(from: image)
         let scale = Float(totalPixels) / 256.0
 
         let extent = ciImage.extent
 
-        // 計算 RGB 和灰階直方圖
+
         let redHistogram = calculateRGBHistogram(for: ciImage, extent: extent, scale: scale, channel: "red")
         let greenHistogram = calculateRGBHistogram(for: ciImage, extent: extent, scale: scale, channel: "green")
         let blueHistogram = calculateRGBHistogram(for: ciImage, extent: extent, scale: scale, channel: "blue")
         let grayHistogram = calculateGrayScaleHistogram(for: ciImage, extent: extent, scale: scale)
 
         DispatchQueue.main.async {
-            // 將結果存儲到字典中
+
             let histogramData = [
                 "red": redHistogram,
                 "green": greenHistogram,
@@ -47,9 +47,9 @@ class ImageHistogramCalculator: ObservableObject {
         return ["red": redHistogram, "green": greenHistogram, "blue": blueHistogram, "gray": grayHistogram]
     }
 
-    // 計算RGB直方圖數據
+
     private func calculateRGBHistogram(for ciImage: CIImage, extent: CGRect, scale: Float, channel: String) -> [Float] {
-        // 根據選擇的顏色通道應用不同的篩選器
+
         let channelFilter = CIFilter.colorMatrix()
         channelFilter.inputImage = ciImage
 
@@ -70,16 +70,16 @@ class ImageHistogramCalculator: ObservableObject {
             return [Float](repeating: 0, count: 256)
         }
 
-        // 設置 Alpha 通道
+
         channelFilter.aVector = CIVector(x: 0, y: 0, z: 0, w: 1)
 
-        // 確保 colorMatrix 的 outputImage 正常
+
         guard let outputImage = channelFilter.outputImage else {
             print("ColorMatrix filter output is nil")
             return [Float](repeating: 0, count: 256)
         }
 
-        // 計算所選顏色通道的直方圖
+
         let histogramFilter = CIFilter.areaHistogram()
         histogramFilter.inputImage = outputImage
         histogramFilter.count = 256
@@ -93,14 +93,14 @@ class ImageHistogramCalculator: ObservableObject {
         return bitmap
     }
 
-    // 計算灰階直方圖數據
+
     private func calculateGrayScaleHistogram(for ciImage: CIImage, extent: CGRect, scale: Float) -> [Float] {
-        // 將圖像轉換為灰階
+
         let grayFilter = CIFilter.colorControls()
         grayFilter.inputImage = ciImage
         grayFilter.saturation = 0.0
 
-        // 計算灰階的直方圖
+
         let histogramFilter = CIFilter.areaHistogram()
         histogramFilter.inputImage = grayFilter.outputImage
         histogramFilter.count = 256
@@ -114,7 +114,7 @@ class ImageHistogramCalculator: ObservableObject {
         return bitmap
     }
 
-    // 計算圖像總像素數
+    
     private func getTotalPixels(from image: UIImage) -> Int {
         let width = image.size.width
         let height = image.size.height

@@ -22,6 +22,7 @@ import XCTest
          // Put setup code here. This method is called before the invocation of each test method in the class.
          super.setUp()
                  viewModel = NotificationViewModel()
+
      }
 
      override func tearDownWithError() throws {
@@ -43,6 +44,18 @@ import XCTest
              XCTAssertFalse(viewModel.isFollowed, "isFollowed should be false after second toggle")
          }
 
+     func testToggleFollowBehaviorTrue() throws {
+         viewModel = NotificationViewModel(isFollowed: true)
+         XCTAssertTrue(viewModel.isFollowed, "isFollowed should be true after first toggle")
+         // First toggle - should become true
+         viewModel.testToggleFollow()
+         XCTAssertFalse(viewModel.isFollowed, "isFollowed should be false after second toggle")
+
+         // Second toggle - should become false
+         viewModel.testToggleFollow()
+         XCTAssertTrue(viewModel.isFollowed, "isFollowed should be true after first toggle")
+     }
+
      func testButtonLabel() {
          // Mock user data
          let mockUser = User(id: "", userName: mockUserName, avatar: avatar, postIDArray: postIDArray, followingArray: followingIDArray,
@@ -51,6 +64,7 @@ import XCTest
          // Initially, isFollowed is false, so the button should display "unfollow"
          let initialButtonText = viewModel.isFollowed ? "follow" : "unfollow"
          XCTAssertEqual(initialButtonText, "unfollow", "The initial button text should be 'unfollow' when isFollowed is false")
+        
 
          // Toggle follow, isFollowed becomes true, so the button should display "follow"
          viewModel.toggleFollow(user: mockUser)

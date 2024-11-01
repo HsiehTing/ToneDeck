@@ -54,10 +54,7 @@ struct AfterSignInContentView: View {
         .tint(.gray)
         .onAppear {
             firestoreService.fetchNotifications()
-            //badgeValue = firestoreService.notifications.count
-                       //let defaults = UserDefaults.standard
-                //defaults.set( "jJmDCF0Fzr0JMAWRuzKZ", forKey: "userDocumentID")
-            //checkUserData()
+           
                    }
        
     }

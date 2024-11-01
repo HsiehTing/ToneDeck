@@ -17,7 +17,10 @@ enum NotificationType: String, Codable {
 }
 class NotificationViewModel: ObservableObject {
     @StateObject private var firestoreService = FirestoreService()
-    @Published var isFollowed = false 
+    @Published var isFollowed :Bool
+    init(isFollowed: Bool = false) {
+        self.isFollowed = isFollowed
+    }
     @Published var user: User?
     func fetchNotification () {
         firestoreService.fetchNotifications()

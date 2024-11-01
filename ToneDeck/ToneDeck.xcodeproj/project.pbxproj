@@ -20,7 +20,6 @@
 		780710432C91DF720039B44C /* AddCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710422C91DF720039B44C /* AddCardViewController.swift */; };
 		780710462C92859B0039B44C /* FireStoreCardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710452C92859B0039B44C /* FireStoreCardManager.swift */; };
 		780710492C9286FB0039B44C /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 780710482C9286FB0039B44C /* Kingfisher */; };
-		780710552C9407840039B44C /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710542C9407840039B44C /* CameraViewController.swift */; };
 		780710572C9414FD0039B44C /* ApplyCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710562C9414FC0039B44C /* ApplyCardViewController.swift */; };
 		7807105A2C9565320039B44C /* HistogramManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780710592C9565320039B44C /* HistogramManager.swift */; };
 		7807105C2C9605430039B44C /* FilterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7807105B2C9605430039B44C /* FilterManager.swift */; };
@@ -117,7 +116,6 @@
 		780710402C9190C00039B44C /* CardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewController.swift; sourceTree = "<group>"; };
 		780710422C91DF720039B44C /* AddCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCardViewController.swift; sourceTree = "<group>"; };
 		780710452C92859B0039B44C /* FireStoreCardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireStoreCardManager.swift; sourceTree = "<group>"; };
-		780710542C9407840039B44C /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 		780710562C9414FC0039B44C /* ApplyCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplyCardViewController.swift; sourceTree = "<group>"; };
 		780710582C9442CF0039B44C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		780710592C9565320039B44C /* HistogramManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistogramManager.swift; sourceTree = "<group>"; };
@@ -271,7 +269,6 @@
 			children = (
 				780710402C9190C00039B44C /* CardViewController.swift */,
 				780710422C91DF720039B44C /* AddCardViewController.swift */,
-				780710542C9407840039B44C /* CameraViewController.swift */,
 				7870462B2CA2E5F200BA7CC2 /* NoFilterCameraView.swift */,
 				78AC68EA2CA1137A00260BB3 /* CustomCameraViewController.swift */,
 				780710562C9414FC0039B44C /* ApplyCardViewController.swift */,
@@ -736,7 +733,6 @@
 				781D3A4E2CAFAA5D00273755 /* CIImage++.swift in Sources */,
 				781D3A4C2CAFAA5D00273755 /* CameraUtilities++.swift in Sources */,
 				781D3A562CAFAA5D00273755 /* CameraExposure.swift in Sources */,
-				780710552C9407840039B44C /* CameraViewController.swift in Sources */,
 				78AC68E62C9D79E800260BB3 /* ImageAdjustmentVIewController.swift in Sources */,
 				781D3A602CAFAA5D00273755 /* Public+PostCameraConfig.swift in Sources */,
 				781D3A492CAFAA5D00273755 /* AVVideoComposition++.swift in Sources */,

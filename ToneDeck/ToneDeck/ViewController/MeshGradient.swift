@@ -79,14 +79,14 @@ class UIKitMeshGradient: UIView {
         var body: some View {
             GeometryReader { geometry in
                 ZStack {
-                    // 添加一個背景色，確保沒有透明部分
+
                     Canvas { context, size in
                         let width = size.width
                         let height = size.height
                         let scaledPositions = positions(in: size).map { point in
                             CGPoint(x: CGFloat(point.x) * width, y: CGFloat(point.y) * height)
                         }
-                        // 繪製背景
+                     
                         let backgroundRect = Path(CGRect(origin: .zero, size: size))
                         context.fill(backgroundRect, with: .color(viewModel.targetColor))
                         
