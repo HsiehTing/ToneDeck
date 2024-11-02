@@ -145,9 +145,6 @@ struct ImageAdjustmentView: View {
     }
 }
 
-// Include the CustomSlider, BarIndicator, and MeshingSlider structures here
-// (The code for these components is in the second document you provided)
-
 struct CustomSlider: View {
     @Binding var value: CGFloat
     let range: ClosedRange<Double>
@@ -167,12 +164,12 @@ struct CustomSlider: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .bottom) {
-                // Background track
+
                 Rectangle()
                     .fill(Color.adaptive)
                     .frame(height: 15)
 
-                // Bar indicators
+
                 HStack(alignment: .bottom, spacing: 6) {
                     ForEach(0..<stepCount, id: \.self) { index in
                         BarIndicator(
@@ -193,7 +190,6 @@ struct CustomSlider: View {
                         self.value = min(max(CGFloat(self.range.lowerBound), newValue), CGFloat(self.range.upperBound))
                         isDragging = true
 
-                        // Trigger haptic feedback when moving between steps
                         if Int(self.value) != Int(self.lastValue) {
                             HapticManager.shared.trigger(.light)
                             self.lastValue = Double(self.value)
@@ -277,7 +273,6 @@ struct MeshingSlider: View {
     }
 }
 
-// You'll need to implement HapticManager if it's not already in your project
 class HapticManager {
     static let shared = HapticManager()
 
@@ -287,7 +282,6 @@ class HapticManager {
     }
 }
 
-// You'll need to add this Color extension if it's not already in your project
 extension Color {
     static var adaptive: Color {
         Color(UIColor { _ in
@@ -296,13 +290,12 @@ extension Color {
     }
 }
 
-// Function to apply filters to the image
 func applyImageAdjustments(image: UIImage, smoothValues: [Float], hueAdjustment: Float, grainIntensity: Float, grainSize: Float) -> UIImage? {
     let orientation = image.imageOrientation
     guard let ciImage = CIImage(image: image) else { return nil }
     let rotateciImage = ciImage.oriented(CGImagePropertyOrientation(image.imageOrientation))
 
-    // Apply brightness, contrast, and saturation adjustments
+
     let colorControlsFilter = CIFilter(name: "CIColorControls")
     colorControlsFilter?.setValue(rotateciImage, forKey: kCIInputImageKey)
     colorControlsFilter?.setValue(smoothValues[0], forKey: kCIInputBrightnessKey)
@@ -310,18 +303,15 @@ func applyImageAdjustments(image: UIImage, smoothValues: [Float], hueAdjustment:
     colorControlsFilter?.setValue(smoothValues[2], forKey: kCIInputSaturationKey)
     guard let colorControlsOutput = colorControlsFilter?.outputImage else { return nil }
 
-    // Apply hue adjustment
     let hueAdjustFilter = CIFilter(name: "CIHueAdjust")
     hueAdjustFilter?.setDefaults()
     hueAdjustFilter?.setValue(colorControlsOutput, forKey: kCIInputImageKey)
     hueAdjustFilter?.setValue(hueAdjustment, forKey: kCIInputAngleKey)
     guard let hueAdjustOutput = hueAdjustFilter?.outputImage else { return nil }
 
-    // Apply grain effect
     let grainFilter = CIFilter(name: "CIRandomGenerator")
     guard var grainOutput = grainFilter?.outputImage else { return nil }
 
-    // Scale the grain
     let scaleFilter = CIFilter(name: "CIAffineTransform")
     let scale = CGFloat(grainSize)
     let scaleTransform = CGAffineTransform(scaleX: scale, y: scale)
@@ -345,7 +335,6 @@ func applyImageAdjustments(image: UIImage, smoothValues: [Float], hueAdjustment:
     ]), forKey: kCIInputImageKey)
     guard let blendOutput = blendFilter?.outputImage else { return nil }
 
-    // Create final UIImage
     let context = CIContext(options: [CIContextOption.useSoftwareRenderer: false])
     guard let cgImage = context.createCGImage(blendOutput, from: blendOutput.extent) else { return nil }
 
@@ -398,20 +387,15 @@ class SaveToLibrary {
         }
     }
     func saveImageToPhotoLibrary(image: UIImage, card: Card) {
-        // 請求相簿存取權限
         PHPhotoLibrary.requestAuthorization { status in
             if status == .authorized {
-                // 在 Photo Library 的改動要包在 performChanges 之內
                 PHPhotoLibrary.shared().performChanges({
-                    // 創建圖片資產請求
                     let creationRequest = PHAssetCreationRequest.creationRequestForAsset(from: image)
 
-                    // 選擇保存到相簿（如果需要特定相簿，可以在這裡指定）
                     let albumTitle = card.cardName
                     self.addImageToCustomAlbum(creationRequest, albumTitle: albumTitle)
 
                 }) { success, error in
-                    // 處理結果
                     if success {
                         print("照片已保存到相簿")
                     } else if let error = error {
@@ -424,21 +408,17 @@ class SaveToLibrary {
         }
     }
 
-    // 保存到自定義相簿
     func addImageToCustomAlbum(_ creationRequest: PHAssetCreationRequest, albumTitle: String) {
         let fetchOptions = PHFetchOptions()
         fetchOptions.predicate = NSPredicate(format: "title = %@", albumTitle)
 
-        // 搜索是否已經有這個相簿
         let album = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions).firstObject
 
         if let album = album {
-            // 已經有這個相簿，直接添加圖片
             let assetPlaceholder = creationRequest.placeholderForCreatedAsset
             let albumChangeRequest = PHAssetCollectionChangeRequest(for: album)
             albumChangeRequest?.addAssets([assetPlaceholder] as NSArray)
         } else {
-            // 創建一個新的相簿，並添加圖片
             PHPhotoLibrary.shared().performChanges({
                 PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: albumTitle)
             }) { success, error in

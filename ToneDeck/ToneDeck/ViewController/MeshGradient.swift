@@ -75,7 +75,6 @@ class UIKitMeshGradient: UIView {
                          smoothSin(0.8, 1.0, offset: 0.47, timeScale: 0.25)]
                     ].map { [$0[0], $0[1]] }
         }
-        
         var body: some View {
             GeometryReader { geometry in
                 ZStack {
@@ -86,10 +85,8 @@ class UIKitMeshGradient: UIView {
                         let scaledPositions = positions(in: size).map { point in
                             CGPoint(x: CGFloat(point.x) * width, y: CGFloat(point.y) * height)
                         }
-                     
                         let backgroundRect = Path(CGRect(origin: .zero, size: size))
                         context.fill(backgroundRect, with: .color(viewModel.targetColor))
-                        
                         for ivalue in 0..<2 {
                             for jvalue in 0..<2 {
                                 let path = Path { pvalue in
@@ -97,7 +94,6 @@ class UIKitMeshGradient: UIView {
                                     let point2 = scaledPositions[ivalue * 3 + jvalue + 1]
                                     let point3 = scaledPositions[(ivalue + 1) * 3 + jvalue + 1]
                                     let point4 = scaledPositions[(ivalue + 1) * 3 + jvalue]
-                                    
                                     pvalue.move(to: point1)
                                     pvalue.addLine(to: point2)
                                     pvalue.addLine(to: point3)

@@ -10,8 +10,6 @@ import Kingfisher
 import FirebaseCore
 import AlertKit
 
-
-// 定義導航目的地
 enum FeedDestination: Hashable {
     case addPost
     case applyCard(card: Card)
@@ -47,7 +45,6 @@ struct FeedView: View {
     var body: some View {
         NavigationStack(path: $path) {
             VStack {
-                // Segment control
                 HStack {
                     ForEach(segments, id: \.self) { segment in
                         Button {
@@ -78,7 +75,6 @@ struct FeedView: View {
                         .padding()
                     }
                 }
-
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 10) {
                         ForEach(
@@ -155,7 +151,7 @@ struct FeedView: View {
 
 struct PostView: View {
     let post: Post
-    let card: Card? // Optional card
+    let card: Card?
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     let fireStoreService = FirestoreService()
     @Binding var path: [FeedDestination]
@@ -168,7 +164,6 @@ struct PostView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            // Display Post Image
             KFImage(URL(string: post.imageURL))
                 .resizable()
                 .aspectRatio(contentMode: .fill)
@@ -245,7 +240,6 @@ struct PostView: View {
                     CommentView(post: post, postID: post.id, userID: fromUserID ?? "", userAvatarURL: userAvatarURL)
                 }
             }
-            // Display Post Text
             Text(post.text)
                 .font(.caption)
                 .padding()
@@ -261,16 +255,13 @@ struct PostView: View {
     }
     func toggleLike() {
         if isStarred {
-            // If already starred, remove the user's ID from the likerIDArray
             removeUserFromLikerArray()
         } else {
-            // If not starred, add the user's ID to the likerIDArray
             addUserToLikerArray()
         }
         isStarred.toggle()
     }
     func checkIfStarred() {
-        // Assume we get the likerIDArray from the post
         guard let fromUserID = fromUserID else {return}
         if post.likerIDArray.contains(fromUserID) {
             isStarred = true
@@ -279,7 +270,6 @@ struct PostView: View {
         }
     }
 
-    // Function to add the user to the likerIDArray in the posts collection
     func addUserToLikerArray() {
 
         guard let fromUserID = fromUserID else {return}
@@ -309,9 +299,7 @@ struct PostView: View {
         document.setData(data)
     }
 
-    // Function to remove the user from the likerIDArray in the posts collection
     func removeUserFromLikerArray() {
-        // Firestore logic to update likerIDArray
         guard let fromUserID = fromUserID else {return}
 
         let postRef = Firestore.firestore().collection("posts").document(post.id)
@@ -352,11 +340,11 @@ struct PostView: View {
 }
 struct PostButtonsView: View {
     let card: Card
-    @Binding var path: [FeedDestination]  // Use shared path for navigation
+    @Binding var path: [FeedDestination]
 
     var body: some View {
         HStack {
-            // Button for navigating to apply card view
+
             Button(action: {
                 if path.last != .applyCard(card: card) { // 防止重复导航
                     path.append(.applyCard(card: card))
@@ -372,10 +360,9 @@ struct PostButtonsView: View {
             .buttonStyle(PlainButtonStyle())
             Spacer()
 
-            // Button for navigating to apply card view using image
             Button(action: {
-                path.append(.applyCard(card: card))  // Navigate to applyCard view
-                print("Navigating to applyCard with image for card \(card.cardName)")  // Debugging print
+                path.append(.applyCard(card: card))
+                print("Navigating to applyCard with image for card \(card.cardName)")
             }) {
                 KFImage(URL(string: card.imageURL))
                     .resizable()
@@ -418,7 +405,6 @@ struct PostInfoView: View {
                     .foregroundColor(.gray)
 
             }
-            //.buttonStyle(PlainButtonStyle())
             .padding()
         }
         .onAppear {
@@ -432,17 +418,17 @@ struct PostInfoView: View {
                 print("Error fetching user: \(error)")
             } else if let snapshot = snapshot, let document = snapshot.documents.first {
                 if let user = try? document.data(as: User.self) {
-                    userName = user.userName  // 更新用户名
+                    userName = user.userName
                 }
             }
         }
     }
     func formattedDate(from timestamp: Timestamp) -> String {
-        let date = timestamp.dateValue() // Convert Timestamp to Date
+        let date = timestamp.dateValue()
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium // Set date format (e.g., "Sep 24, 2024")
-        formatter.timeStyle = .none   // Only show date, no time
-        return formatter.string(from: date) // Convert Date to String
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
     }
     struct FeedView_Previews: PreviewProvider {
         static var previews: some View {

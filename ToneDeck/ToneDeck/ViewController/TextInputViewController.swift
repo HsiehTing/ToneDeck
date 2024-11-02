@@ -14,7 +14,7 @@ struct TextInputView: View {
     var photo: Photo
     var onDismiss: (() -> Void)?
     @Binding var path: [FeedDestination]
-    @Environment(\.presentationMode) var presentationMode // 讓視圖能夠返回前一頁
+    @Environment(\.presentationMode) var presentationMode
     var body: some View {
         VStack {
             KFImage(URL(string: photo.imageURL))
@@ -24,7 +24,6 @@ struct TextInputView: View {
                 .padding()
 
             ZStack(alignment: .topLeading) {
-                // Placeholder
                 if postText.isEmpty {
                     Text("Enter your text here...")
                         .foregroundColor(.gray)
@@ -32,7 +31,6 @@ struct TextInputView: View {
                         .padding(.vertical, 12)
                 }
 
-                // TextEditor
                 TextEditor(text: $postText)
                     .frame(height: 200)
                     .cornerRadius(20)
@@ -66,7 +64,6 @@ struct TextInputView: View {
                         }
                 )
     }
-    // 將貼文儲存到 Firebase Firestore
     func publishPost() {
         let db = Firestore.firestore()
         let posts = Firestore.firestore().collection("posts")
@@ -110,12 +107,10 @@ struct TextInputView: View {
                             }
                         }
                     }
-
-
                 }
                 onDismiss?()
                 path.removeAll()
-                presentationMode.wrappedValue.dismiss() // 發佈成功後返回前一頁
+                presentationMode.wrappedValue.dismiss()
             }
         }  
     }

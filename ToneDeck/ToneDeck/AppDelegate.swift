@@ -32,7 +32,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             print("Received Universal Link: \(url.absoluteString)")
 
             if url.path == "/applyCard" {
-                // 导航到 ApplyCardViewController
+               
                 navigateToApplyCard()
             }
         }

@@ -21,7 +21,6 @@ struct EditingProfileView: View {
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     var body: some View {
         VStack(spacing: 20) {
-            // Avatar
             PhotosPicker(selection: $avatarItem, matching: .images, photoLibrary: .shared()) {
                 if let avatarImage = avatarImage {
                     Image(uiImage: avatarImage)
@@ -54,14 +53,12 @@ struct EditingProfileView: View {
                     }
                 }
             }
-            // Username
             TextField("Username", text: $userName)                
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal)
                 .onChange(of: userName) { oldValue, newValue in
                     updateUserName()
                 }
-            // Status Toggle
             Toggle("Private account", isOn: $isStatusActive)
                 .padding()
                 .background(Color.gray.opacity(0.2))
@@ -104,11 +101,6 @@ struct EditingProfileView: View {
             Spacer()
         }
         .padding()
-        .onAppear {
-//            guard let fromUserID = fromUserID else {return}
-//            firestoreService.fetchUserData(userID: fromUserID)
-
-        }
         .background(Color.black.edgesIgnoringSafeArea(.all))
         .foregroundColor(.white)
     }
@@ -131,5 +123,3 @@ struct EditingProfileView: View {
             firestoreService.updateUserName(userID: fromUserID, newName: userName)
         }
 }
-
-

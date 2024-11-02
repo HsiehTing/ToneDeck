@@ -50,7 +50,6 @@ struct SecondApplyCardView: View {
         .navigationBarHidden(true)
     }
 }
-// UIKit ViewController (ApplyCardViewController)
 class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CameraViewControllerDelegate {
     var card: Card?
     let imageView = UIImageView()
@@ -127,14 +126,13 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
         targetImageView.isUserInteractionEnabled = true
         view.addSubview(targetImageView)
 
-           // 添加虛線邊框
-           //targetImageView.layer.borderColor = UIColor.white.cgColor
+
            targetImageView.layer.borderWidth = 2
            targetImageView.layer.cornerRadius = 20
            targetImageView.layer.masksToBounds = true
            let dashBorder = CAShapeLayer()
            dashBorder.strokeColor = UIColor.white.cgColor
-           dashBorder.lineDashPattern = [16, 8] // 虛線的樣式：6點劃線，3點空白
+           dashBorder.lineDashPattern = [16, 8]
            dashBorder.frame = targetImageView.bounds
            dashBorder.fillColor = nil
            dashBorder.path = UIBezierPath(roundedRect: targetImageView.bounds, cornerRadius: 10).cgPath
@@ -144,7 +142,7 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(targetImageTapped))
            targetImageView.addGestureRecognizer(tapGesture)
 
-           // Layout the target imageView
+
            targetImageView.translatesAutoresizingMaskIntoConstraints = false
            NSLayoutConstraint.activate([
                targetImageView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 12),
@@ -169,19 +167,19 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
         importLabel.translatesAutoresizingMaskIntoConstraints = false
         iconImageView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            // Position and size meshGradientView relative to targetImageView
+
             meshGradientView.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
             meshGradientView.centerYAnchor.constraint(equalTo: targetImageView.centerYAnchor),
             meshGradientView.widthAnchor.constraint(equalTo: targetImageView.widthAnchor),
             meshGradientView.heightAnchor.constraint(equalTo: targetImageView.heightAnchor),
 
-            // Position iconImageView and set dynamic size based on screen width
+
             iconImageView.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
             iconImageView.centerYAnchor.constraint(equalTo: meshGradientView.centerYAnchor, constant: screenWidth * -0.025),
             iconImageView.widthAnchor.constraint(equalToConstant: screenWidth * 0.3),
             iconImageView.heightAnchor.constraint(equalToConstant: screenWidth * 0.3),
             importLabel.topAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: screenWidth * 0.025),
-            //importLabel.bottomAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: screenWidth * -0.025),
+
             importLabel.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
             importLabel.widthAnchor.constraint(equalToConstant: screenWidth * 0.5),
             importLabel.heightAnchor.constraint(equalToConstant: screenWidth * 0.09)
@@ -245,23 +243,19 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
             sendNotification(card: card)
         }
 
-        // Directly present the ImageAdjustmentView
         let imageAdjustmentView = ImageAdjustmentView(card: card, originalImage: outputImage) { [weak self] in
-            // This completion block will be called when the ImageAdjustmentView is dismissed
             self?.dismiss(animated: true, completion: {
-                // After dismissing ImageAdjustmentView, navigate back to the CardView
                 self?.navigationController?.popViewController(animated: true)
             })
         }
         let hostingController = UIHostingController(rootView: imageAdjustmentView)
 
-        // Present the UIHostingController modally
         self.present(hostingController, animated: true, completion: nil)
     }
     func applySmoothFilterWithDifferentT(targetValues: [Float], filterValues: [Float], tValues: [Float]) {
         var result = [Float]()
         for targetValue in 0..<targetValues.count {
-            let newValue = /*targetValues[targetValue] + */(filterValues[targetValue] - targetValues[targetValue]) * tValues[targetValue]
+            let newValue = (filterValues[targetValue] - targetValues[targetValue]) * tValues[targetValue]
             result.append(newValue)
         }
         scaleFactor(newValue: result, brightnessScale: 1, contrastScale: 1.1, saturationScale: 1)
@@ -319,20 +313,18 @@ class SecondApplyCardViewController: UIViewController, UIImagePickerControllerDe
         picker.sourceType = .photoLibrary
         present(picker, animated: true, completion: nil)
     }
-    // Handle selected image from the photo library
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
            if let selectedImage = info[.originalImage] as? UIImage {
-               targetImage = selectedImage // 保存選取的圖片
+               targetImage = selectedImage
                self.meshGradientView.isHidden = true
                targetImageView.image = selectedImage
            }
            dismiss(animated: true, completion: nil)
        }
     func didCapturePhoto(_ image: UIImage) {
-            // 接收到照片後處理
             targetImage = image
             targetImageView.image = image
-            applyButton.setTitle("Apply Card", for: .normal) // Reset button after capturing photo
+            applyButton.setTitle("Apply Card", for: .normal) 
         }
     func sendNotification(card: Card) {
         let notifications = Firestore.firestore().collection("notifications")

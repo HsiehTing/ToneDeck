@@ -11,6 +11,7 @@ import PhotosUI
 import CoreImage
 import FirebaseStorage
 import Firebase
+import Combine
 
 struct ApplyCardViewControllerWrapper: UIViewControllerRepresentable {
     let card: Card?
@@ -24,33 +25,355 @@ struct ApplyCardViewControllerWrapper: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: ApplyCardViewController, context: Context) {}
 }
 struct ApplyCardView: View {
+    @StateObject private var viewModel: ApplyCardViewModel
     @Environment(\.presentationMode) var presentationMode
-    let card: Card?
+
+    init(card: Card) {
+        _viewModel = StateObject(wrappedValue: ApplyCardViewModel(card: card))
+    }
 
     var body: some View {
         ZStack {
-            ApplyCardViewControllerWrapper(card: card)
-                .edgesIgnoringSafeArea(.all)
+            Color.black.edgesIgnoringSafeArea(.all)
 
-            VStack {
+            VStack(spacing: 12) {
+                // Back button
                 HStack {
                     Button(action: {
-                        self.presentationMode.wrappedValue.dismiss()
+                        presentationMode.wrappedValue.dismiss()
                     }) {
                         Image(systemName: "chevron.left")
                             .foregroundColor(.white)
                             .padding()
                     }
-                    //.buttonStyle(PlainButtonStyle())
                     Spacer()
                 }
-                Spacer()
+
+                // Main content
+                CardPreviewView(viewModel: viewModel)
+
+                // Apply button
+                ApplyButton(viewModel: viewModel)
             }
+            .padding()
         }
         .navigationBarHidden(true)
     }
 }
+class ApplyCardViewModel: ObservableObject {
+    @Published var targetImage: UIImage?
+    @Published var isGradientHidden = false
+    @Published var scaledValues: [Float]?
+    @Published var hueColor: Float?
+
+    let card: Card
+    private let histogram = ImageHistogramCalculator()
+    private let fireStoreService = FirestoreService()
+    private let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
+
+    init(card: Card) {
+        self.card = card
+    }
+
+    // MARK: - Public Methods
+    func processApplyFilter() -> UIImage? {
+        guard let targetImage = targetImage else {
+            print("No image selected from photo library.")
+            return nil
+        }
+
+        let targetHistogramData = histogram.calculateHistogram(for: targetImage)
+        //let filterHistogramData = histogram.calculateHistogram(for: card.imageURL)
+
+        let targetValues = [
+            calculateBrightness(from: targetHistogramData),
+            calculateContrastFromHistogram(histogramData: targetHistogramData),
+            calculateSaturation(from: targetHistogramData)
+        ]
+
+        let filterValues = [card.filterData[0], card.filterData[1], card.filterData[2]]
+        let tValues:[Float] = [1.00, 1.30, 1.00] // Default values for brightness, contrast, saturation
+
+        applySmoothFilterWithDifferentT(targetValues: targetValues, filterValues: filterValues, tValues: tValues)
+
+        let targetColorValue = getDominantColor(from: targetImage)
+        let filterColorValue = card.filterData[3]
+        if  targetColorValue != 0 {
+            self.hueColor = filterColorValue - targetColorValue
+        }
+
+        return applyImageAdjustments(image: targetImage,
+                                   smoothValues: scaledValues ?? [0, 0, 0],
+                                   hueAdjustment: hueColor ?? 10)
+    }
+
+    func sendNotification() {
+        guard fromUserID != card.creatorID else { return }
+
+        let notifications = Firestore.firestore().collection("notifications")
+        let document = notifications.document()
+
+        guard let user = fireStoreService.user else { return }
+
+        let data: [String: Any] = [
+            "id": document.documentID,
+            "fromUserPhoto": user.avatar,
+            "from": fromUserID,
+            "to": card.creatorID,
+            "postImage": card.imageURL,
+            "type": NotificationType.useCard.rawValue,
+            "createdTime": Timestamp()
+        ]
+
+        document.setData(data)
+    }
+
+    // MARK: - Private Methods
+    private func applySmoothFilterWithDifferentT(targetValues: [Float], filterValues: [Float], tValues: [Float]) {
+        var result = [Float]()
+        for targetValue in 0..<targetValues.count {
+            let newValue = (filterValues[targetValue] - targetValues[targetValue]) * tValues[targetValue]
+            result.append(newValue)
+        }
+        scaleFactor(newValue: result, brightnessScale: 1.0, contrastScale: 1.2, saturationScale: 1)
+    }
+
+    private func scaleFactor(newValue: [Float], brightnessScale: Float, contrastScale: Float, saturationScale: Float) {
+        let scaledBrightness = newValue[0] * brightnessScale
+        let scaledContrast = (newValue[1] + 1) * contrastScale
+        let scaledSaturation = (newValue[2] + 1) * saturationScale
+        scaledValues = [scaledBrightness, scaledContrast, scaledSaturation]
+    }
+
+    private func applyImageAdjustments(image: UIImage, smoothValues: [Float], hueAdjustment: Float) -> UIImage? {
+        let orientation = image.imageOrientation
+        guard let ciImage = CIImage(image: image) else { return nil }
+
+        // Apply color controls
+        let colorControlsFilter = CIFilter(name: "CIColorControls")
+        colorControlsFilter?.setValue(ciImage, forKey: kCIInputImageKey)
+        colorControlsFilter?.setValue(smoothValues[0], forKey: kCIInputBrightnessKey)
+        colorControlsFilter?.setValue(smoothValues[1], forKey: kCIInputContrastKey)
+        colorControlsFilter?.setValue(smoothValues[2], forKey: kCIInputSaturationKey)
+
+        guard let colorControlsOutput = colorControlsFilter?.outputImage else { return nil }
+
+        // Apply hue adjustment
+        let hueAdjustFilter = CIFilter(name: "CIHueAdjust")
+        hueAdjustFilter?.setDefaults()
+        hueAdjustFilter?.setValue(colorControlsOutput, forKey: kCIInputImageKey)
+        hueAdjustFilter?.setValue(hueAdjustment, forKey: kCIInputAngleKey)
+
+        guard let hueAdjustOutput = hueAdjustFilter?.outputImage else { return nil }
+
+        let context = CIContext(options: [CIContextOption.useSoftwareRenderer: false])
+        guard let cgImage = context.createCGImage(hueAdjustOutput, from: hueAdjustOutput.extent) else { return nil }
+
+        return UIImage(cgImage: cgImage, scale: 1.0, orientation: orientation)
+    }
+}
 class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CameraViewControllerDelegate {
+    private let viewModel: ApplyCardViewModel
+
+    private let imageView = UIImageView()
+    private let targetImageView = UIImageView()
+    private let nameLabel = UILabel()
+    private let applyButton = UIButton()
+    private var meshGradientView: UIKitMeshGradient!
+
+    init(viewModel: ApplyCardViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        configureUI()
+        setupBindings()
+    }
+
+    private func configureUI() {
+        view.backgroundColor = .black
+        configureImageViews()
+        configureNameLabel()
+        configureApplyButton()
+        configureMeshGradient()
+        setupConstraints()
+    }
+
+    private func configureImageViews() {
+        // Configure filter image view
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 25
+        imageView.kf.setImage(with: URL(string: viewModel.card.imageURL))
+        view.addSubview(imageView)
+
+        // Configure target image view
+        targetImageView.contentMode = .scaleAspectFill
+        targetImageView.clipsToBounds = true
+        targetImageView.layer.cornerRadius = 20
+        targetImageView.layer.borderWidth = 2
+        targetImageView.isUserInteractionEnabled = true
+        view.addSubview(targetImageView)
+
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(targetImageTapped))
+        targetImageView.addGestureRecognizer(tapGesture)
+    }
+
+    private func configureNameLabel() {
+        nameLabel.textColor = .white
+        nameLabel.font = UIFont(name: "PlayfairDisplayItalic-Black", size: 42)
+        nameLabel.text = viewModel.card.cardName
+        view.addSubview(nameLabel)
+    }
+
+    private func configureApplyButton() {
+        let config = UIImage.SymbolConfiguration(pointSize: 30, weight: .medium, scale: .default)
+        let image = UIImage(systemName: "apple.image.playground.fill", withConfiguration: config)
+        applyButton.setImage(image, for: .normal)
+        applyButton.tintColor = UIColor(
+            red: viewModel.card.dominantColor.red,
+            green: viewModel.card.dominantColor.green,
+            blue: viewModel.card.dominantColor.blue,
+            alpha: 1
+        )
+        applyButton.backgroundColor = UIColor(
+            red: viewModel.card.dominantColor.red,
+            green: viewModel.card.dominantColor.green,
+            blue: viewModel.card.dominantColor.blue,
+            alpha: 0.6
+        )
+        applyButton.alpha = 0.7
+        applyButton.layer.cornerRadius = 10
+        applyButton.addTarget(self, action: #selector(didTapApply), for: .touchUpInside)
+        view.addSubview(applyButton)
+    }
+
+    private func configureMeshGradient() {
+        meshGradientView = UIKitMeshGradient(frame: .zero)
+        meshGradientView.setTargetColorRGBA(
+            red: viewModel.card.dominantColor.red,
+            green: viewModel.card.dominantColor.green,
+            blue: viewModel.card.dominantColor.blue,
+            alpha: 1
+        )
+        targetImageView.addSubview(meshGradientView)
+    }
+
+    private func setupConstraints() {
+        let views = [imageView, nameLabel, targetImageView, applyButton, meshGradientView]
+        views.forEach { $0?.translatesAutoresizingMaskIntoConstraints = false }
+
+        let screenWidth = UIScreen.main.bounds.width
+
+        NSLayoutConstraint.activate([
+            // Name Label
+            nameLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 0.1 * screenWidth),
+            nameLabel.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.1),
+            nameLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+
+            // Filter Image View
+            imageView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: -0.07 * screenWidth),
+            imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            imageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
+            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 0.8),
+
+            // Target Image View
+            targetImageView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 12),
+            targetImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            targetImageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
+            targetImageView.heightAnchor.constraint(equalTo: targetImageView.widthAnchor, multiplier: 0.8),
+
+            // Mesh Gradient View
+            meshGradientView.topAnchor.constraint(equalTo: targetImageView.topAnchor),
+            meshGradientView.leadingAnchor.constraint(equalTo: targetImageView.leadingAnchor),
+            meshGradientView.trailingAnchor.constraint(equalTo: targetImageView.trailingAnchor),
+            meshGradientView.bottomAnchor.constraint(equalTo: targetImageView.bottomAnchor),
+
+            // Apply Button
+            applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 0.05 * screenWidth),
+            applyButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            applyButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            applyButton.widthAnchor.constraint(equalToConstant: 80),
+            applyButton.heightAnchor.constraint(equalToConstant: 30)
+        ])
+    }
+
+    private func setupBindings() {
+        // Observe ViewModel's published properties
+        var cancellables = Set<AnyCancellable>()
+        viewModel.$targetImage.sink { [weak self] image in
+            self?.targetImageView.image = image
+        }.store(in: &cancellables)
+
+        viewModel.$isGradientHidden.sink { [weak self] isHidden in
+            self?.meshGradientView.isHidden = isHidden
+        }.store(in: &cancellables)
+    }
+
+    @objc private func targetImageTapped() {
+        let alert = UIAlertController(title: "Select Image", message: "Choose from photo library or camera", preferredStyle: .actionSheet)
+
+        let photoLibraryAction = UIAlertAction(title: "Photo Library", style: .default) { [weak self] _ in
+            self?.presentPhotoLibrary()
+        }
+
+        let cameraAction = UIAlertAction(title: "Camera", style: .default) { [weak self] _ in
+            var cameraVC = NoFilterCameraView() { _ in }
+            cameraVC.delegate = self
+            let hostingController = UIHostingController(rootView: cameraVC)
+            self?.navigationController?.pushViewController(hostingController, animated: true)
+        }
+
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+
+        [photoLibraryAction, cameraAction, cancelAction].forEach { alert.addAction($0) }
+
+        present(alert, animated: true)
+    }
+
+    @objc private func didTapApply() {
+        guard let outputImage = viewModel.processApplyFilter() else { return }
+        viewModel.sendNotification()
+
+        let imageAdjustmentView = ImageAdjustmentView(card: viewModel.card, originalImage: outputImage) { [weak self] in
+            self?.dismiss(animated: true) {
+                self?.navigationController?.popViewController(animated: true)
+            }
+        }
+
+        let hostingController = UIHostingController(rootView: imageAdjustmentView)
+        present(hostingController, animated: true)
+    }
+
+    // MARK: - UIImagePickerControllerDelegate
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let selectedImage = info[.originalImage] as? UIImage {
+            viewModel.updateTargetImage(selectedImage)
+        }
+        dismiss(animated: true)
+    }
+
+    // MARK: - CameraViewControllerDelegate
+    func didCapturePhoto(_ image: UIImage) {
+        viewModel.updateTargetImage(image)
+    }
+
+    func presentPhotoLibrary() {
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.sourceType = .photoLibrary
+        present(picker, animated: true, completion: nil)
+    }
+}
+
+//============================================================================================
+class ApplyCardViewControllerUnfactor: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CameraViewControllerDelegate {
     var card: Card?
     let imageView = UIImageView()
     let targetImageView = UIImageView()
@@ -60,10 +383,10 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
 
     let cameraButton = UIButton(type: .system)
     let histogram = ImageHistogramCalculator()
-    var targetImage: UIImage? // 用來保存選取的圖片
-    var tBrightness: Float = 1  // 較平滑的亮度變化
-    var tContrast: Float = 1.3    // 中等強度的對比度變化
-    var tSaturation: Float = 1  // 更強的飽和度變化
+    var targetImage: UIImage?
+    var tBrightness: Float = 1
+    var tContrast: Float = 1.3
+    var tSaturation: Float = 1
     var scaledValues: [Float]?
     var filterColorValue: Float?
     var colorVector: [Float] = []
@@ -76,7 +399,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         self.navigationController?.isNavigationBarHidden = true
            view.backgroundColor = .black
         configUI()
-           // Configure the card imageView and label
+
            fireStoreService.fetchUserData(userID: fromUserID ?? "")
            if let card = card {
                imageView.kf.setImage(with: URL(string: card.imageURL))
@@ -126,14 +449,14 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         targetImageView.isUserInteractionEnabled = true
         view.addSubview(targetImageView)
 
-           // 添加虛線邊框
-           //targetImageView.layer.borderColor = UIColor.white.cgColor
+
+
            targetImageView.layer.borderWidth = 2
            targetImageView.layer.cornerRadius = 20
            targetImageView.layer.masksToBounds = true
            let dashBorder = CAShapeLayer()
            dashBorder.strokeColor = UIColor.white.cgColor
-           dashBorder.lineDashPattern = [16, 8] // 虛線的樣式：6點劃線，3點空白
+           dashBorder.lineDashPattern = [16, 8]
            dashBorder.frame = targetImageView.bounds
            dashBorder.fillColor = nil
            dashBorder.path = UIBezierPath(roundedRect: targetImageView.bounds, cornerRadius: 10).cgPath
@@ -143,7 +466,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(targetImageTapped))
            targetImageView.addGestureRecognizer(tapGesture)
 
-           // Layout the target imageView
+
            targetImageView.translatesAutoresizingMaskIntoConstraints = false
            NSLayoutConstraint.activate([
                targetImageView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 12),
@@ -168,19 +491,19 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         importLabel.translatesAutoresizingMaskIntoConstraints = false
         iconImageView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            // Position and size meshGradientView relative to targetImageView
+
             meshGradientView.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
             meshGradientView.centerYAnchor.constraint(equalTo: targetImageView.centerYAnchor),
             meshGradientView.widthAnchor.constraint(equalTo: targetImageView.widthAnchor),
             meshGradientView.heightAnchor.constraint(equalTo: targetImageView.heightAnchor),
 
-            // Position iconImageView and set dynamic size based on screen width
+
             iconImageView.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
             iconImageView.centerYAnchor.constraint(equalTo: meshGradientView.centerYAnchor, constant: screenWidth * -0.025),
             iconImageView.widthAnchor.constraint(equalToConstant: screenWidth * 0.3),
             iconImageView.heightAnchor.constraint(equalToConstant: screenWidth * 0.3),
             importLabel.topAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: screenWidth * 0.025),
-            //importLabel.bottomAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: screenWidth * -0.025),
+
             importLabel.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
             importLabel.widthAnchor.constraint(equalToConstant: screenWidth * 0.5),
             importLabel.heightAnchor.constraint(equalToConstant: screenWidth * 0.09)
@@ -208,15 +531,15 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             print("No image selected from photo library.")
             return
         }
-        // 確保 UIImage 能成功轉換為 CIImage
+
         guard CIImage(image: targetImage) != nil else {
             print("Failed to convert UIImage to CIImage.")
             return
         }
-        // 計算直方圖
+
         let targetHistogramData = histogram.calculateHistogram(for: targetImage)
         let filterHistogramData = histogram.calculateHistogram(for: filterImage)
-        // 確認是否成功計算
+
         let targetValues = [calculateBrightness(from: targetHistogramData),
                             calculateContrastFromHistogram(histogramData: targetHistogramData),
                             calculateSaturation(from: targetHistogramData)]
@@ -244,17 +567,17 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             sendNotification(card: card)
         }
 
-        // Directly present the ImageAdjustmentView
+
         let imageAdjustmentView = ImageAdjustmentView(card: card, originalImage: outputImage) { [weak self] in
-            // This completion block will be called when the ImageAdjustmentView is dismissed
+
             self?.dismiss(animated: true, completion: {
-                // After dismissing ImageAdjustmentView, navigate back to the CardView
+
                 self?.navigationController?.popViewController(animated: true)
             })
         }
         let hostingController = UIHostingController(rootView: imageAdjustmentView)
 
-        // Present the UIHostingController modally
+
         self.present(hostingController, animated: true, completion: nil)
     }
     func applySmoothFilterWithDifferentT(targetValues: [Float], filterValues: [Float], tValues: [Float]) {
@@ -319,7 +642,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         picker.sourceType = .photoLibrary
         present(picker, animated: true, completion: nil)
     }
-    // Handle selected image from the photo library
+
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
            if let selectedImage = info[.originalImage] as? UIImage {
                targetImage = selectedImage // 保存選取的圖片
@@ -331,7 +654,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
            dismiss(animated: true, completion: nil)
        }
     func didCapturePhoto(_ image: UIImage) {
-            // 接收到照片後處理
+
         print("image picked")
         self.meshGradientView.isHidden = true
             targetImage = image
@@ -372,4 +695,7 @@ extension CGImagePropertyOrientation {
             self = .up
         }
     }
+}
+protocol CameraViewControllerDelegate: AnyObject {
+    func didCapturePhoto(_ image: UIImage)
 }

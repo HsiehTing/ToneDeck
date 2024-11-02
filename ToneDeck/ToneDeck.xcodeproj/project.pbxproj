@@ -93,7 +93,6 @@
 		78CA2F792CAAF86C004E8414 /* ExtensionFireStoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78CA2F782CAAF86C004E8414 /* ExtensionFireStoreService.swift */; };
 		78CA2F7B2CABC9FB004E8414 /* EditingProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78CA2F7A2CABC9FB004E8414 /* EditingProfileView.swift */; };
 		78CA2F7D2CAC376F004E8414 /* Shader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 78CA2F7C2CAC376E004E8414 /* Shader.metal */; };
-		78ECFDE62CA93D0E008B4226 /* SwiftUIApplyCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78ECFDE52CA93D0E008B4226 /* SwiftUIApplyCardView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -186,7 +185,6 @@
 		78CA2F782CAAF86C004E8414 /* ExtensionFireStoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionFireStoreService.swift; sourceTree = "<group>"; };
 		78CA2F7A2CABC9FB004E8414 /* EditingProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditingProfileView.swift; sourceTree = "<group>"; };
 		78CA2F7C2CAC376E004E8414 /* Shader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shader.metal; sourceTree = "<group>"; };
-		78ECFDE52CA93D0E008B4226 /* SwiftUIApplyCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIApplyCardView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -274,7 +272,6 @@
 				780710562C9414FC0039B44C /* ApplyCardViewController.swift */,
 				788349FC2CC6973C00385ECA /* RefactorApplyCard.swift */,
 				787046292CA29A1700BA7CC2 /* SecondApplyCardViewController.swift */,
-				78ECFDE52CA93D0E008B4226 /* SwiftUIApplyCardView.swift */,
 				78AC68E52C9D79E800260BB3 /* ImageAdjustmentVIewController.swift */,
 				78BAF0512C97F61500A5B418 /* FeedViewController.swift */,
 				78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */,
@@ -767,7 +764,6 @@
 				781D3A742CAFAC7C00273755 /* MTimer.swift in Sources */,
 				781D3A5C2CAFAA5D00273755 /* CameraInputBridgeView.swift in Sources */,
 				781D3A522CAFAA5D00273755 /* UIImageView++.swift in Sources */,
-				78ECFDE62CA93D0E008B4226 /* SwiftUIApplyCardView.swift in Sources */,
 				781D3A752CAFAC7C00273755 /* Public+MTime.swift in Sources */,
 				781D3A462CAFAA5D00273755 /* AVCaptureDevice++.swift in Sources */,
 				781D3A642CAFAA5D00273755 /* Public+CameraUtilities.swift in Sources */,

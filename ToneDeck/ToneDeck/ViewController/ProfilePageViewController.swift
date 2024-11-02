@@ -68,7 +68,7 @@ struct ProfilePageView: View {
                                     .buttonStyle(.borderedProminent)
                                     .tint(isFollowed ? .gray : .blue)
                                 } else {
-                                    EmptyView()  // Return an EmptyView if no user is available
+                                    EmptyView()
                                 }
                             }
                         }
@@ -117,7 +117,6 @@ struct ProfilePageView: View {
             ToolbarItem(placement: .topBarTrailing) {
 
                 Button {
-                    // Action for settings
                 } label: {
                     if userID == fromUserID {
                         NavigationLink {
@@ -156,18 +155,7 @@ struct ProfilePageView: View {
                     
                 }
             }
-
         }
-//        .navigationDestination(for: ProfileDestination.self) { destination in
-//            switch destination {
-//            case .applyCard(let card):
-//                SecondApplyCardViewControllerWrapper(card: card)
-//
-//            case .visitProfile(let postCreatorID):
-//                ProfilePostView()
-//
-//            }
-//        }
     }
 
     func fetchPostsfromProfile(postIDs: [String]) {
@@ -253,12 +241,12 @@ struct ProfilePostView: View {
                         Image(systemName: isStarred ?"capsule.fill" :"capsule" )
                             .padding()
                             .background(Color.black.opacity(0.5))
-                            .foregroundColor(isStarred ? .cyan  : .white) // Change color based on state
+                            .foregroundColor(isStarred ? .cyan  : .white)
                             .clipShape(Circle())
                     }
                     .buttonStyle(PlainButtonStyle())
                     Button(action: {
-                        loadUserAvatar()  // Load user avatar before presenting the view
+                        loadUserAvatar()
                         isCommentViewPresented = true
                     }) {
                         Image(systemName: "bubble.right")
@@ -273,11 +261,9 @@ struct ProfilePostView: View {
                         CommentView(post: post, postID: post.id, userID: fromUserID ?? "", userAvatarURL: userAvatarURL)
                     }
                 }
-                // Display Post Text
                 Text(post.text)
                     .font(.title)
                     .padding()
-                //PostInfoView(post: post, path: $path)
             }
 
             .background(Color.black)
@@ -295,10 +281,8 @@ struct ProfilePostView: View {
     }
     private func toggleLike() {
         if isStarred {
-            // If already starred, remove the user's ID from the likerIDArray
             removeUserFromLikerArray()
         } else {
-            // If not starred, add the user's ID to the likerIDArray
             addUserToLikerArray()
         }
         isStarred.toggle()
@@ -332,7 +316,6 @@ struct ProfilePostView: View {
         document.setData(data)
     }
     private func checkIfStarred() {
-        // Assume we get the likerIDArray from the post
         guard let fromUserID = fromUserID else {return}
         if post.likerIDArray.contains(fromUserID) {
             isStarred = true
@@ -341,7 +324,6 @@ struct ProfilePostView: View {
         }
     }
     func removeUserFromLikerArray() {
-        // Firestore logic to update likerIDArray
         guard let fromUserID = fromUserID else {return}
 
         let postRef = Firestore.firestore().collection("posts").document(post.id)
@@ -379,7 +361,6 @@ struct ProfilePostView: View {
 
         var body: some View {
             HStack {
-                // Button for navigating to apply card view
                 Button(action: {
                     if path.last != .applyCard(card: card) {
                         path.append(.applyCard(card: card))
@@ -394,11 +375,9 @@ struct ProfilePostView: View {
                 }
                 .buttonStyle(PlainButtonStyle())
                 Spacer()
-
-                // Button for navigating to apply card view using image
                 Button(action: {
-                    path.append(.applyCard(card: card))  // Navigate to applyCard view
-                    print("Navigating to applyCard with image for card \(card.cardName)")  // Debugging print
+                    path.append(.applyCard(card: card))
+                    print("Navigating to applyCard with image for card \(card.cardName)")
                 }) {
                     KFImage(URL(string: card.imageURL))
                         .resizable()
@@ -450,17 +429,17 @@ struct ProfilePostView: View {
                     print("Error fetching user: \(error)")
                 } else if let snapshot = snapshot, let document = snapshot.documents.first {
                     if let user = try? document.data(as: User.self) {
-                        userName = user.userName  // 更新用户名
+                        userName = user.userName
                     }
                 }
             }
         }
         func formattedDate(from timestamp: Timestamp) -> String {
-            let date = timestamp.dateValue() // Convert Timestamp to Date
+            let date = timestamp.dateValue()
             let formatter = DateFormatter()
-            formatter.dateStyle = .medium // Set date format (e.g., "Sep 24, 2024")
-            formatter.timeStyle = .none   // Only show date, no time
-            return formatter.string(from: date) // Convert Date to String
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .none
+            return formatter.string(from: date)
         }
 
     }

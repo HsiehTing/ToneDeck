@@ -41,7 +41,6 @@ struct RefactorApplyCardView: View {
                             .foregroundColor(.white)
                             .padding()
                     }
-                    //.buttonStyle(PlainButtonStyle())
                     Spacer()
                 }
                 Spacer()
@@ -60,10 +59,10 @@ class RefactorApplyCardViewController: UIViewController, UIImagePickerController
 
     let cameraButton = UIButton(type: .system)
     let histogram = ImageHistogramCalculator()
-    var targetImage: UIImage? // 用來保存選取的圖片
-    var tBrightness: Float = 1  // 較平滑的亮度變化
-    var tContrast: Float = 1.3    // 中等強度的對比度變化
-    var tSaturation: Float = 1  // 更強的飽和度變化
+    var targetImage: UIImage?
+    var tBrightness: Float = 1
+    var tContrast: Float = 1.3
+    var tSaturation: Float = 1
     var scaledValues: [Float]?
     var filterColorValue: Float?
     var colorVector: [Float] = []
@@ -76,7 +75,7 @@ class RefactorApplyCardViewController: UIViewController, UIImagePickerController
         self.navigationController?.isNavigationBarHidden = true
            view.backgroundColor = .black
         configUI()
-           // Configure the card imageView and label
+
            fireStoreService.fetchUserData(userID: fromUserID ?? "")
            if let card = card {
                imageView.kf.setImage(with: URL(string: card.imageURL))
@@ -105,7 +104,7 @@ class RefactorApplyCardViewController: UIViewController, UIImagePickerController
         view.addSubview(imageView)
         view.addSubview(nameLabel)
         view.addSubview(applyButton)
-        // Layout card imageView and label
+
         imageView.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -126,14 +125,12 @@ class RefactorApplyCardViewController: UIViewController, UIImagePickerController
         targetImageView.isUserInteractionEnabled = true
         view.addSubview(targetImageView)
 
-           // 添加虛線邊框
-           //targetImageView.layer.borderColor = UIColor.white.cgColor
            targetImageView.layer.borderWidth = 2
            targetImageView.layer.cornerRadius = 20
            targetImageView.layer.masksToBounds = true
            let dashBorder = CAShapeLayer()
            dashBorder.strokeColor = UIColor.white.cgColor
-           dashBorder.lineDashPattern = [16, 8] // 虛線的樣式：6點劃線，3點空白
+           dashBorder.lineDashPattern = [16, 8]
            dashBorder.frame = targetImageView.bounds
            dashBorder.fillColor = nil
            dashBorder.path = UIBezierPath(roundedRect: targetImageView.bounds, cornerRadius: 10).cgPath
@@ -143,7 +140,7 @@ class RefactorApplyCardViewController: UIViewController, UIImagePickerController
            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(targetImageTapped))
            targetImageView.addGestureRecognizer(tapGesture)
 
-           // Layout the target imageView
+
            targetImageView.translatesAutoresizingMaskIntoConstraints = false
            NSLayoutConstraint.activate([
                targetImageView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 12),
@@ -168,19 +165,18 @@ class RefactorApplyCardViewController: UIViewController, UIImagePickerController
         importLabel.translatesAutoresizingMaskIntoConstraints = false
         iconImageView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            // Position and size meshGradientView relative to targetImageView
+
             meshGradientView.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
             meshGradientView.centerYAnchor.constraint(equalTo: targetImageView.centerYAnchor),
             meshGradientView.widthAnchor.constraint(equalTo: targetImageView.widthAnchor),
             meshGradientView.heightAnchor.constraint(equalTo: targetImageView.heightAnchor),
 
-            // Position iconImageView and set dynamic size based on screen width
             iconImageView.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
             iconImageView.centerYAnchor.constraint(equalTo: meshGradientView.centerYAnchor, constant: screenWidth * -0.025),
             iconImageView.widthAnchor.constraint(equalToConstant: screenWidth * 0.3),
             iconImageView.heightAnchor.constraint(equalToConstant: screenWidth * 0.3),
             importLabel.topAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: screenWidth * 0.025),
-            //importLabel.bottomAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: screenWidth * -0.025),
+
             importLabel.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
             importLabel.widthAnchor.constraint(equalToConstant: screenWidth * 0.5),
             importLabel.heightAnchor.constraint(equalToConstant: screenWidth * 0.09)
@@ -208,15 +204,13 @@ class RefactorApplyCardViewController: UIViewController, UIImagePickerController
             print("No image selected from photo library.")
             return
         }
-        // 確保 UIImage 能成功轉換為 CIImage
+
         guard CIImage(image: targetImage) != nil else {
             print("Failed to convert UIImage to CIImage.")
             return
         }
-        // 計算直方圖
         let targetHistogramData = histogram.calculateHistogram(for: targetImage)
         let filterHistogramData = histogram.calculateHistogram(for: filterImage)
-        // 確認是否成功計算
         let targetValues = [calculateBrightness(from: targetHistogramData),
                             calculateContrastFromHistogram(histogramData: targetHistogramData),
                             calculateSaturation(from: targetHistogramData)]
@@ -244,17 +238,14 @@ class RefactorApplyCardViewController: UIViewController, UIImagePickerController
             sendNotification(card: card)
         }
 
-        // Directly present the ImageAdjustmentView
+
         let imageAdjustmentView = ImageAdjustmentView(card: card, originalImage: outputImage) { [weak self] in
-            // This completion block will be called when the ImageAdjustmentView is dismissed
             self?.dismiss(animated: true, completion: {
-                // After dismissing ImageAdjustmentView, navigate back to the CardView
                 self?.navigationController?.popViewController(animated: true)
             })
         }
         let hostingController = UIHostingController(rootView: imageAdjustmentView)
 
-        // Present the UIHostingController modally
         self.present(hostingController, animated: true, completion: nil)
     }
     func applySmoothFilterWithDifferentT(targetValues: [Float], filterValues: [Float], tValues: [Float]) {
@@ -294,11 +285,9 @@ class RefactorApplyCardViewController: UIViewController, UIImagePickerController
     }
     @objc func targetImageTapped() {
         let alert = UIAlertController(title: "Select Image", message: "Choose from photo library or camera", preferredStyle: .actionSheet)
-        // Photo library option
         let photoLibraryAction = UIAlertAction(title: "Photo Library", style: .default) { _ in
             self.presentPhotoLibrary()
         }
-        // Camera option
         let cameraAction = UIAlertAction(title: "Camera", style: .default) { _ in
             var cameraVC = NoFilterCameraView(){_ in
 
@@ -319,7 +308,7 @@ class RefactorApplyCardViewController: UIViewController, UIImagePickerController
         picker.sourceType = .photoLibrary
         present(picker, animated: true, completion: nil)
     }
-    // Handle selected image from the photo library
+
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
            if let selectedImage = info[.originalImage] as? UIImage {
                targetImage = selectedImage // 保存選取的圖片
@@ -331,7 +320,7 @@ class RefactorApplyCardViewController: UIViewController, UIImagePickerController
            dismiss(animated: true, completion: nil)
        }
     func didCapturePhoto(_ image: UIImage) {
-            // 接收到照片後處理
+
         print("image picked")
         self.meshGradientView.isHidden = true
             targetImage = image
