@@ -74,13 +74,11 @@
 		7855CCF32CBCC50A0014453D /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 7855CCF22CBCC50A0014453D /* FirebaseAnalyticsWithoutAdIdSupport */; };
 		7855CCF52CBCC50A0014453D /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 7855CCF42CBCC50A0014453D /* FirebaseCrashlytics */; };
 		7855CCF82CBCE5530014453D /* Initial Page View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7855CCF72CBCE5530014453D /* Initial Page View.swift */; };
-		7870462A2CA29A1700BA7CC2 /* SecondApplyCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787046292CA29A1700BA7CC2 /* SecondApplyCardViewController.swift */; };
 		7870462C2CA2E5F200BA7CC2 /* NoFilterCameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7870462B2CA2E5F200BA7CC2 /* NoFilterCameraView.swift */; };
 		787046302CA5638F00BA7CC2 /* AlertKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7870462F2CA5638F00BA7CC2 /* AlertKit */; };
 		787046342CA5B03500BA7CC2 /* PlayfairDisplay-Italic-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 787046332CA5B03400BA7CC2 /* PlayfairDisplay-Italic-VariableFont_wght.ttf */; };
 		787046362CA5B03F00BA7CC2 /* PlayfairDisplay-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 787046352CA5B03F00BA7CC2 /* PlayfairDisplay-VariableFont_wght.ttf */; };
 		787DB7CF2C998F5300350DEC /* ProfilePageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */; };
-		788349FD2CC6973C00385ECA /* RefactorApplyCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 788349FC2CC6973C00385ECA /* RefactorApplyCard.swift */; };
 		78834A052CC770DA00385ECA /* ToneDeckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78834A042CC770DA00385ECA /* ToneDeckTests.swift */; };
 		78AC68E22C9D1BE000260BB3 /* CommentViewCOntroller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AC68E12C9D1BE000260BB3 /* CommentViewCOntroller.swift */; };
 		78AC68E62C9D79E800260BB3 /* ImageAdjustmentVIewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AC68E52C9D79E800260BB3 /* ImageAdjustmentVIewController.swift */; };
@@ -166,12 +164,10 @@
 		781D3A792CAFED7000273755 /* MeshGradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshGradient.swift; sourceTree = "<group>"; };
 		784E6BE62C9A773D004533C0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		7855CCF72CBCE5530014453D /* Initial Page View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Initial Page View.swift"; sourceTree = "<group>"; };
-		787046292CA29A1700BA7CC2 /* SecondApplyCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondApplyCardViewController.swift; sourceTree = "<group>"; };
 		7870462B2CA2E5F200BA7CC2 /* NoFilterCameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoFilterCameraView.swift; sourceTree = "<group>"; };
 		787046332CA5B03400BA7CC2 /* PlayfairDisplay-Italic-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Italic-VariableFont_wght.ttf"; sourceTree = "<group>"; };
 		787046352CA5B03F00BA7CC2 /* PlayfairDisplay-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-VariableFont_wght.ttf"; sourceTree = "<group>"; };
 		787DB7CE2C998F5300350DEC /* ProfilePageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePageViewController.swift; sourceTree = "<group>"; };
-		788349FC2CC6973C00385ECA /* RefactorApplyCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefactorApplyCard.swift; sourceTree = "<group>"; };
 		78834A022CC770DA00385ECA /* ToneDeckTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ToneDeckTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		78834A042CC770DA00385ECA /* ToneDeckTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneDeckTests.swift; sourceTree = "<group>"; };
 		78AC68E12C9D1BE000260BB3 /* CommentViewCOntroller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewCOntroller.swift; sourceTree = "<group>"; };
@@ -270,8 +266,6 @@
 				7870462B2CA2E5F200BA7CC2 /* NoFilterCameraView.swift */,
 				78AC68EA2CA1137A00260BB3 /* CustomCameraViewController.swift */,
 				780710562C9414FC0039B44C /* ApplyCardViewController.swift */,
-				788349FC2CC6973C00385ECA /* RefactorApplyCard.swift */,
-				787046292CA29A1700BA7CC2 /* SecondApplyCardViewController.swift */,
 				78AC68E52C9D79E800260BB3 /* ImageAdjustmentVIewController.swift */,
 				78BAF0512C97F61500A5B418 /* FeedViewController.swift */,
 				78BAF0532C980B0900A5B418 /* PhotoGridViewController.swift */,
@@ -736,7 +730,6 @@
 				781D3A502CAFAA5D00273755 /* FileManager++.swift in Sources */,
 				781D3A652CAFAA5D00273755 /* Public+MCameraErrorView.swift in Sources */,
 				781D3A5F2CAFAA5D00273755 /* Public+MCameraController.swift in Sources */,
-				788349FD2CC6973C00385ECA /* RefactorApplyCard.swift in Sources */,
 				781D3A722CAFAC7C00273755 /* NotificationCenter++.swift in Sources */,
 				7807105C2C9605430039B44C /* FilterManager.swift in Sources */,
 				78070FF42C918C1B0039B44C /* ToneDeckApp.swift in Sources */,
@@ -744,7 +737,6 @@
 				78BAF0522C97F61500A5B418 /* FeedViewController.swift in Sources */,
 				781D3A592CAFAA5D00273755 /* DefaultCameraView.swift in Sources */,
 				781D3A452CAFAA5D00273755 /* Animation++.swift in Sources */,
-				7870462A2CA29A1700BA7CC2 /* SecondApplyCardViewController.swift in Sources */,
 				781D3A612CAFAA5D00273755 /* Public+CameraManager.swift in Sources */,
 				781D3A532CAFAA5D00273755 /* UIView++.swift in Sources */,
 				781D3A552CAFAA5D00273755 /* CameraManager.swift in Sources */,

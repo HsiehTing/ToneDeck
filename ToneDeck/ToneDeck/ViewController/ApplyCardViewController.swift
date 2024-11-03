@@ -15,16 +15,16 @@ import Combine
 
 struct ApplyCardViewControllerWrapper: UIViewControllerRepresentable {
     let card: Card?
-
+    @StateObject var viewModel: ApplyCardViewModel
     func makeUIViewController(context: Context) -> ApplyCardViewController {
-        let viewController = ApplyCardViewController()
-        viewController.card = card
+        let viewController = ApplyCardViewController(viewModel: viewModel)
         return viewController
     }
 
     func updateUIViewController(_ uiViewController: ApplyCardViewController, context: Context) {}
 }
 struct ApplyCardView: View {
+    let card: Card? = nil
     @StateObject private var viewModel: ApplyCardViewModel
     @Environment(\.presentationMode) var presentationMode
 
@@ -49,15 +49,15 @@ struct ApplyCardView: View {
                     Spacer()
                 }
 
-                // Main content
-                CardPreviewView(viewModel: viewModel)
-
-                // Apply button
-                ApplyButton(viewModel: viewModel)
+                ApplyCardViewControllerWrapper(card: card, viewModel: viewModel)
+                               .edgesIgnoringSafeArea(.all)
+                Spacer()
             }
-            .padding()
+            Spacer()
         }
-        .navigationBarHidden(true)
+       // .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
+        .toolbar(.hidden, for: .tabBar)
     }
 }
 class ApplyCardViewModel: ObservableObject {
@@ -66,7 +66,7 @@ class ApplyCardViewModel: ObservableObject {
     @Published var scaledValues: [Float]?
     @Published var hueColor: Float?
 
-    let card: Card
+    @Published var card: Card?
     private let histogram = ImageHistogramCalculator()
     private let fireStoreService = FirestoreService()
     private let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
@@ -77,6 +77,11 @@ class ApplyCardViewModel: ObservableObject {
 
     // MARK: - Public Methods
     func processApplyFilter() -> UIImage? {
+
+        guard let card = card else {
+            print("card not found")
+            return nil
+        }
         guard let targetImage = targetImage else {
             print("No image selected from photo library.")
             return nil
@@ -108,6 +113,10 @@ class ApplyCardViewModel: ObservableObject {
     }
 
     func sendNotification() {
+        guard let card = card else {
+            print("card not found")
+            return
+        }
         guard fromUserID != card.creatorID else { return }
 
         let notifications = Firestore.firestore().collection("notifications")
@@ -144,6 +153,10 @@ class ApplyCardViewModel: ObservableObject {
         let scaledSaturation = (newValue[2] + 1) * saturationScale
         scaledValues = [scaledBrightness, scaledContrast, scaledSaturation]
     }
+    func updateTargetImage(_ image: UIImage) {
+        targetImage = image
+        isGradientHidden = true
+    }
 
     private func applyImageAdjustments(image: UIImage, smoothValues: [Float], hueAdjustment: Float) -> UIImage? {
         let orientation = image.imageOrientation
@@ -174,12 +187,14 @@ class ApplyCardViewModel: ObservableObject {
 }
 class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CameraViewControllerDelegate {
     private let viewModel: ApplyCardViewModel
-
     private let imageView = UIImageView()
     private let targetImageView = UIImageView()
     private let nameLabel = UILabel()
     private let applyButton = UIButton()
-    private var meshGradientView: UIKitMeshGradient!
+    private let iconImageView = UIImageView()
+    private let importLabel = UILabel()
+    var meshGradientView = UIKitMeshGradient(frame: CGRect(x: 0, y: 0, width: 250, height: 320))
+
 
     init(viewModel: ApplyCardViewModel) {
         self.viewModel = viewModel
@@ -192,82 +207,116 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        [imageView, nameLabel, targetImageView, applyButton].forEach { view.addSubview($0) }
         configureUI()
         setupBindings()
+
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.isNavigationBarHidden = true
+        navigationController?.setNavigationBarHidden(true, animated: animated)
     }
 
     private func configureUI() {
         view.backgroundColor = .black
-        configureImageViews()
         configureNameLabel()
+        configureImageViews()
         configureApplyButton()
         configureMeshGradient()
+        configIconImageView()
+        configImportLabel()
+        targetImageView.addSubview(meshGradientView)
+        meshGradientView.addSubview(iconImageView)
+        meshGradientView.addSubview(importLabel)
         setupConstraints()
     }
 
     private func configureImageViews() {
-        // Configure filter image view
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 25
-        imageView.kf.setImage(with: URL(string: viewModel.card.imageURL))
-        view.addSubview(imageView)
+        guard let card = viewModel.card else {
+                    print("cant find card")
+                    return
+                }
 
-        // Configure target image view
-        targetImageView.contentMode = .scaleAspectFill
-        targetImageView.clipsToBounds = true
-        targetImageView.layer.cornerRadius = 20
-        targetImageView.layer.borderWidth = 2
-        targetImageView.isUserInteractionEnabled = true
-        view.addSubview(targetImageView)
+                imageView.contentMode = .scaleAspectFill
+                imageView.clipsToBounds = true
+                imageView.layer.cornerRadius = 25
+                imageView.kf.setImage(with: URL(string: card.imageURL))
 
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(targetImageTapped))
-        targetImageView.addGestureRecognizer(tapGesture)
+                targetImageView.contentMode = .scaleAspectFill
+                targetImageView.clipsToBounds = true
+                targetImageView.layer.cornerRadius = 20
+                targetImageView.layer.borderWidth = 2
+                targetImageView.isUserInteractionEnabled = true
+
+                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(targetImageTapped))
+                targetImageView.addGestureRecognizer(tapGesture)
     }
 
     private func configureNameLabel() {
+        guard let card = viewModel.card else {
+            print ("cant find card")
+            return
+        }
         nameLabel.textColor = .white
         nameLabel.font = UIFont(name: "PlayfairDisplayItalic-Black", size: 42)
-        nameLabel.text = viewModel.card.cardName
-        view.addSubview(nameLabel)
+        nameLabel.text = card.cardName
+
     }
 
     private func configureApplyButton() {
+        guard let card = viewModel.card else {
+            print ("cant find card")
+            return
+        }
         let config = UIImage.SymbolConfiguration(pointSize: 30, weight: .medium, scale: .default)
         let image = UIImage(systemName: "apple.image.playground.fill", withConfiguration: config)
         applyButton.setImage(image, for: .normal)
         applyButton.tintColor = UIColor(
-            red: viewModel.card.dominantColor.red,
-            green: viewModel.card.dominantColor.green,
-            blue: viewModel.card.dominantColor.blue,
+            red: card.dominantColor.red,
+            green: card.dominantColor.green,
+            blue: card.dominantColor.blue,
             alpha: 1
         )
         applyButton.backgroundColor = UIColor(
-            red: viewModel.card.dominantColor.red,
-            green: viewModel.card.dominantColor.green,
-            blue: viewModel.card.dominantColor.blue,
+            red: card.dominantColor.red,
+            green: card.dominantColor.green,
+            blue: card.dominantColor.blue,
             alpha: 0.6
         )
         applyButton.alpha = 0.7
         applyButton.layer.cornerRadius = 10
         applyButton.addTarget(self, action: #selector(didTapApply), for: .touchUpInside)
-        view.addSubview(applyButton)
+
     }
 
     private func configureMeshGradient() {
+        guard let card = viewModel.card else {
+            print ("cant find card")
+            return
+        }
         meshGradientView = UIKitMeshGradient(frame: .zero)
         meshGradientView.setTargetColorRGBA(
-            red: viewModel.card.dominantColor.red,
-            green: viewModel.card.dominantColor.green,
-            blue: viewModel.card.dominantColor.blue,
+            red: card.dominantColor.red,
+            green: card.dominantColor.green,
+            blue: card.dominantColor.blue,
             alpha: 1
         )
-        targetImageView.addSubview(meshGradientView)
+    }
+
+    private func configIconImageView() {
+               iconImageView.image = UIImage(systemName: "square.and.arrow.down.fill")
+        iconImageView.alpha = 0.3
+    }
+    private func configImportLabel() {
+        importLabel.text = "Import photo"
+        importLabel.font = UIFont(name: "PlayfairDisplay-Regular", size: 32)
+        importLabel.textAlignment = .center
     }
 
     private func setupConstraints() {
-        let views = [imageView, nameLabel, targetImageView, applyButton, meshGradientView]
-        views.forEach { $0?.translatesAutoresizingMaskIntoConstraints = false }
+        let views = [imageView, nameLabel, targetImageView, applyButton, meshGradientView, iconImageView, importLabel]
+        views.forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
 
         let screenWidth = UIScreen.main.bounds.width
 
@@ -290,22 +339,31 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             targetImageView.heightAnchor.constraint(equalTo: targetImageView.widthAnchor, multiplier: 0.8),
 
             // Mesh Gradient View
-            meshGradientView.topAnchor.constraint(equalTo: targetImageView.topAnchor),
-            meshGradientView.leadingAnchor.constraint(equalTo: targetImageView.leadingAnchor),
-            meshGradientView.trailingAnchor.constraint(equalTo: targetImageView.trailingAnchor),
-            meshGradientView.bottomAnchor.constraint(equalTo: targetImageView.bottomAnchor),
+            meshGradientView.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
+            meshGradientView.centerYAnchor.constraint(equalTo: targetImageView.centerYAnchor),
+            meshGradientView.widthAnchor.constraint(equalTo: targetImageView.widthAnchor),
+            meshGradientView.heightAnchor.constraint(equalTo: targetImageView.heightAnchor),
 
             // Apply Button
             applyButton.topAnchor.constraint(equalTo: targetImageView.bottomAnchor, constant: 0.05 * screenWidth),
             applyButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             applyButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            applyButton.widthAnchor.constraint(equalToConstant: 80),
-            applyButton.heightAnchor.constraint(equalToConstant: 30)
+            applyButton.widthAnchor.constraint(equalToConstant: 100),
+            applyButton.heightAnchor.constraint(equalToConstant: 80),
+
+            iconImageView.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
+            iconImageView.centerYAnchor.constraint(equalTo: meshGradientView.centerYAnchor, constant: screenWidth * -0.025),
+            iconImageView.widthAnchor.constraint(equalToConstant: screenWidth * 0.3),
+            iconImageView.heightAnchor.constraint(equalToConstant: screenWidth * 0.3),
+            importLabel.topAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: screenWidth * 0.025),
+
+            importLabel.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
+            importLabel.widthAnchor.constraint(equalToConstant: screenWidth * 0.5),
+            importLabel.heightAnchor.constraint(equalToConstant: screenWidth * 0.09)
         ])
     }
 
     private func setupBindings() {
-        // Observe ViewModel's published properties
         var cancellables = Set<AnyCancellable>()
         viewModel.$targetImage.sink { [weak self] image in
             self?.targetImageView.image = image
@@ -338,10 +396,14 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     }
 
     @objc private func didTapApply() {
+        guard let card = viewModel.card else {
+            print ("cant find card")
+            return
+        }
         guard let outputImage = viewModel.processApplyFilter() else { return }
         viewModel.sendNotification()
 
-        let imageAdjustmentView = ImageAdjustmentView(card: viewModel.card, originalImage: outputImage) { [weak self] in
+        let imageAdjustmentView = ImageAdjustmentView(card: card, originalImage: outputImage) { [weak self] in
             self?.dismiss(animated: true) {
                 self?.navigationController?.popViewController(animated: true)
             }
@@ -352,17 +414,23 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     }
 
     // MARK: - UIImagePickerControllerDelegate
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        if let selectedImage = info[.originalImage] as? UIImage {
-            viewModel.updateTargetImage(selectedImage)
+    func imagePickerController(_ picker: UIImagePickerController,
+                                 didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+            if let selectedImage = info[.originalImage] as? UIImage {
+                viewModel.targetImage = selectedImage
+                meshGradientView.isHidden = true
+                targetImageView.image = selectedImage
+            }
+            dismiss(animated: true)
         }
-        dismiss(animated: true)
-    }
+
 
     // MARK: - CameraViewControllerDelegate
     func didCapturePhoto(_ image: UIImage) {
-        viewModel.updateTargetImage(image)
-    }
+            viewModel.targetImage = image
+            meshGradientView.isHidden = true
+            targetImageView.image = image
+        }
 
     func presentPhotoLibrary() {
         let picker = UIImagePickerController()
@@ -617,11 +685,9 @@ class ApplyCardViewControllerUnfactor: UIViewController, UIImagePickerController
     }
     @objc func targetImageTapped() {
         let alert = UIAlertController(title: "Select Image", message: "Choose from photo library or camera", preferredStyle: .actionSheet)
-        // Photo library option
         let photoLibraryAction = UIAlertAction(title: "Photo Library", style: .default) { _ in
             self.presentPhotoLibrary()
         }
-        // Camera option
         let cameraAction = UIAlertAction(title: "Camera", style: .default) { _ in
             var cameraVC = NoFilterCameraView(){_ in
 
@@ -660,7 +726,8 @@ class ApplyCardViewControllerUnfactor: UIViewController, UIImagePickerController
             targetImage = image
         targetImageView.contentMode = .scaleAspectFill
         targetImageView.clipsToBounds = true
-            targetImageView.image = image
+        targetImage = image
+        targetImageView.image = image
 
         }
     func sendNotification(card: Card) {

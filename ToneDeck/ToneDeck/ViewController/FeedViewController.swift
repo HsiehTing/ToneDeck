@@ -77,33 +77,30 @@ struct FeedView: View {
                 }
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 10) {
-                        ForEach(
-                            firestoreService.posts
-                                .filter { post in
-                                    !blockPostsArray.contains(post.id ?? "") &&
-                                    {
-                                        guard let blockUserArray = firestoreService.user?.blockUserArray else {
-                                            return true
-                                        }
-                                        guard let followingUserArray = firestoreService.user?.followingArray else {
-                                            return true
-                                        }
-                                        if selected == segments[0] {
-                                            return !blockUserArray.contains(post.creatorID) && post.isPrivate == false
-                                        } else {
-                                            return !blockUserArray.contains(post.creatorID) && followingUserArray.contains(post.creatorID)
-                                        }
-                                    }()
-                                }
-                                .sorted(by: { ($0.createdTime.dateValue()) > ($1.createdTime.dateValue()) })
-                        ) { post in
-                            VStack {
+                        let filteredPosts = firestoreService.posts
+                            .filter { post in
+                                !blockPostsArray.contains(post.id ?? "") &&
+                                {
+                                    guard let blockUserArray = firestoreService.user?.blockUserArray else {
+                                        return true
+                                    }
+                                    guard let followingUserArray = firestoreService.user?.followingArray else {
+                                        return true
+                                    }
+                                    if selected == segments[0] {
+                                        return !blockUserArray.contains(post.creatorID) && post.isPrivate == false
+                                    } else {
+                                        return !blockUserArray.contains(post.creatorID) && followingUserArray.contains(post.creatorID)
+                                    }
+                                }()
+                            }
+                            .sorted(by: { ($0.createdTime.dateValue()) > ($1.createdTime.dateValue()) })
 
+                        ForEach(Array(filteredPosts.enumerated()), id: \.element.id) { _, post in
+                            VStack {
                                 if let cardID = post.cardID,
                                    let card = firestoreService.cardsDict[cardID] {
-                                    PostView(post: post, card: card, path: $path, blockPostsArray: $blockPostsArray)
-                                } else {
-                                    PostView(post: post, card: nil, path: $path, blockPostsArray: $blockPostsArray)
+                                    PostView(viewModel: PostViewModel(post: post, card: card, blockPostsArray: blockPostsArray), path: $path)
                                 }
                             }
                         }
@@ -128,7 +125,7 @@ struct FeedView: View {
                     case .addPost:
                         PhotoGridView(path: $path)
                     case .applyCard(let card):
-                        SecondApplyCardView(card: card)
+                        ApplyCardView(card: card)
                     case .visitProfile(let postCreatorID):
                         ProfilePageView(userID: postCreatorID)
                             .onDisappear {
@@ -140,118 +137,31 @@ struct FeedView: View {
         }
     }
 
-
-
     private func loadBlockedPosts() {
         if let blockedPosts = UserDefaults.standard.array(forKey: "blockPostsArray") as? [String] {
             blockPostsArray = blockedPosts
         }
     }
 }
+class PostViewModel: ObservableObject {
 
-struct PostView: View {
-    let post: Post
-    let card: Card?
-    let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
-    let fireStoreService = FirestoreService()
-    @Binding var path: [FeedDestination]
-    @State private var isStarred: Bool = false
-    @State private var isCommentViewPresented: Bool = false
-    @State private var userAvatarURL: String = ""
-    @State private var showReportAlert = false
-    @Binding var blockPostsArray:  [String]
-    let alertcopyView = AlertAppleMusic17View(title: nil, subtitle: "Thanks for reporting this post", icon: .done)
-
-    var body: some View {
-        VStack(alignment: .leading) {
-            KFImage(URL(string: post.imageURL))
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(maxWidth: .infinity, maxHeight: 400)
-                .padding()
-                .clipped()
-                .overlay( HStack {
-                    Spacer()
-                    VStack {
-                        Spacer()
-                        if let card = card {
-                            PostButtonsView(card: card, path: $path)
-
-                        }
-
-                    }
-                }
-                    .cornerRadius(10)
-                    .shadow(radius: 5)
-                    .padding([.leading, .trailing])
-
-                )
-            HStack {
-                if post.creatorID != fromUserID {
-                    HStack {
-                        Menu {
-                            Button {
-                                reportPost(post: post)
-                                showReportAlert = true
-                            } label: {
-                                Text("Report Post")
-                                    .alert(isPresent: $showReportAlert, view: alertcopyView)
-
-                            }
-
-                        } label: {
-                            Image(systemName: "ellipsis")
-                                .foregroundColor(.white)
-                                .padding(20)
-                                .background(Color.black.opacity(0.5))
-                                .clipShape(Circle())
-
-                        }
-                        .padding(.trailing)
-                        .buttonStyle(PlainButtonStyle())
-                    }
-                }
-
-                Spacer()
-                Button(action: {
-                    toggleLike()
-                }) {
-                    Image(systemName: isStarred ?"capsule.fill" :"capsule" )
-                        .padding()
-                        .background(Color.black.opacity(0.5))
-                        .foregroundColor(isStarred ? .cyan  : .white) // Change color based on state
-                        .clipShape(Circle())
-
-                }
-                .buttonStyle(PlainButtonStyle())
-                Button(action: {
-                    loadUserAvatar()  // Load user avatar before presenting the view
-                    isCommentViewPresented = true
-                }) {
-                    Image(systemName: "bubble.right")
-                        .padding()
-                        .background(Color.black.opacity(0.5))
-                        .foregroundColor(.white)
-                        .clipShape(Circle())
-
-                }
-                .buttonStyle(PlainButtonStyle())
-                .sheet(isPresented: $isCommentViewPresented) {
-                    CommentView(post: post, postID: post.id, userID: fromUserID ?? "", userAvatarURL: userAvatarURL)
-                }
-            }
-            Text(post.text)
-                .font(.caption)
-                .padding()
-            PostInfoView(post: post, path: $path)
-
-        }
-        .background(Color.black)
-        .frame(maxWidth: .infinity, maxHeight: 800)
-        .onAppear {
-            fireStoreService.fetchUserData(userID: fromUserID ?? "")
-            checkIfStarred()
-        }
+    @Published var post: Post
+    @Published var card: Card
+    @Published var isStarred: Bool = false
+    @Published var isCommentViewPresented: Bool = false
+    @Published var userAvatarURL: String = ""
+    @Published var showReportAlert = false
+    @Published var blockPostsArray: [String]
+     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
+     let fireStoreService = FirestoreService()
+    init(post: Post, card: Card, isStarred: Bool = false, isCommentViewPresented: Bool = false, userAvatarURL: String = "", showReportAlert: Bool = false, blockPostsArray: [String]) {
+        self.post = post
+        self.card = card
+        self.isStarred = isStarred
+        self.isCommentViewPresented = isCommentViewPresented
+        self.userAvatarURL = userAvatarURL
+        self.showReportAlert = showReportAlert
+        self.blockPostsArray = blockPostsArray
     }
     func toggleLike() {
         if isStarred {
@@ -262,6 +172,7 @@ struct PostView: View {
         isStarred.toggle()
     }
     func checkIfStarred() {
+       // guard let post = post else {return}
         guard let fromUserID = fromUserID else {return}
         if post.likerIDArray.contains(fromUserID) {
             isStarred = true
@@ -271,7 +182,6 @@ struct PostView: View {
     }
 
     func addUserToLikerArray() {
-
         guard let fromUserID = fromUserID else {return}
         let postRef = Firestore.firestore().collection("posts").document(post.id)
         postRef.updateData([
@@ -301,7 +211,6 @@ struct PostView: View {
 
     func removeUserFromLikerArray() {
         guard let fromUserID = fromUserID else {return}
-
         let postRef = Firestore.firestore().collection("posts").document(post.id)
         postRef.updateData([
             "likerIDArray": FieldValue.arrayRemove([fromUserID])
@@ -331,11 +240,112 @@ struct PostView: View {
             }
         }
     }
-    private func reportPost(post: Post) {
+     func reportPost(post: Post) {
         let postID = post.id
         blockPostsArray.append(postID)
         UserDefaults.standard.set(blockPostsArray, forKey: "blockPostsArray")
 
+    }
+
+}
+struct PostView: View {
+
+    @ObservedObject var viewModel: PostViewModel
+
+    @Binding var path: [FeedDestination]
+    let alertcopyView = AlertAppleMusic17View(title: nil, subtitle: "Thanks for reporting this post", icon: .done)
+
+    var body: some View {
+        VStack(alignment: .leading) {
+
+            KFImage(URL(string: viewModel.post.imageURL))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(maxWidth: .infinity, maxHeight: 400)
+                    .padding()
+                    .clipped()
+                    .overlay( HStack {
+                        Spacer()
+                        VStack {
+                            Spacer()
+
+                            PostButtonsView(card: viewModel.card, path: $path)
+
+                        }
+                    }
+                        .cornerRadius(10)
+                        .shadow(radius: 5)
+                        .padding([.leading, .trailing])
+
+                    )
+
+            HStack {
+                if viewModel.post.creatorID != viewModel.fromUserID {
+                        HStack {
+                            Menu {
+                                Button {
+                                    viewModel.reportPost(post: viewModel.post)
+                                    viewModel.showReportAlert = true
+                                } label: {
+                                    Text("Report Post")
+                                        .alert(isPresent: $viewModel.showReportAlert, view: alertcopyView)
+
+                                }
+
+                            } label: {
+                                Image(systemName: "ellipsis")
+                                    .foregroundColor(.white)
+                                    .padding(20)
+                                    .background(Color.black.opacity(0.5))
+                                    .clipShape(Circle())
+
+                            }
+                            .padding(.trailing)
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+                Spacer()
+                Button(action: {
+                    viewModel.toggleLike()
+                }) {
+                    Image(systemName: viewModel.isStarred ?"capsule.fill" :"capsule" )
+                        .padding()
+                        .background(Color.black.opacity(0.5))
+                        .foregroundColor(viewModel.isStarred ? .cyan  : .white) // Change color based on state
+                        .clipShape(Circle())
+
+                }
+                .buttonStyle(PlainButtonStyle())
+                Button(action: {
+                    viewModel.loadUserAvatar()  // Load user avatar before presenting the view
+                    viewModel.isCommentViewPresented = true
+                }) {
+                    Image(systemName: "bubble.right")
+                        .padding()
+                        .background(Color.black.opacity(0.5))
+                        .foregroundColor(.white)
+                        .clipShape(Circle())
+
+                }
+                .buttonStyle(PlainButtonStyle())
+                .sheet(isPresented: $viewModel.isCommentViewPresented) {
+                    CommentView(post: viewModel.post, postID: viewModel.post.id, userID: viewModel.fromUserID ?? "", userAvatarURL: viewModel.userAvatarURL)
+
+                }
+            }
+            Text(viewModel.post.text)
+                    .font(.caption)
+                    .padding()
+
+            PostInfoView(post: viewModel.post, path: $path)
+
+        }
+        .background(Color.black)
+        .frame(maxWidth: .infinity, maxHeight: 800)
+        .onAppear {
+            viewModel.fireStoreService.fetchUserData(userID: viewModel.fromUserID ?? "")
+            viewModel.checkIfStarred()
+        }
     }
 }
 struct PostButtonsView: View {

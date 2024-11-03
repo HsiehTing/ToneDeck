@@ -23,25 +23,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                 return false
             }
 
-            handleUniversalLink(url: url)
+           
 
             return true
         }
 
-        func handleUniversalLink(url: URL) {
-            print("Received Universal Link: \(url.absoluteString)")
-
-            if url.path == "/applyCard" {
-               
-                navigateToApplyCard()
-            }
-        }
-
-        func navigateToApplyCard() {
-            // 假设使用 UINavigationController 进行页面导航
-            if let rootVC = UIApplication.shared.windows.first?.rootViewController as? UINavigationController {
-                let applyCardVC = ApplyCardViewController()
-                rootVC.pushViewController(applyCardVC, animated: true)
-            }
-        }
 }
