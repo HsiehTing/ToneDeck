@@ -112,7 +112,6 @@ struct NotificationPageView: View {
                     NotificationRow(notification: notification)
                         .padding(.horizontal)
                 }
-
             }
             .onAppear {
                 viewModel.fetchNotification()

@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct AfterSignInContentView: View {
-    
     let firestoreService = FirestoreService()
     var body: some View {
         TabView {
