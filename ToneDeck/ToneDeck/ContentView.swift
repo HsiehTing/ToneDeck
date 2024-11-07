@@ -52,11 +52,6 @@ struct AfterSignInContentView: View {
             }            
         }
         .tint(.gray)
-        .onAppear {
-            firestoreService.fetchNotifications()
-           
-                   }
-       
     }
 
 
