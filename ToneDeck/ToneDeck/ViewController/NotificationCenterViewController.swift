@@ -17,18 +17,40 @@ enum NotificationType: String, Codable {
 }
 class NotificationViewModel: ObservableObject {
     @StateObject private var firestoreService = FirestoreService()
+    @Published var notifications: [Notification] = []
     @Published var isFollowed :Bool
     init(isFollowed: Bool = false) {
         self.isFollowed = isFollowed
     }
     @Published var user: User?
     func fetchNotification () {
-        firestoreService.fetchNotifications()
+        firestoreService.fetchNotifications { [weak self] result in
+            switch result {
+            case .success(let notifications):
+                DispatchQueue.main.async {
+                    self?.notifications = notifications
+                }
+            case .failure(let error):
+                print("Error fetching notifications: \(error)")
+            }
+        }
+
     }
     func testToggleFollow() {
         self.isFollowed.toggle()
     }
-
+    func fetchNotifications() {
+            firestoreService.fetchNotifications { [weak self] result in
+                switch result {
+                case .success(let notifications):
+                    DispatchQueue.main.async {
+                        self?.notifications = notifications
+                    }
+                case .failure(let error):
+                    print("Error fetching notifications: \(error)")
+                }
+            }
+        }
     func toggleFollow(user: User) {
         let firestoreService = FirestoreService()
         if self.isFollowed {
@@ -57,6 +79,7 @@ class NotificationViewModel: ObservableObject {
             }
     }
     func fetchUser(fromUserID: String) {
+
         let db = Firestore.firestore()
         let userRef = db.collection("users").whereField("id", isEqualTo: fromUserID)
         userRef.addSnapshotListener { querySnapshot, error in
@@ -85,36 +108,20 @@ struct NotificationPageView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                ForEach(firestoreService.notifications.sorted(by: {  ($0.createdTime.dateValue()) > ($1.createdTime.dateValue())  })) { notification in
+                ForEach(viewModel.notifications.sorted(by: {  ($0.createdTime.dateValue()) > ($1.createdTime.dateValue())  })) { notification in
                     NotificationRow(notification: notification)
                         .padding(.horizontal)
                 }
+
             }
             .onAppear {
-
                 viewModel.fetchNotification()
+            }
+        }
+        .navigationTitle("Notifications")
+    }
+}
 
-            }
-        }
-        .navigationTitle("Notifications")
-    }
-}
-struct NotificationsView: View {
-    let notifications: [Notification] = [ ]
-    let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
-    
-    var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                ForEach(notifications) { notification in
-                    NotificationRow(notification: notification)
-                        .padding(.horizontal)
-                }
-            }
-        }
-        .navigationTitle("Notifications")
-    }
-}
 struct NotificationRow: View {
     @StateObject private var viewModel = NotificationViewModel()
     let notification: Notification
@@ -156,7 +163,7 @@ struct NotificationRow: View {
             Spacer()
         }
         .onAppear {
-            viewModel.fetchUser(fromUserID: notification.from)  // 根據 fromUserID 取得對應的 User
+            viewModel.fetchUser(fromUserID: notification.from)
         }
     }
 }

@@ -217,37 +217,53 @@ class FirestoreService: ObservableObject {
         }
     }
 
-    func fetchNotifications() {
-        db.collection("notifications").whereField("to", isEqualTo: fromUserID).whereField("from", isNotEqualTo: fromUserID).addSnapshotListener { querySnapshot, error in
-                if let error = error {
-                    print("Error fetching notifications: \(error)")
-                    return
-                }
-
-                guard let documents = querySnapshot?.documents else { return }
-                self.notifications = documents.compactMap { document -> Notification? in
-                    do {
-                        let notification = try document.data(as: Notification.self)
-                        return notification
-                    } catch {
-                        print("Error decoding notification: \(error)")
-                        return nil
-                    }
-                }
-            }
-        }
-//    func fetchUserName(for userID: String) {
-//            let userRef = db.collection("users").whereField("id", isEqualTo: userID)
-//            userRef.getDocuments { snapshot, error in
+//    func fetchNotifications() {
+//        db.collection("notifications")
+//            .whereField("to", isEqualTo: fromUserID)
+//            .whereField("from", isNotEqualTo: fromUserID)
+//            .addSnapshotListener { querySnapshot, error in
 //                if let error = error {
-//                    print("Error fetching user: \(error)")
-//                } else if let snapshot = snapshot, let document = snapshot.documents.first {
-//                    if let user = try? document.data(as: User.self) {
-//                        userName = user.userName  // 更新用户名
+//                    print("Error fetching notifications: \(error)")
+//                    return
+//                }
+//
+//                guard let documents = querySnapshot?.documents else { 
+//                    return }
+//                self.notifications = documents.compactMap { document -> Notification? in
+//                    do {
+//                        let notification = try document.data(as: Notification.self)
+//                        return notification
+//                    } catch {
+//                        print("Error decoding notification: \(error)")
+//                        return nil
 //                    }
 //                }
 //            }
 //        }
+    func fetchNotifications(completion: @escaping (Result<[Notification], Error>) -> Void) {
+            // 原有的 fetch 邏輯
+            db.collection("notifications")
+                .whereField("to", isEqualTo: fromUserID)
+                .whereField("from", isNotEqualTo: fromUserID)
+                .addSnapshotListener { querySnapshot, error in
+                    if let error = error {
+                        completion(.failure(error))
+                        return
+                    }
+
+                    guard let documents = querySnapshot?.documents else {
+                        completion(.success([]))
+                        return
+                    }
+
+                    let notifications = documents.compactMap { document -> Notification? in
+                        try? document.data(as: Notification.self)
+                    }
+
+                    completion(.success(notifications))
+                }
+        }
+
     func fetchPostsfromProfile(postIDs: [String]) {
         let validPostIDs = postIDs.filter { !$0.isEmpty }
         guard !validPostIDs.isEmpty else {
