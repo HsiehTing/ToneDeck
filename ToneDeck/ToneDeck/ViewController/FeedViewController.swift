@@ -356,10 +356,10 @@ struct PostButtonsView: View {
         HStack {
 
             Button(action: {
-                if path.last != .applyCard(card: card) { // 防止重复导航
+                if path.last != .applyCard(card: card) {
                     path.append(.applyCard(card: card))
                 }
-                print("Navigating to applyCard with card \(card.cardName)")  // Debugging print
+                print("Navigating to applyCard with card \(card.cardName)")  
             }) {
                 Text(card.cardName)
                     .font(.title3)
