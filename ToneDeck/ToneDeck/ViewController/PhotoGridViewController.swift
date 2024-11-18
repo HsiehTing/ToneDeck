@@ -71,10 +71,10 @@ struct PhotoGridView: View {
                     if let unwrappedPhoto = selectedPhoto {
                         NavigationLink(
 
-                            destination: TextInputView(photo: selectedPhoto ?? Photo(id: "", imageURL: "", cardID: "", creatorID: "", createdTime: Timestamp()), onDismiss: {
-
+                            destination: TextInputView(photo: selectedPhoto ?? Photo(id: "", imageURL: "", cardID: "", creatorID: "", createdTime: Timestamp()), path: $path, onDismiss: {
+                                
                                 isFeedViewActive = true
-                            }, path: $path),
+                            }),
                             isActive: $isTextInputActive,
                             label: { EmptyView() }
                         )
