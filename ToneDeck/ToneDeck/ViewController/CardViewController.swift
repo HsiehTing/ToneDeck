@@ -22,6 +22,7 @@ struct CardViewController: View {
     @State var isLoading = true
     @StateObject private var firestoreService = FirestoreService()
     @State var path: [CardDestination] = []
+    @State var feedPath: [FeedDestination] = []
     @State private var isSearchActive = false
     @State var textFieldText : String = ""
     @State private var showingImageSourceAlert = false
@@ -140,11 +141,11 @@ struct CardViewController: View {
                     case .camera(let filterData):
                         CameraView(filterData: filterData, path: $path)
                     case .applyCard(let card):
-                        ApplyCardView(card: card)
+                        ApplyCardView(card: card, path: $feedPath)
                     case .addCard:
                         AddCardViewController(path: $path)
                     case .searchCard(card: let card):
-                        ApplyCardView(card: card)
+                        ApplyCardView(card: card, path: $feedPath)
                     }
                 }
             }
