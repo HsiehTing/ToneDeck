@@ -26,20 +26,24 @@ struct ApplyCardViewControllerWrapper: UIViewControllerRepresentable {
 struct ApplyCardView: View {
     let card: Card? = nil
     @StateObject private var viewModel: ApplyCardViewModel
+    @Binding var path : [FeedDestination]
     @Environment(\.presentationMode) var presentationMode
 
-    init(card: Card) {
+    init(card: Card, path: Binding<[FeedDestination]>) {
         _viewModel = StateObject(wrappedValue: ApplyCardViewModel(card: card))
+        _path = path
     }
+
 
     var body: some View {
         ZStack {
             Color.black.edgesIgnoringSafeArea(.all)
 
             VStack(spacing: 12) {
-                // Back button
+                
                 HStack {
                     Button(action: {
+                        path.removeAll()
                         presentationMode.wrappedValue.dismiss()
                     }) {
                         Image(systemName: "chevron.left")
