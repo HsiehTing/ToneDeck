@@ -407,7 +407,8 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         guard let outputImage = viewModel.processApplyFilter() else { return }
         viewModel.sendNotification()
 
-        let imageAdjustmentView = ImageAdjustmentView(card: card, originalImage: outputImage) { [weak self] in
+
+        let imageAdjustmentView = ImageAdjustmentView(originalImage: outputImage, card: card) { [weak self] in
             self?.dismiss(animated: true) {
                 self?.navigationController?.popViewController(animated: true)
             }
@@ -640,7 +641,7 @@ class ApplyCardViewControllerUnfactor: UIViewController, UIImagePickerController
         }
 
 
-        let imageAdjustmentView = ImageAdjustmentView(card: card, originalImage: outputImage) { [weak self] in
+        let imageAdjustmentView = ImageAdjustmentView(originalImage: outputImage, card: card) { [weak self] in
 
             self?.dismiss(animated: true, completion: {
 

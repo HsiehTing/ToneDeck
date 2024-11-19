@@ -15,7 +15,7 @@ class TextInputViewModel: ObservableObject {
     @Published var postText: String = ""
     @Published private(set) var isLoading: Bool = false
     @Published private(set) var error: Error?
-
+    @Environment(\.presentationMode) var presentationMode
     private var cancellables = Set<AnyCancellable>()
     let photo: Photo
     private let onDismiss: (() -> Void)?
@@ -134,6 +134,7 @@ struct TextInputView: View {
             .padding()
             Button(action: {
                 viewModel.publishPost()
+                path.removeAll()
             }) {
 
                 if viewModel.isLoading {
