@@ -12,20 +12,23 @@ import FirebaseStorage
 import Firebase
 import Photos
 
-struct ImageAdjustmentView: View {
+class ImageAdjustmentViewModel: ObservableObject {
     @Environment(\.presentationMode) var presentationMode
-    @State private var brightness: CGFloat = 0.0
-    @State private var contrast: CGFloat = 1.0
-    @State private var saturation: CGFloat = 1.0
-    @State private var hueAdjustment: CGFloat = 0.0
-    @State private var grain: CGFloat = 0.0
-    @State var card: Card
-    @State private var isAnimationTriggered: Bool? = false
-    @State private var adjustedImage: UIImage?
-    @State private var selectedFilter: FilterType = .brightness
-    let originalImage: UIImage
-    let saveToLibrary = SaveToLibrary()
-    var onDismiss: (() -> Void)?
+    @Published var isAnimationTriggered: Bool? = false
+    @Published var adjustedImage: UIImage?
+    @Published var brightness: CGFloat = 0.0
+    @Published var grain: CGFloat = 0.0
+    @Published var contrast: CGFloat = 1.0
+    @Published var saturation: CGFloat = 1.0
+    @Published var hueAdjustment: CGFloat = 0.0
+    @Published private var originalImage: UIImage
+    @Published var selectedFilter: FilterType = .brightness
+
+    init(adjustedImage: UIImage? = nil, originalImage: UIImage) {
+        self.adjustedImage = adjustedImage
+        self.originalImage = originalImage
+
+    }
 
     enum FilterType: String, CaseIterable, Identifiable {
         case brightness = "circle.lefthalf.striped.horizontal"
@@ -35,18 +38,49 @@ struct ImageAdjustmentView: View {
         case grain = "seal"
         var id: String { self.rawValue }
     }
-   
+
+    func applyAdjustments() {
+        adjustedImage = applyImageAdjustments(
+            image: originalImage,
+            smoothValues: [Float(brightness), Float(contrast), Float(saturation)],
+            hueAdjustment: Float(hueAdjustment), grainIntensity: Float(grain), grainSize: 2
+        )
+    }
+}
+
+struct ImageAdjustmentView: View {
+
+    @StateObject private var viewModel: ImageAdjustmentViewModel
+    let originalImage: UIImage
+    let saveToLibrary = SaveToLibrary()
+    let card: Card
+    var onDismiss: (() -> Void)?
+    init(originalImage: UIImage, card: Card, onDismiss: ( () -> Void)? = nil) {
+        _viewModel = StateObject(wrappedValue: ImageAdjustmentViewModel(originalImage: originalImage))
+        self.originalImage = originalImage
+        self.card = card
+        self.onDismiss = onDismiss
+    }
+//    enum FilterType: String, CaseIterable, Identifiable {
+//        case brightness = "circle.lefthalf.striped.horizontal"
+//        case contrast = "righttriangle"
+//        case saturation = "drop.halffull"
+//        case hue = "swirl.circle.righthalf.filled"
+//        case grain = "seal"
+//        var id: String { self.rawValue }
+//    }
+
     var body: some View {
         Spacer()
          VStack {
              HStack{
                  Spacer()
                  Button(action: {
-                     if let image = adjustedImage {
+                     if let image = viewModel.adjustedImage {
                          saveToLibrary.saveImageToPhotoLibrary(image: image, card: card)
                          saveToLibrary.addPhotoData(image: image, card: card)
                          onDismiss?()
-                         self.presentationMode.wrappedValue.dismiss()
+                         viewModel.presentationMode.wrappedValue.dismiss()
                      }
                  }) {
                      Text("Save")
@@ -62,19 +96,19 @@ struct ImageAdjustmentView: View {
                  .buttonStyle(PlainButtonStyle())
              }
              Spacer()
-             if let adjustedImage = adjustedImage {
+             if let adjustedImage = viewModel.adjustedImage {
                  Image(uiImage: adjustedImage)
                      .resizable()
                      .scaledToFit()
                      .frame(maxWidth: .infinity)
-                     .bannerAnimation(isTriggered: isAnimationTriggered ?? true)
+                     .bannerAnimation(isTriggered: viewModel.isAnimationTriggered ?? true)
                      .padding()
 
              }
 
              Spacer()
 
-             switch selectedFilter {
+             switch viewModel.selectedFilter {
              case .brightness:
                  Text("Brightness")
                      .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
@@ -91,36 +125,36 @@ struct ImageAdjustmentView: View {
                  Text("Grain")
                      .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
              }
-             switch selectedFilter {
+             switch viewModel.selectedFilter {
              case .brightness:
-                 Text("\(brightness, specifier: "%.2f")")
-                 MeshingSlider(value: $brightness, colors: [.gray, .white], range: -1...1)
-                     .onChange(of: brightness) { _ in applyAdjustments() }
+                 Text("\(viewModel.brightness, specifier: "%.2f")")
+                 MeshingSlider(value: $viewModel.brightness, colors: [.gray, .white], range: -1...1)
+                     .onChange(of: viewModel.brightness) { _ in applyAdjustments() }
                      .frame(height: 70)
              case .contrast:
-                 Text("\(contrast, specifier: "%.2f")")
-                 MeshingSlider(value: $contrast, colors: [.gray, .white], range: 0.5...2)
-                     .onChange(of: contrast) { _ in applyAdjustments() }
+                 Text("\(viewModel.contrast, specifier: "%.2f")")
+                 MeshingSlider(value: $viewModel.contrast, colors: [.gray, .white], range: 0.5...2)
+                     .onChange(of: viewModel.contrast) { _ in applyAdjustments() }
                      .frame(height: 70)
              case .saturation:
-                 Text("\(saturation, specifier: "%.2f")")
-                 MeshingSlider(value: $saturation, colors: [.gray, .white], range: 0...2)
-                     .onChange(of: saturation) { _ in applyAdjustments() }
+                 Text("\(viewModel.saturation, specifier: "%.2f")")
+                 MeshingSlider(value: $viewModel.saturation, colors: [.gray, .white], range: 0...2)
+                     .onChange(of: viewModel.saturation) { _ in applyAdjustments() }
                      .frame(height: 70)
              case .hue:
-                 Text("\(hueAdjustment, specifier: "%.2f")")
-                 MeshingSlider(value: $hueAdjustment, colors: [.gray, .white], range: -CGFloat.pi...CGFloat.pi)
-                     .onChange(of: hueAdjustment) { _ in applyAdjustments() }
+                 Text("\(viewModel.hueAdjustment, specifier: "%.2f")")
+                 MeshingSlider(value: $viewModel.hueAdjustment, colors: [.gray, .white], range: -CGFloat.pi...CGFloat.pi)
+                     .onChange(of: viewModel.hueAdjustment) { _ in applyAdjustments() }
                      .frame(height: 70)
              case .grain:
-                 Text("\(grain, specifier: "%.2f")")
-                 MeshingSlider(value: $grain, colors: [.gray, .white], range: -1...1)
-                     .onChange(of: grain) { _ in applyAdjustments() }
+                 Text("\(viewModel.grain, specifier: "%.2f")")
+                 MeshingSlider(value: $viewModel.grain, colors: [.gray, .white], range: -1...1)
+                     .onChange(of: viewModel.grain) { _ in applyAdjustments() }
                      .frame(height: 70)
              }
 
-             Picker("Select Filter", selection: $selectedFilter) {
-                 ForEach(FilterType.allCases) { filter in
+             Picker("Select Filter", selection: $viewModel.selectedFilter) {
+                 ForEach(ImageAdjustmentViewModel.FilterType.allCases) { filter in
                      Image(systemName: filter.rawValue).tag(filter)
                  }
              }
@@ -132,18 +166,151 @@ struct ImageAdjustmentView: View {
          .backgroundStyle(.black)
          .onAppear {
              applyAdjustments()
-             isAnimationTriggered = true
+             viewModel.isAnimationTriggered = true
          }
      }
 
     private func applyAdjustments() {
-        adjustedImage = applyImageAdjustments(
+        viewModel.adjustedImage = applyImageAdjustments(
             image: originalImage,
-            smoothValues: [Float(brightness), Float(contrast), Float(saturation)],
-            hueAdjustment: Float(hueAdjustment), grainIntensity: Float(grain), grainSize: 2
+            smoothValues: [Float(viewModel.brightness), Float(viewModel.contrast), Float(viewModel.saturation)],
+            hueAdjustment: Float(viewModel.hueAdjustment), grainIntensity: Float(viewModel.grain), grainSize: 2
         )
     }
 }
+
+//struct ImageAdjustmentView: View {
+//    @Environment(\.presentationMode) var presentationMode
+//    @State private var brightness: CGFloat = 0.0
+//    @State private var contrast: CGFloat = 1.0
+//    @State private var saturation: CGFloat = 1.0
+//    @State private var hueAdjustment: CGFloat = 0.0
+//    @State private var grain: CGFloat = 0.0
+//    @State var card: Card
+//    @State private var isAnimationTriggered: Bool? = false
+//    @State private var adjustedImage: UIImage?
+//    @State private var selectedFilter: FilterType = .brightness
+//    let originalImage: UIImage
+//    let saveToLibrary = SaveToLibrary()
+//    var onDismiss: (() -> Void)?
+//
+//    enum FilterType: String, CaseIterable, Identifiable {
+//        case brightness = "circle.lefthalf.striped.horizontal"
+//        case contrast = "righttriangle"
+//        case saturation = "drop.halffull"
+//        case hue = "swirl.circle.righthalf.filled"
+//        case grain = "seal"
+//        var id: String { self.rawValue }
+//    }
+//   
+//    var body: some View {
+//        Spacer()
+//         VStack {
+//             HStack{
+//                 Spacer()
+//                 Button(action: {
+//                     if let image = adjustedImage {
+//                         saveToLibrary.saveImageToPhotoLibrary(image: image, card: card)
+//                         saveToLibrary.addPhotoData(image: image, card: card)
+//                         onDismiss?()
+//                         self.presentationMode.wrappedValue.dismiss()
+//                     }
+//                 }) {
+//                     Text("Save")
+//                         .padding()
+//                         .background(Color.white)
+//                         .foregroundColor(.black)
+//                         .buttonStyle(PlainButtonStyle())
+//                         .font(.caption)
+//                         .frame(height: 35)
+//                         .cornerRadius(7)
+//                         .padding()
+//                 }
+//                 .buttonStyle(PlainButtonStyle())
+//             }
+//             Spacer()
+//             if let adjustedImage = adjustedImage {
+//                 Image(uiImage: adjustedImage)
+//                     .resizable()
+//                     .scaledToFit()
+//                     .frame(maxWidth: .infinity)
+//                     .bannerAnimation(isTriggered: isAnimationTriggered ?? true)
+//                     .padding()
+//
+//             }
+//
+//             Spacer()
+//
+//             switch selectedFilter {
+//             case .brightness:
+//                 Text("Brightness")
+//                     .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
+//             case .contrast:
+//                 Text("Contrast")
+//                     .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
+//             case .saturation:
+//                 Text("Saturation")
+//                     .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
+//             case .hue:
+//                 Text("Hue")
+//                     .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
+//             case .grain:
+//                 Text("Grain")
+//                     .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
+//             }
+//             switch selectedFilter {
+//             case .brightness:
+//                 Text("\(brightness, specifier: "%.2f")")
+//                 MeshingSlider(value: $brightness, colors: [.gray, .white], range: -1...1)
+//                     .onChange(of: brightness) { _ in applyAdjustments() }
+//                     .frame(height: 70)
+//             case .contrast:
+//                 Text("\(contrast, specifier: "%.2f")")
+//                 MeshingSlider(value: $contrast, colors: [.gray, .white], range: 0.5...2)
+//                     .onChange(of: contrast) { _ in applyAdjustments() }
+//                     .frame(height: 70)
+//             case .saturation:
+//                 Text("\(saturation, specifier: "%.2f")")
+//                 MeshingSlider(value: $saturation, colors: [.gray, .white], range: 0...2)
+//                     .onChange(of: saturation) { _ in applyAdjustments() }
+//                     .frame(height: 70)
+//             case .hue:
+//                 Text("\(hueAdjustment, specifier: "%.2f")")
+//                 MeshingSlider(value: $hueAdjustment, colors: [.gray, .white], range: -CGFloat.pi...CGFloat.pi)
+//                     .onChange(of: hueAdjustment) { _ in applyAdjustments() }
+//                     .frame(height: 70)
+//             case .grain:
+//                 Text("\(grain, specifier: "%.2f")")
+//                 MeshingSlider(value: $grain, colors: [.gray, .white], range: -1...1)
+//                     .onChange(of: grain) { _ in applyAdjustments() }
+//                     .frame(height: 70)
+//             }
+//
+//             Picker("Select Filter", selection: $selectedFilter) {
+//                 ForEach(FilterType.allCases) { filter in
+//                     Image(systemName: filter.rawValue).tag(filter)
+//                 }
+//             }
+//             .pickerStyle(SegmentedPickerStyle())
+//             .padding()
+//             .buttonStyle(PlainButtonStyle())
+//
+//         }
+//         .backgroundStyle(.black)
+//         .onAppear {
+//             applyAdjustments()
+//             isAnimationTriggered = true
+//         }
+//     }
+//
+//    private func applyAdjustments() {
+//        adjustedImage = applyImageAdjustments(
+//            image: originalImage,
+//            smoothValues: [Float(brightness), Float(contrast), Float(saturation)],
+//            hueAdjustment: Float(hueAdjustment), grainIntensity: Float(grain), grainSize: 2
+//        )
+//    }
+//}
 
 struct CustomSlider: View {
     @Binding var value: CGFloat
