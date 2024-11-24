@@ -406,7 +406,7 @@ class FirestoreService: ObservableObject {
                 print("Error deleting card: \(error.localizedDescription)")
             } else {
                 if let index = self.cards.firstIndex(where: { $0.id == cardID }) {
-                    self.cards.remove(at: index) // 更新本地数据源
+                    self.cards.remove(at: index) 
                 }
             }
         }

@@ -184,8 +184,6 @@ struct CardRow: View {
                     .onTapGesture {
                         path.append(.applyCard(card: card))
                     }
-
-
                 VStack {
                     HStack {
                         Spacer()
@@ -203,12 +201,9 @@ struct CardRow: View {
                             .foregroundColor(.white)
 
                         Spacer()
-
-
                         Button(action: {
                             path.append(.camera(filterData: card.filterData))
-                        }) {
-                            Image(systemName: "camera.fill")
+                        }) { Image(systemName: "camera.fill")
                                 .font(.system(size: min(18, geometry.size.width * 0.05), weight: .bold))
                                 .padding(8)
                                 .background(Color.white.opacity(0.2))
@@ -248,15 +243,13 @@ struct OptionMenuButton: View {
         Menu { Button(action: {
 
             showRenameAlert = true
-        }) { Label("Rename", systemImage: "pencil")
-        }
+        }) { Label("Rename", systemImage: "pencil")}
             Button(action: {
 
                 print("Delete tapped")
                 firestoreService.deleteCard(card: card)
             }) { Label("Delete", systemImage: "trash")}
             Button(action: {
-
                 showShareAlert = true
                 UIPasteboard.general.string = card.id
                 alertcopyView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
@@ -302,7 +295,6 @@ struct OptionMenuButton: View {
 
 }
 
-
 #Preview {
     CardViewController()
 }
@@ -323,4 +315,3 @@ extension View {
     }
 
 }
-

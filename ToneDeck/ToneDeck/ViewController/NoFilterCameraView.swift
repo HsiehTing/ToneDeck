@@ -16,7 +16,6 @@ struct NoFilterCameraView: View {
     weak var delegate: CameraViewControllerDelegate?
     @Environment(\.presentationMode) var presentationMode
 
-    // 更新 init 方法，將 path 參數也加入初始化
     init(onCapture: @escaping (UIImage) -> Void) {
         self.onCapture = onCapture
         self.manager = CameraManager(
@@ -49,9 +48,7 @@ struct NoFilterCameraView: View {
             }
             .onCloseController {
                 print("CLOSE THE CONTROLLER")
-
-
             }
+            .toolbar(.hidden, for: .tabBar)
     }
-    
 }

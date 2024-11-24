@@ -18,10 +18,9 @@ struct CameraView: View {
     weak var delegate: CameraViewControllerDelegate?
     @Environment(\.presentationMode) var presentationMode
 
-    // 更新 init 方法，將 path 參數也加入初始化
     init(filterData: [Float?], path: Binding<[CardDestination]>) {
         self.filterData = filterData
-        self._path = path  // 使用 `_` 來直接初始化 @Binding 變數
+        self._path = path
 
         let filters = createFilters(from: filterData)
         print(filters)
@@ -29,7 +28,7 @@ struct CameraView: View {
         self.manager = CameraManager(
             outputType: .photo,
             cameraPosition: .back,
-            cameraFilters: filters,  // Apply custom filters here
+            cameraFilters: filters,
             resolution: .hd4K3840x2160,
             frameRate: 25,
             flashMode: .off,
@@ -59,7 +58,9 @@ struct CameraView: View {
             .onCloseController {
                 print("CLOSE THE CONTROLLER")
             }
+            .toolbar(.hidden, for: .tabBar)
     }
+
 }
 
 func createFilters(from filterData: [Float?]) -> [CIFilter] {
@@ -69,20 +70,19 @@ func createFilters(from filterData: [Float?]) -> [CIFilter] {
     let contrastValue = filterData[1] ?? 1.0
     let saturationValue = filterData[2] ?? 1.0
     let colorValue = filterData[3] ?? 0.0
-    colorFilter.setValue(brightnessValue * 0.7, forKey: kCIInputBrightnessKey)  // Try lowering brightness
-    colorFilter.setValue(contrastValue * 0.7, forKey: kCIInputContrastKey)    // Keep contrast at default (1.0)
-    colorFilter.setValue(saturationValue * 0.7, forKey: kCIInputSaturationKey)  // Keep saturation at default (1.0)
-    // Second filter: Hue Adjust
+    colorFilter.setValue(brightnessValue * 0.7, forKey: kCIInputBrightnessKey)
+    colorFilter.setValue(contrastValue * 0.7, forKey: kCIInputContrastKey)
+    colorFilter.setValue(saturationValue * 0.7, forKey: kCIInputSaturationKey)
     let hueFilter = CIFilter(name: "CIHueAdjust")!
-    hueFilter.setValue(colorValue * 0.7, forKey: kCIInputAngleKey)         // Default hue adjustment to 0.0
+    hueFilter.setValue(colorValue * 0.7, forKey: kCIInputAngleKey)
     return [hueFilter]
 }
 class PhotoSaver: NSObject {
     func savePhotoToLibrary(image: UIImage) {
-        // Request authorization to access the photo library
+
         PHPhotoLibrary.requestAuthorization { status in
             if status == .authorized {
-                // Save the image to the photo library, with the current instance (self) as the target
+
                 UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
             } else {
                 print("Photo library access not granted")
@@ -90,7 +90,7 @@ class PhotoSaver: NSObject {
         }
     }
 
-    // Callback to handle success or error after saving
+   
     @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer?) {
         if let error = error {
             print("Error saving image: \(error.localizedDescription)")

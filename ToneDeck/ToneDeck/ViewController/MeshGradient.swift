@@ -150,7 +150,7 @@ class ViewModel: ObservableObject {
             .assign(to: &$targetColor)
     }
 }
-// Define a struct for RGBA components
+
 struct RGBA {
     let red: Double
     let green: Double

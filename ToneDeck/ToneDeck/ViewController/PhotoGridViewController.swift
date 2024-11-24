@@ -34,27 +34,35 @@ struct PhotoGridView: View {
                         .font(.headline)
                         .padding()
                 }
+                if firestoreService.photos.count > 0 {
+                    ScrollView {
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 10) {
+                            ForEach(firestoreService.photos.sorted(by: {  ($0.createdTime.dateValue()) > ($1.createdTime.dateValue())  }), id: \.id) { photo in
+                                Button(action: {
+                                    selectedPhoto = photo
+                                    selectedImageURL = photo.imageURL
+                                }) {
+                                    KFImage(URL(string: photo.imageURL))
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 100, height: 100)
+                                        .clipped()
 
-                ScrollView {
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 10) {
-                        ForEach(firestoreService.photos.sorted(by: {  ($0.createdTime.dateValue()) > ($1.createdTime.dateValue())  }), id: \.id) { photo in
-                            Button(action: {
-                                selectedPhoto = photo
-                                selectedImageURL = photo.imageURL
-                            }) {
-                                KFImage(URL(string: photo.imageURL))
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 100, height: 100)
-                                    .clipped()
-
-                                    .cornerRadius(10)
+                                        .cornerRadius(10)
+                                }
+                                .buttonStyle(PlainButtonStyle())
                             }
-                            .buttonStyle(PlainButtonStyle())
                         }
+                        .padding()
                     }
-                    .padding()
+                } else {
+                    Spacer()
+                    Text("No photots available, import a photo in Cards page!")
+                        .font(.headline)
+                        .padding()
+                    Spacer()
                 }
+
             }
             .navigationTitle("Photo Grid")
             .navigationBarItems(trailing: Button("Next") {

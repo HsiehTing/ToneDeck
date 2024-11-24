@@ -59,7 +59,6 @@ struct ApplyCardView: View {
             }
             Spacer()
         }
-       // .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)
     }
@@ -166,7 +165,6 @@ class ApplyCardViewModel: ObservableObject {
         let orientation = image.imageOrientation
         guard let ciImage = CIImage(image: image) else { return nil }
 
-        // Apply color controls
         let colorControlsFilter = CIFilter(name: "CIColorControls")
         colorControlsFilter?.setValue(ciImage, forKey: kCIInputImageKey)
         colorControlsFilter?.setValue(smoothValues[0], forKey: kCIInputBrightnessKey)
@@ -175,7 +173,6 @@ class ApplyCardViewModel: ObservableObject {
 
         guard let colorControlsOutput = colorControlsFilter?.outputImage else { return nil }
 
-        // Apply hue adjustment
         let hueAdjustFilter = CIFilter(name: "CIHueAdjust")
         hueAdjustFilter?.setDefaults()
         hueAdjustFilter?.setValue(colorControlsOutput, forKey: kCIInputImageKey)
@@ -445,7 +442,6 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     }
 }
 
-//============================================================================================
 class ApplyCardViewControllerUnfactor: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CameraViewControllerDelegate {
     var card: Card?
     let imageView = UIImageView()

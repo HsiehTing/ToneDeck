@@ -4,14 +4,16 @@
 <dict>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
-	<key>Non-Exempt Encryption</key>
-	<false/>
 	<key>NSApplicationCrashOnExceptions</key>
 	<true/>
+	<key>Non-Exempt Encryption</key>
+	<false/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>PlayfairDisplay-Italic-VariableFont_wght.ttf</string>
 		<string>PlayfairDisplay-VariableFont_wght.ttf</string>
 	</array>
+	<key></key>
+	<string></string>
 </dict>
 </plist>

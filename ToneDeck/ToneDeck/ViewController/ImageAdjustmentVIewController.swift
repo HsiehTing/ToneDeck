@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 import CoreImage
 import CoreImage.CIFilterBuiltins
 import FirebaseStorage
@@ -24,10 +25,11 @@ class ImageAdjustmentViewModel: ObservableObject {
     @Published private var originalImage: UIImage
     @Published var selectedFilter: FilterType = .brightness
 
+    private var cancellables = Set<AnyCancellable>()
+
     init(adjustedImage: UIImage? = nil, originalImage: UIImage) {
         self.adjustedImage = adjustedImage
         self.originalImage = originalImage
-
     }
 
     enum FilterType: String, CaseIterable, Identifiable {
@@ -61,14 +63,6 @@ struct ImageAdjustmentView: View {
         self.card = card
         self.onDismiss = onDismiss
     }
-//    enum FilterType: String, CaseIterable, Identifiable {
-//        case brightness = "circle.lefthalf.striped.horizontal"
-//        case contrast = "righttriangle"
-//        case saturation = "drop.halffull"
-//        case hue = "swirl.circle.righthalf.filled"
-//        case grain = "seal"
-//        var id: String { self.rawValue }
-//    }
 
     var body: some View {
         Spacer()
@@ -179,138 +173,7 @@ struct ImageAdjustmentView: View {
     }
 }
 
-//struct ImageAdjustmentView: View {
-//    @Environment(\.presentationMode) var presentationMode
-//    @State private var brightness: CGFloat = 0.0
-//    @State private var contrast: CGFloat = 1.0
-//    @State private var saturation: CGFloat = 1.0
-//    @State private var hueAdjustment: CGFloat = 0.0
-//    @State private var grain: CGFloat = 0.0
-//    @State var card: Card
-//    @State private var isAnimationTriggered: Bool? = false
-//    @State private var adjustedImage: UIImage?
-//    @State private var selectedFilter: FilterType = .brightness
-//    let originalImage: UIImage
-//    let saveToLibrary = SaveToLibrary()
-//    var onDismiss: (() -> Void)?
-//
-//    enum FilterType: String, CaseIterable, Identifiable {
-//        case brightness = "circle.lefthalf.striped.horizontal"
-//        case contrast = "righttriangle"
-//        case saturation = "drop.halffull"
-//        case hue = "swirl.circle.righthalf.filled"
-//        case grain = "seal"
-//        var id: String { self.rawValue }
-//    }
-//   
-//    var body: some View {
-//        Spacer()
-//         VStack {
-//             HStack{
-//                 Spacer()
-//                 Button(action: {
-//                     if let image = adjustedImage {
-//                         saveToLibrary.saveImageToPhotoLibrary(image: image, card: card)
-//                         saveToLibrary.addPhotoData(image: image, card: card)
-//                         onDismiss?()
-//                         self.presentationMode.wrappedValue.dismiss()
-//                     }
-//                 }) {
-//                     Text("Save")
-//                         .padding()
-//                         .background(Color.white)
-//                         .foregroundColor(.black)
-//                         .buttonStyle(PlainButtonStyle())
-//                         .font(.caption)
-//                         .frame(height: 35)
-//                         .cornerRadius(7)
-//                         .padding()
-//                 }
-//                 .buttonStyle(PlainButtonStyle())
-//             }
-//             Spacer()
-//             if let adjustedImage = adjustedImage {
-//                 Image(uiImage: adjustedImage)
-//                     .resizable()
-//                     .scaledToFit()
-//                     .frame(maxWidth: .infinity)
-//                     .bannerAnimation(isTriggered: isAnimationTriggered ?? true)
-//                     .padding()
-//
-//             }
-//
-//             Spacer()
-//
-//             switch selectedFilter {
-//             case .brightness:
-//                 Text("Brightness")
-//                     .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
-//             case .contrast:
-//                 Text("Contrast")
-//                     .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
-//             case .saturation:
-//                 Text("Saturation")
-//                     .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
-//             case .hue:
-//                 Text("Hue")
-//                     .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
-//             case .grain:
-//                 Text("Grain")
-//                     .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
-//             }
-//             switch selectedFilter {
-//             case .brightness:
-//                 Text("\(brightness, specifier: "%.2f")")
-//                 MeshingSlider(value: $brightness, colors: [.gray, .white], range: -1...1)
-//                     .onChange(of: brightness) { _ in applyAdjustments() }
-//                     .frame(height: 70)
-//             case .contrast:
-//                 Text("\(contrast, specifier: "%.2f")")
-//                 MeshingSlider(value: $contrast, colors: [.gray, .white], range: 0.5...2)
-//                     .onChange(of: contrast) { _ in applyAdjustments() }
-//                     .frame(height: 70)
-//             case .saturation:
-//                 Text("\(saturation, specifier: "%.2f")")
-//                 MeshingSlider(value: $saturation, colors: [.gray, .white], range: 0...2)
-//                     .onChange(of: saturation) { _ in applyAdjustments() }
-//                     .frame(height: 70)
-//             case .hue:
-//                 Text("\(hueAdjustment, specifier: "%.2f")")
-//                 MeshingSlider(value: $hueAdjustment, colors: [.gray, .white], range: -CGFloat.pi...CGFloat.pi)
-//                     .onChange(of: hueAdjustment) { _ in applyAdjustments() }
-//                     .frame(height: 70)
-//             case .grain:
-//                 Text("\(grain, specifier: "%.2f")")
-//                 MeshingSlider(value: $grain, colors: [.gray, .white], range: -1...1)
-//                     .onChange(of: grain) { _ in applyAdjustments() }
-//                     .frame(height: 70)
-//             }
-//
-//             Picker("Select Filter", selection: $selectedFilter) {
-//                 ForEach(FilterType.allCases) { filter in
-//                     Image(systemName: filter.rawValue).tag(filter)
-//                 }
-//             }
-//             .pickerStyle(SegmentedPickerStyle())
-//             .padding()
-//             .buttonStyle(PlainButtonStyle())
-//
-//         }
-//         .backgroundStyle(.black)
-//         .onAppear {
-//             applyAdjustments()
-//             isAnimationTriggered = true
-//         }
-//     }
-//
-//    private func applyAdjustments() {
-//        adjustedImage = applyImageAdjustments(
-//            image: originalImage,
-//            smoothValues: [Float(brightness), Float(contrast), Float(saturation)],
-//            hueAdjustment: Float(hueAdjustment), grainIntensity: Float(grain), grainSize: 2
-//        )
-//    }
-//}
+
 
 struct CustomSlider: View {
     @Binding var value: CGFloat

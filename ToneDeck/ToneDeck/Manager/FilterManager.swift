@@ -97,19 +97,16 @@ func calculateSaturation(from histogramData: [String: [Float]]) -> Float {
 
     var saturationSum: Float = 0.0
 
-
     for intensity in 0..<256 {
         let red = Float(redHistogram[intensity])
         let green = Float(greenHistogram[intensity])
         let blue = Float(blueHistogram[intensity])
         let gray = Float(grayHistogram[intensity])
 
-
         let colorDistance = sqrt(pow(red - gray, 2) + pow(green - gray, 2) + pow(blue - gray, 2))
 
         saturationSum += colorDistance
     }
-
 
     let averageSaturation = saturationSum / totalPixels
     return averageSaturation
@@ -133,13 +130,11 @@ func calculateColor(from histogramData: [String: [Float]]) -> [Float] {
 func getDominantColor(from image: UIImage) -> Float {
     guard let ciImage = CIImage(image: image) else { return 0 }
 
-
     let scaleFilter = CIFilter(name: "CILanczosScaleTransform")!
     scaleFilter.setValue(ciImage, forKey: kCIInputImageKey)
     scaleFilter.setValue(0.1, forKey: kCIInputScaleKey)
     scaleFilter.setValue(1.0, forKey: kCIInputAspectRatioKey)
     let scaledImage = scaleFilter.outputImage!
-
 
     let extent = scaledImage.extent
     let filter = CIFilter(name: "CIAreaAverage", parameters: [
@@ -149,11 +144,9 @@ func getDominantColor(from image: UIImage) -> Float {
 
     guard let outputImage = filter.outputImage else { return 0 }
 
-
     let context = CIContext()
     var pixel = [UInt8](repeating: 0, count: 4)
     context.render(outputImage, toBitmap: &pixel, rowBytes: 4, bounds: CGRect(x: 0, y: 0, width: 1, height: 1), format: .RGBA8, colorSpace: CGColorSpaceCreateDeviceRGB())
-
 
     let red = CGFloat(pixel[0]) / 255.0
     let green = CGFloat(pixel[1]) / 255.0
@@ -161,13 +154,11 @@ func getDominantColor(from image: UIImage) -> Float {
     let alpha = CGFloat(pixel[3]) / 255.0
      dominantColor = UIColor(red: red, green: green, blue: blue, alpha: alpha)
 
-
     var hue: CGFloat = 0
     var saturation: CGFloat = 0
     var brightness: CGFloat = 0
     guard let dominantColor = dominantColor else {return 0}
     dominantColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: nil)
-
 
     let hueInRadians = Float(hue * .pi * 2)
     print("Dominant color hue in radians: \(hueInRadians)")
@@ -180,7 +171,6 @@ func hueValue(from color: UIColor) -> Float {
     var brightness: CGFloat = 0
     var alpha: CGFloat = 0
     color.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
-
 
     return Float(hue * .pi * 2)
 }
