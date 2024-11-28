@@ -59,10 +59,10 @@ struct PhotoGridView: View {
                     Spacer()
                     Text("No photots available, import a photo in Cards page!")
                         .font(.headline)
+                        .multilineTextAlignment(.center)
                         .padding()
                     Spacer()
                 }
-
             }
             .navigationTitle("Photo Grid")
             .navigationBarItems(trailing: Button("Next") {
@@ -80,7 +80,7 @@ struct PhotoGridView: View {
                         NavigationLink(
 
                             destination: TextInputView(photo: selectedPhoto ?? Photo(id: "", imageURL: "", cardID: "", creatorID: "", createdTime: Timestamp()), path: $path, onDismiss: {
-                                
+
                                 isFeedViewActive = true
                             }),
                             isActive: $isTextInputActive,
@@ -94,7 +94,7 @@ struct PhotoGridView: View {
                             }
                         )
                     } else {
-                        EmptyView() 
+                        EmptyView()
                     }
                 }
             )

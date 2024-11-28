@@ -64,14 +64,11 @@ import XCTest
          // Initially, isFollowed is false, so the button should display "unfollow"
          let initialButtonText = viewModel.isFollowed ? "follow" : "unfollow"
          XCTAssertEqual(initialButtonText, "unfollow", "The initial button text should be 'unfollow' when isFollowed is false")
-        
 
          // Toggle follow, isFollowed becomes true, so the button should display "follow"
          viewModel.toggleFollow(user: mockUser)
          let toggledButtonText = viewModel.isFollowed ? "follow" : "unfollow"
          XCTAssertEqual(toggledButtonText, "follow", "The button text should be 'follow' when isFollowed is true")
      }
-
-     
 
 }

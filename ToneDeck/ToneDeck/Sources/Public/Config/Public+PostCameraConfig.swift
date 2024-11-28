@@ -8,9 +8,8 @@
 //
 //  Copyright ©2024 Mijick. Licensed under MIT License.
 
-
 extension PostCameraConfig {
     public func returnToCameraView(_ value: Bool) -> Self { shouldReturnToCameraView = value; return self }
     public func closeCameraController(_ value: Bool) -> Self { shouldCloseCameraController = value; return self }
-    public func custom(_ action: @escaping () -> ()) -> Self { customAction = action; return self }
+    public func custom(_ action: @escaping () -> Void) -> Self { customAction = action; return self }
 }

@@ -17,11 +17,11 @@ class FirestoreService: ObservableObject {
     @Published var users: [User] = []
     @Published var notifications: [Notification] = []
     @Published var collections: [CardCollection] = []
-    @Published var user: User? = nil
+    @Published var user: User?
     @Published var isLoading = true
     let db = Firestore.firestore()
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
-    
+
      func fetchPosts() {
         db.collection("posts").getDocuments { snapshot, error in
             if let error = error {
@@ -62,7 +62,7 @@ class FirestoreService: ObservableObject {
             }
         }
     }
-    
+
     func fetchCardDetails(for cardID: String, completion: @escaping () -> Void) {
         let cardRef = db.collection("cards").document(cardID)
         cardRef.getDocument { snapshot, error in
@@ -294,7 +294,7 @@ class FirestoreService: ObservableObject {
                     // Ensure all necessary fields are present and properly casted
                     guard let cardID = data["cardID"] as? String,
                           let creatorID = data["creatorID"] as? String,
-                          let createdTime = data["createdTime"] as? Timestamp ,
+                          let createdTime = data["createdTime"] as? Timestamp,
                           let imageURL = data["imageURL"] as? String else {
                         // Return nil if any field is missing or of incorrect type
                           return Photo(id: "", imageURL: "", cardID: "", creatorID: "", createdTime: Timestamp())
@@ -309,7 +309,7 @@ class FirestoreService: ObservableObject {
     func removeUserFromFollowingArray(userID: String) {
 
         let followRef = Firestore.firestore().collection("followRequests").whereField("from", isEqualTo: fromUserID).whereField("to", isEqualTo: userID)
-        followRef.getDocuments { querySnapshot, error in
+        followRef.getDocuments { querySnapshot, _ in
             guard let documents = querySnapshot?.documents else {return}
                     for document in documents {
                         document.reference.delete()
@@ -317,13 +317,13 @@ class FirestoreService: ObservableObject {
         }
         let followerRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: userID)
         let followingRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: fromUserID)
-        followerRef.getDocuments { querySnapshot, error in
+        followerRef.getDocuments { querySnapshot, _ in
             guard let documents = querySnapshot?.documents else {return}
             for document in  documents {
                 document.reference.updateData(["followerArray": FieldValue.arrayRemove([self.fromUserID ?? ""])])
             }
         }
-        followingRef.getDocuments { querySnapshot, error in
+        followingRef.getDocuments { querySnapshot, _ in
             guard let documents = querySnapshot?.documents else {return}
             for document in  documents {
                 document.reference.updateData(["followingArray": FieldValue.arrayRemove([userID])])
@@ -348,13 +348,13 @@ class FirestoreService: ObservableObject {
         }
         let followerRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: userID)
         let followingRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: fromUserID)
-        followerRef.getDocuments { querySnapshot, error in
+        followerRef.getDocuments { querySnapshot, _ in
             guard let documents = querySnapshot?.documents else {return}
             for document in  documents {
                 document.reference.updateData(["followerArray": FieldValue.arrayUnion([self.fromUserID])])
             }
         }
-        followingRef.getDocuments { querySnapshot, error in
+        followingRef.getDocuments { querySnapshot, _ in
             guard let documents = querySnapshot?.documents else {return}
             for document in  documents {
                 document.reference.updateData(["followingArray": FieldValue.arrayUnion([userID])])
@@ -370,7 +370,7 @@ class FirestoreService: ObservableObject {
              "from": fromUserID ?? "",
              "to": user.id,
              "postImage": user.avatar,
-             "type":  NotificationType.follow.rawValue,
+             "type": NotificationType.follow.rawValue,
              "createdTime": Timestamp()
         ]
         document.setData(data)
@@ -401,15 +401,14 @@ class FirestoreService: ObservableObject {
         }
      func deleteCard(card: Card) {
         let cardID = card.id
-        db.collection("cards").document(cardID).delete() { error in
+        db.collection("cards").document(cardID).delete { error in
             if let error = error {
                 print("Error deleting card: \(error.localizedDescription)")
             } else {
                 if let index = self.cards.firstIndex(where: { $0.id == cardID }) {
-                    self.cards.remove(at: index) 
+                    self.cards.remove(at: index)
                 }
             }
         }
     }
 }
-

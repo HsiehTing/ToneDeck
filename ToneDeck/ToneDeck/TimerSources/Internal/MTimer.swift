@@ -8,7 +8,6 @@
 //
 //  Copyright ©2023 Mijick. Licensed under MIT License.
 
-
 import SwiftUI
 
 public final class MTimer {
@@ -18,26 +17,25 @@ public final class MTimer {
     var internalTimer: Timer?
     var isTimerRunning: Bool = false
     var runningTime: TimeInterval = 0
-    var backgroundTransitionDate: Date? = nil
+    var backgroundTransitionDate: Date?
 
     // Configuration
     var initialTime: (start: TimeInterval, end: TimeInterval) = (0, 1)
     var publisherTime: TimeInterval = 0
     var publisherTimeTolerance: TimeInterval = 0.4
-    var onRunningTimeChange: ((MTime) -> ())!
-    var onTimerActivityChange: ((Bool) -> ())?
-    var onTimerProgressChange: ((Double) -> ())?
+    var onRunningTimeChange: ((MTime) -> Void)!
+    var onTimerActivityChange: ((Bool) -> Void)?
+    var onTimerProgressChange: ((Double) -> Void)?
 
     deinit { internalTimer?.invalidate() }
 }
-
 
 // MARK: - Initialising Timer
 extension MTimer {
     func checkRequirementsForInitialisingTimer(_ publisherTime: TimeInterval) throws {
         if publisherTime < 0.001 { throw Error.publisherTimeCannotBeLessThanOneMillisecond }
     }
-    func assignInitialPublisherValues(_ time: TimeInterval, _ tolerance: TimeInterval, _ completion: @escaping (MTime) -> ()) {
+    func assignInitialPublisherValues(_ time: TimeInterval, _ tolerance: TimeInterval, _ completion: @escaping (MTime) -> Void) {
         publisherTime = time
         publisherTimeTolerance = tolerance
         onRunningTimeChange = completion
@@ -75,7 +73,6 @@ extension MTimer {
 extension MTimer {
     func resetRunningTime() { runningTime = initialTime.start }
 }
-
 
 // MARK: - Handling Timer
 private extension MTimer {

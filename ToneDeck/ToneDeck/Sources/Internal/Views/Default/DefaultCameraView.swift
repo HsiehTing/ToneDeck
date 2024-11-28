@@ -8,15 +8,13 @@
 //
 //  Copyright ©2024 Mijick. Licensed under MIT License.
 
-
 import SwiftUI
 
 public struct DefaultCameraView: MCameraView {
     @ObservedObject public var cameraManager: CameraManager
     public let namespace: Namespace.ID
-    public let closeControllerAction: () -> ()
+    public let closeControllerAction: () -> Void
     var config: Config = .init()
-
 
     public var body: some View {
         VStack(spacing: 0) {
@@ -37,7 +35,7 @@ public struct DefaultCameraView: MCameraView {
 private extension DefaultCameraView {
     func createTopView() -> some View {
         ZStack {
-            //createCloseButton()
+            // createCloseButton()
             createTopCentreView()
             createTopRightView()
         }
@@ -67,7 +65,7 @@ private extension DefaultCameraView {
 private extension DefaultCameraView {
     func createOutputTypeButtons() -> some View {
         HStack(spacing: 8) {
-            //createOutputTypeButton(.video)
+            // createOutputTypeButton(.video)
             createOutputTypeButton(.photo)
         }
         .padding(8)
@@ -176,20 +174,16 @@ private extension DefaultCameraView {
         changeMirrorOutputMode(!mirrorOutput)
     }
     func changeFlashMode() {
-        do { try changeFlashMode(flashMode.next()) }
-        catch {}
+        do { try changeFlashMode(flashMode.next()) } catch {}
     }
     func changeTorchMode() {
-        do { try changeTorchMode(torchMode.next()) }
-        catch {}
+        do { try changeTorchMode(torchMode.next()) } catch {}
     }
     func changeCameraPosition() {
-        do { try changeCamera(cameraPosition.next()) }
-        catch {}
+        do { try changeCamera(cameraPosition.next()) } catch {}
     }
     func changeCameraOutputType(_ type: CameraOutputType) {
-        do { try changeOutputType(type) }
-        catch {}
+        do { try changeOutputType(type) } catch {}
     }
 }
 
@@ -204,11 +198,9 @@ extension DefaultCameraView { struct Config {
     var flashButtonVisible: Bool = true
 }}
 
-
 // MARK: - CloseButton
-fileprivate struct CloseButton: View {
-    let action: () -> ()
-
+private struct CloseButton: View {
+    let action: () -> Void
 
     var body: some View {
         Button(action: action) {
@@ -221,10 +213,9 @@ fileprivate struct CloseButton: View {
 }
 
 // MARK: - TopButton
-fileprivate struct TopButton: View {
+private struct TopButton: View {
     let icon: String
-    let action: () -> ()
-
+    let action: () -> Void
 
     var body: some View {
         Button(action: action, label: createButtonLabel)
@@ -253,11 +244,10 @@ private extension TopButton {
 }
 
 // MARK: - CaptureButton
-fileprivate struct CaptureButton: View {
-    let action: () -> ()
+private struct CaptureButton: View {
+    let action: () -> Void
     let mode: CameraOutputType
     let isRecording: Bool
-
 
     var body: some View {
         Button(action: action, label: createButtonLabel).buttonStyle(ButtonScaleStyle())
@@ -297,11 +287,10 @@ private extension CaptureButton {
 }
 
 // MARK: - BottomButton
-fileprivate struct BottomButton: View {
+private struct BottomButton: View {
     let icon: String
     let active: Bool
-    let action: () -> ()
-
+    let action: () -> Void
 
     var body: some View {
         Button(action: action, label: createButtonLabel)
@@ -336,11 +325,10 @@ private extension BottomButton {
 }
 
 // MARK: - OutputTypeButton
-fileprivate struct OutputTypeButton: View {
+private struct OutputTypeButton: View {
     let type: CameraOutputType
     let active: Bool
-    let action: () -> ()
-
+    let action: () -> Void
 
     var body: some View {
         Button(action: action, label: createButtonLabel).buttonStyle(ButtonScaleStyle())

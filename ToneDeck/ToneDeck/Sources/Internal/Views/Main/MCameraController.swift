@@ -8,7 +8,6 @@
 //
 //  Copyright ©2024 Mijick. Licensed under MIT License.
 
-
 import SwiftUI
 
 public struct MCameraController: View {
@@ -16,7 +15,6 @@ public struct MCameraController: View {
     @Namespace var namespace
     var config: CameraConfig = .init()
 
-    
     public var body: some View {
         ZStack { switch cameraManager.attributes.error {
             case .some(let error): createErrorStateView(error)
@@ -76,8 +74,7 @@ private extension MCameraController {
 }
 private extension MCameraController {
     func notifyUserOfMediaCaptured(_ capturedMedia: MCameraMedia) {
-        if let image = capturedMedia.image { config.onImageCaptured(image) }
-        else if let video = capturedMedia.video { config.onVideoCaptured(video) }
+        if let image = capturedMedia.image { config.onImageCaptured(image) } else if let video = capturedMedia.video { config.onVideoCaptured(video) }
     }
     func performPostCameraAction() { let afterMediaCaptured = config.afterMediaCaptured(.init())
         afterMediaCaptured.shouldReturnToCameraView ? cameraManager.resetCapturedMedia() : ()

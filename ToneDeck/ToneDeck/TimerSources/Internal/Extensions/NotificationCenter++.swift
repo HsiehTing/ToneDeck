@@ -8,7 +8,6 @@
 //
 //  Copyright ©2023 Mijick. Licensed under MIT License.
 
-
 import SwiftUI
 
 extension NotificationCenter {
@@ -31,7 +30,7 @@ extension NotificationCenter {
         #elseif os(macOS)
         Self.default.removeObserver(observer, name: NSApplication.didResignActiveNotification, object: nil)
         Self.default.removeObserver(observer, name: NSApplication.willBecomeActiveNotification, object: nil)
-        
+
         #endif
     }
 }

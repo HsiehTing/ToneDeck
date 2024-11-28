@@ -8,7 +8,6 @@
 //
 //  Copyright ©2024 Mijick. Licensed under MIT License.
 
-
 import SwiftUI
 
 // MARK: Camera Output Type
@@ -44,6 +43,6 @@ public enum CameraHDRMode: CaseIterable {
 }
 
 // MARK: - Typealiases
-public typealias CameraViewBuilder = (CameraManager, Namespace.ID, _ closeControllerAction: @escaping () -> ()) -> any MCameraView
-public typealias PreviewViewBuilder = (MCameraMedia, Namespace.ID, _ retakeAction: @escaping () -> (), _ acceptMediaAction: @escaping () -> ()) -> any MCameraPreview
-public typealias ErrorViewBuilder = (CameraManager.Error, _ closeControllerAction: @escaping () -> ()) -> any MCameraErrorView
+public typealias CameraViewBuilder = (CameraManager, Namespace.ID, _ closeControllerAction: @escaping () -> Void) -> any MCameraView
+public typealias PreviewViewBuilder = (MCameraMedia, Namespace.ID, _ retakeAction: @escaping () -> Void, _ acceptMediaAction: @escaping () -> Void) -> any MCameraPreview
+public typealias ErrorViewBuilder = (CameraManager.Error, _ closeControllerAction: @escaping () -> Void) -> any MCameraErrorView

@@ -10,7 +10,6 @@ import Combine
 import FirebaseFirestore
 import Kingfisher
 
-
 class TextInputViewModel: ObservableObject {
     @Published var postText: String = ""
     @Published private(set) var isLoading: Bool = false
@@ -100,7 +99,7 @@ struct TextInputView: View {
     @Binding var path: [FeedDestination]
     @Environment(\.presentationMode) var presentationMode
 
-    init(photo: Photo, path: Binding<[FeedDestination]>, onDismiss: (()-> Void)?) {
+    init(photo: Photo, path: Binding<[FeedDestination]>, onDismiss: (() -> Void)?) {
         _viewModel = StateObject(wrappedValue: TextInputViewModel(photo: photo, onDismiss: onDismiss))
         self._path = path
     }
@@ -165,7 +164,7 @@ struct TextInputView: View {
         .alert(isPresented: Binding(
                     get: { viewModel.error != nil },
                     set: { if !$0 { viewModel.clearError() } }
-        )){
+        )) {
             Alert( title: Text("Error"),
                    message: Text(viewModel.error?.localizedDescription ?? "Unknown error"),
                    dismissButton: .default(Text("OK")))
@@ -278,4 +277,3 @@ struct TextInputView2: View {
         }
     }
 }
-

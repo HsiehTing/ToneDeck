@@ -113,7 +113,7 @@ struct CommentView: View {
     }
     private func loadComments() {
         let postRef = Firestore.firestore().collection("posts").document(postID)
-        postRef.getDocument { document, error in
+        postRef.getDocument { document, _ in
             if let document = document, document.exists {
                 let data = document.data()
                 if let commentArray = data?["commentArray"] as? [[String: Any]] {
@@ -146,7 +146,7 @@ struct CommentView: View {
                 print("Error adding comment: \(error)")
             } else {
                 newCommentText = ""
-                loadComments()  
+                loadComments()
             }
         }
         let notifications = Firestore.firestore().collection("notifications")
@@ -159,7 +159,7 @@ struct CommentView: View {
              "from": fromUserID,
              "to": post.creatorID,
              "postImage": post.imageURL,
-             "type":  NotificationType.comment.rawValue,
+             "type": NotificationType.comment.rawValue,
              "createdTime": Timestamp()
         ]
         document.setData(data)

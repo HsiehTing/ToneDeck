@@ -8,7 +8,6 @@
 //
 //  Copyright ©2024 Mijick. Licensed under MIT License.
 
-
 import SwiftUI
 
 struct CameraConfig {
@@ -18,11 +17,11 @@ struct CameraConfig {
     var mediaPreviewView: PreviewViewBuilder? = DefaultCameraPreview.init
 
     // MARK: To Lock Orientation
-    var appDelegate: MApplicationDelegate.Type? = nil
+    var appDelegate: MApplicationDelegate.Type?
 
     // MARK: Actions
-    var onImageCaptured: (UIImage) -> () = { _ in }
-    var onVideoCaptured: (URL) -> () = { _ in }
+    var onImageCaptured: (UIImage) -> Void = { _ in }
+    var onVideoCaptured: (URL) -> Void = { _ in }
     var afterMediaCaptured: (PostCameraConfig) -> (PostCameraConfig) = { _ in .init() }
-    var onCloseController: () -> () = {}
+    var onCloseController: () -> Void = {}
 }

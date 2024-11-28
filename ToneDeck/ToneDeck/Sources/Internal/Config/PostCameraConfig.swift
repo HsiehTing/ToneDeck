@@ -8,12 +8,11 @@
 //
 //  Copyright ©2024 Mijick. Licensed under MIT License.
 
-
 public class PostCameraConfig {
     // MARK: Attributes
     var shouldReturnToCameraView: Bool = false
     var shouldCloseCameraController: Bool = false
 
     // MARK: Actions
-    var customAction: () -> () = {}
+    var customAction: () -> Void = {}
 }

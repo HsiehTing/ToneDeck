@@ -100,7 +100,7 @@ class UIKitMeshGradient: UIView {
                                     pvalue.addLine(to: point4)
                                     pvalue.closeSubpath()
                                 }
-                                
+
                                 let gradient = Gradient(colors: [
                                     adjustColor(viewModel.targetColor, brightnessAdjustment: Double(ivalue + jvalue) / 3, saturationAdjustment: 0.2),
                                     adjustColor(viewModel.targetColor, brightnessAdjustment: Double(ivalue + jvalue + 1) / 3, saturationAdjustment: 0.1),
@@ -132,7 +132,7 @@ class UIKitMeshGradient: UIView {
             let adjustedSaturation = min(max(components.saturation + saturationAdjustment, 0), 1)
             return Color(hue: components.hue, saturation: adjustedSaturation, brightness: adjustedBrightness, opacity: 1)
         }
-        
+
         private func smoothSin(_ min: Float, _ max: Float, offset: Float, timeScale: Float) -> Float {
             let amplitude = (max - min) / 2
             let midPoint = (max + min) / 2

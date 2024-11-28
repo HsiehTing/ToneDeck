@@ -8,12 +8,11 @@
 //
 //  Copyright ©2024 Mijick. Licensed under MIT License.
 
-
 import SwiftUI
 
 public protocol MCameraErrorView: View {
     var error: CameraManager.Error { get }
-    var closeControllerAction: () -> () { get }
+    var closeControllerAction: () -> Void { get }
 }
 
 // MARK: - Helpers

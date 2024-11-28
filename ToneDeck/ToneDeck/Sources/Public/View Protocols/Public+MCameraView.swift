@@ -8,15 +8,14 @@
 //
 //  Copyright ©2024 Mijick. Licensed under MIT License.
 
-
 import SwiftUI
 import AVFoundation
-//import MijickTimer
+// import MijickTimer
 
 public protocol MCameraView: View {
     var cameraManager: CameraManager { get }
     var namespace: Namespace.ID { get }
-    var closeControllerAction: () -> () { get }
+    var closeControllerAction: () -> Void { get }
 }
 
 // MARK: - Use-only View Methods

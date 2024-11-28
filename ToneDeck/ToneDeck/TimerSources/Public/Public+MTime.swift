@@ -8,7 +8,6 @@
 //
 //  Copyright ©2023 Mijick. Licensed under MIT License.
 
-
 import Foundation
 
 // MARK: - Initialisation
@@ -18,7 +17,7 @@ extension MTime {
         let minutesInterval = minutes * 60
         let secondsInterval = seconds
         let millisecondsInterval = Double(milliseconds) / 1000
-        
+
         let timeInterval = hoursInterval + minutesInterval + secondsInterval + millisecondsInterval
         self.init(timeInterval: timeInterval)
     }

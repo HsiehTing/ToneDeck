@@ -8,18 +8,16 @@
 //
 //  Copyright ©2024 Mijick. Licensed under MIT License.
 
-
 import SwiftUI
 import AVKit
 
 struct DefaultCameraPreview: MCameraPreview {
     let capturedMedia: MCameraMedia
     let namespace: Namespace.ID
-    let retakeAction: () -> ()
-    let acceptMediaAction: () -> ()
+    let retakeAction: () -> Void
+    let acceptMediaAction: () -> Void
     @State private var player: AVPlayer = .init()
     @State private var shouldShowContent: Bool = false
-
 
     var body: some View {
         VStack(spacing: 0) {
@@ -36,9 +34,7 @@ struct DefaultCameraPreview: MCameraPreview {
 private extension DefaultCameraPreview {
     func createContentView() -> some View {
         ZStack {
-            if let image = capturedMedia.image { createImageView(image) }
-            else if let video = capturedMedia.video { createVideoView(video) }
-            else { EmptyView() }
+            if let image = capturedMedia.image { createImageView(image) } else if let video = capturedMedia.video { createVideoView(video) } else { EmptyView() }
         }
         .opacity(shouldShowContent ? 1 : 0)
     }
@@ -79,13 +75,11 @@ private extension DefaultCameraPreview {
     }
 }
 
-
 // MARK: - BottomButton
-fileprivate struct BottomButton: View {
+private struct BottomButton: View {
     let icon: String
     let primary: Bool
-    let action: () -> ()
-
+    let action: () -> Void
 
     var body: some View {
         Button(action: action, label: createButtonLabel).buttonStyle(ButtonScaleStyle())

@@ -80,7 +80,7 @@ extension FirestoreService {
     }
     func updateUserAvatar (userID: String, newAvatarURL: String) {
         let userRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: userID)
-        userRef.getDocuments { querySnapshot, error in
+        userRef.getDocuments { querySnapshot, _ in
             guard let documents = querySnapshot?.documents else {return}
             for document in  documents {
                 document.reference.updateData(["avatar": newAvatarURL])
@@ -90,7 +90,7 @@ extension FirestoreService {
     }
     func updateUserStatus (status: Bool) {
         let userRef = Firestore.firestore().collection("posts").whereField("creatorID", isEqualTo: fromUserID)
-        userRef.getDocuments { querySnapshot, error in
+        userRef.getDocuments { querySnapshot, _ in
             guard let documents = querySnapshot?.documents else {return}
             for document in  documents {
                 document.reference.updateData(["isPrivate": status])
@@ -100,7 +100,7 @@ extension FirestoreService {
     }
     func updateDeleteStatus (status: Bool) {
         let userRef = Firestore.firestore().collection("posts").whereField("creatorID", isEqualTo: fromUserID)
-        userRef.getDocuments { querySnapshot, error in
+        userRef.getDocuments { querySnapshot, _ in
             guard let documents = querySnapshot?.documents else {return}
             for document in  documents {
                 document.reference.updateData(["isDelete": status])
@@ -110,7 +110,7 @@ extension FirestoreService {
     }
     func updateUserName (userID: String, newName: String) {
         let userRef = Firestore.firestore().collection("users").whereField("id", isEqualTo: userID)
-        userRef.getDocuments { querySnapshot, error in
+        userRef.getDocuments { querySnapshot, _ in
             guard let documents = querySnapshot?.documents else {return}
             for document in  documents {
                 document.reference.updateData(["userName": newName])
@@ -125,7 +125,7 @@ extension FirestoreService {
             let documentRef = document.reference
             documentRef.setData([
                 "blockUserArray": FieldValue.arrayUnion([targetID])
-            ]){ error in
+            ]) { error in
                 if let error = error {
                     print("Error updating blockUserArray: \(error.localizedDescription)")
                 } else {
@@ -142,7 +142,7 @@ extension FirestoreService {
             let documentRef = document.reference
             documentRef.setData([
                 "reportUserArray": FieldValue.arrayUnion([targetID])
-            ]){ error in
+            ]) { error in
                 if let error = error {
                     print("Error updating blockUserArray: \(error.localizedDescription)")
                 } else {
@@ -151,13 +151,13 @@ extension FirestoreService {
             }
         }
     }
-    
+
 }
 func checkUserData() {
     let mockUserName = "user"
     let userName = mockUserName
     let timeStamp = Date()
-    let avatar = 
+    let avatar =
     "https://firebasestorage.googleapis.com:443/v0/b/tonedecksting.appspot.com/o/photo%2F48608521-EBA3-489B-8783-BE6E08617D3C.jpg?alt=media&token=d6c10183-e94b-4749-92da-2f48963cce71"
     let postIDArray = [""]
     let followingIDArray = [""]
@@ -256,7 +256,7 @@ struct Card: Identifiable, Decodable, Hashable, Equatable {
     var creatorID: String
     var dominantColor: DominantColor
 }
-struct DominantColor:Codable, Equatable, Hashable{
+struct DominantColor: Codable, Equatable, Hashable {
     var red: Double
     var green: Double
     var blue: Double

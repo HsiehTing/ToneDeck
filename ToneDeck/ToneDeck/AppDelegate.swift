@@ -12,7 +12,7 @@ import IQKeyboardManagerSwift
 class AppDelegate: NSObject, UIApplicationDelegate {
     var window: UIWindow?
     func application(_ application: UIApplication,
-                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         FirebaseApp.configure()
         IQKeyboardManager.shared.enable = true
         return true
@@ -22,8 +22,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                   let url = userActivity.webpageURL else {
                 return false
             }
-
-           
 
             return true
         }

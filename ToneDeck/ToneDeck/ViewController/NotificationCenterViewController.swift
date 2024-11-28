@@ -18,7 +18,7 @@ enum NotificationType: String, Codable {
 class NotificationViewModel: ObservableObject {
     @StateObject private var firestoreService = FirestoreService()
     @Published var notifications: [Notification] = []
-    @Published var isFollowed :Bool
+    @Published var isFollowed: Bool
     init(isFollowed: Bool = false) {
         self.isFollowed = isFollowed
     }

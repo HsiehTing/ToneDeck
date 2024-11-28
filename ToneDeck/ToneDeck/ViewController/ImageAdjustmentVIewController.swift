@@ -8,7 +8,6 @@
 import SwiftUI
 import Combine
 import CoreImage
-import CoreImage.CIFilterBuiltins
 import FirebaseStorage
 import Firebase
 import Photos
@@ -67,7 +66,7 @@ struct ImageAdjustmentView: View {
     var body: some View {
         Spacer()
          VStack {
-             HStack{
+             HStack {
                  Spacer()
                  Button(action: {
                      if let image = viewModel.adjustedImage {
@@ -173,8 +172,6 @@ struct ImageAdjustmentView: View {
     }
 }
 
-
-
 struct CustomSlider: View {
     @Binding var value: CGFloat
     let range: ClosedRange<Double>
@@ -198,7 +195,6 @@ struct CustomSlider: View {
                 Rectangle()
                     .fill(Color.adaptive)
                     .frame(height: 15)
-
 
                 HStack(alignment: .bottom, spacing: 6) {
                     ForEach(0..<stepCount, id: \.self) { index in
@@ -282,7 +278,7 @@ struct BarIndicator: View {
             .fill(isCurrentValue
                   ? LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top)
                   : (isHighlighted
-                  ? LinearGradient(colors: colors.map { $0.opacity(0.75) },startPoint: .bottom, endPoint: .top)
+                  ? LinearGradient(colors: colors.map { $0.opacity(0.75) }, startPoint: .bottom, endPoint: .top)
                   : LinearGradient(colors: [.primary.opacity(0.4), .primary.opacity(0.3)], startPoint: .bottom, endPoint: .top)))
             .frame(width: 4, height: (isDragging && shouldShow) ? height : 15)
             .animation(.bouncy, value: height)
@@ -324,7 +320,6 @@ func applyImageAdjustments(image: UIImage, smoothValues: [Float], hueAdjustment:
     let orientation = image.imageOrientation
     guard let ciImage = CIImage(image: image) else { return nil }
     let rotateciImage = ciImage.oriented(CGImagePropertyOrientation(image.imageOrientation))
-
 
     let colorControlsFilter = CIFilter(name: "CIColorControls")
     colorControlsFilter?.setValue(rotateciImage, forKey: kCIInputImageKey)
@@ -383,7 +378,7 @@ class SaveToLibrary {
             return
         }
         let storageRef = Storage.storage().reference().child("photo/\(UUID().uuidString).jpg")
-        storageRef.putData(imageData, metadata: nil) { metaData, error in
+        storageRef.putData(imageData, metadata: nil) { _, error in
             if let error = error {
                 print("Error uploading image: \(error)")
                 return
@@ -483,7 +478,7 @@ extension Color {
             .sRGB,
             red: Double(red) / 255,
             green: Double(green) / 255,
-            blue:  Double(blue) / 255,
+            blue: Double(blue) / 255,
             opacity: Double(alpha) / 255
         )
     }

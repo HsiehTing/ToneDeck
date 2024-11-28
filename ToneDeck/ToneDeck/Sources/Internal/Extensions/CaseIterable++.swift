@@ -8,7 +8,6 @@
 //
 //  Copyright ©2024 Mijick. Licensed under MIT License.
 
-
 extension CaseIterable where Self: Equatable {
     func next() -> Self { let allCases = Self.allCases
         let index = allCases.firstIndex(of: self)!

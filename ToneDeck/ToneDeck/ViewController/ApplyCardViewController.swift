@@ -26,7 +26,7 @@ struct ApplyCardViewControllerWrapper: UIViewControllerRepresentable {
 struct ApplyCardView: View {
     let card: Card? = nil
     @StateObject private var viewModel: ApplyCardViewModel
-    @Binding var path : [FeedDestination]
+    @Binding var path: [FeedDestination]
     @Environment(\.presentationMode) var presentationMode
 
     init(card: Card, path: Binding<[FeedDestination]>) {
@@ -34,13 +34,12 @@ struct ApplyCardView: View {
         _path = path
     }
 
-
     var body: some View {
         ZStack {
             Color.black.edgesIgnoringSafeArea(.all)
 
             VStack(spacing: 12) {
-                
+
                 HStack {
                     Button(action: {
                         path.removeAll()
@@ -91,7 +90,7 @@ class ApplyCardViewModel: ObservableObject {
         }
 
         let targetHistogramData = histogram.calculateHistogram(for: targetImage)
-        //let filterHistogramData = histogram.calculateHistogram(for: card.imageURL)
+        // let filterHistogramData = histogram.calculateHistogram(for: card.imageURL)
 
         let targetValues = [
             calculateBrightness(from: targetHistogramData),
@@ -100,7 +99,7 @@ class ApplyCardViewModel: ObservableObject {
         ]
 
         let filterValues = [card.filterData[0], card.filterData[1], card.filterData[2]]
-        let tValues:[Float] = [1.00, 1.30, 1.00] // Default values for brightness, contrast, saturation
+        let tValues: [Float] = [1.00, 1.30, 1.00] // Default values for brightness, contrast, saturation
 
         applySmoothFilterWithDifferentT(targetValues: targetValues, filterValues: filterValues, tValues: tValues)
 
@@ -196,7 +195,6 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
     private let importLabel = UILabel()
     var meshGradientView = UIKitMeshGradient(frame: CGRect(x: 0, y: 0, width: 250, height: 320))
 
-
     init(viewModel: ApplyCardViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -256,7 +254,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
 
     private func configureNameLabel() {
         guard let card = viewModel.card else {
-            print ("cant find card")
+            print("cant find card")
             return
         }
         nameLabel.textColor = .white
@@ -267,7 +265,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
 
     private func configureApplyButton() {
         guard let card = viewModel.card else {
-            print ("cant find card")
+            print("cant find card")
             return
         }
         let config = UIImage.SymbolConfiguration(pointSize: 30, weight: .medium, scale: .default)
@@ -293,7 +291,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
 
     private func configureMeshGradient() {
         guard let card = viewModel.card else {
-            print ("cant find card")
+            print("cant find card")
             return
         }
         meshGradientView = UIKitMeshGradient(frame: .zero)
@@ -383,7 +381,7 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
         }
 
         let cameraAction = UIAlertAction(title: "Camera", style: .default) { [weak self] _ in
-            var cameraVC = NoFilterCameraView() { _ in }
+            var cameraVC = NoFilterCameraView { _ in }
             cameraVC.delegate = self
             let hostingController = UIHostingController(rootView: cameraVC)
             self?.navigationController?.pushViewController(hostingController, animated: true)
@@ -398,12 +396,11 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
 
     @objc private func didTapApply() {
         guard let card = viewModel.card else {
-            print ("cant find card")
+            print("cant find card")
             return
         }
         guard let outputImage = viewModel.processApplyFilter() else { return }
         viewModel.sendNotification()
-
 
         let imageAdjustmentView = ImageAdjustmentView(originalImage: outputImage, card: card) { [weak self] in
             self?.dismiss(animated: true) {
@@ -425,7 +422,6 @@ class ApplyCardViewController: UIViewController, UIImagePickerControllerDelegate
             }
             dismiss(animated: true)
         }
-
 
     // MARK: - CameraViewControllerDelegate
     func didCapturePhoto(_ image: UIImage) {
@@ -508,7 +504,7 @@ class ApplyCardViewControllerUnfactor: UIViewController, UIImagePickerController
             imageView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: -0.07 * screenWidth),
             imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             imageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
-            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 0.8),
+            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 0.8)
 
         ])
         imageView.contentMode = .scaleAspectFill
@@ -517,8 +513,6 @@ class ApplyCardViewControllerUnfactor: UIViewController, UIImagePickerController
         targetImageView.tintColor = .white
         targetImageView.isUserInteractionEnabled = true
         view.addSubview(targetImageView)
-
-
 
            targetImageView.layer.borderWidth = 2
            targetImageView.layer.cornerRadius = 20
@@ -535,18 +529,17 @@ class ApplyCardViewControllerUnfactor: UIViewController, UIImagePickerController
            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(targetImageTapped))
            targetImageView.addGestureRecognizer(tapGesture)
 
-
            targetImageView.translatesAutoresizingMaskIntoConstraints = false
            NSLayoutConstraint.activate([
                targetImageView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 12),
                targetImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
                targetImageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
-               targetImageView.heightAnchor.constraint(equalTo: targetImageView.widthAnchor, multiplier: 0.8),
+               targetImageView.heightAnchor.constraint(equalTo: targetImageView.widthAnchor, multiplier: 0.8)
 
            ])
         guard let dominantColor = card?.dominantColor else {return}
         meshGradientView = UIKitMeshGradient(frame: CGRect(x: 0, y: 0, width: targetImageView.frame.width, height: targetImageView.frame.height))
-        meshGradientView.setTargetColorRGBA(red: dominantColor.red , green: dominantColor.green , blue: dominantColor.blue , alpha: 1)
+        meshGradientView.setTargetColorRGBA(red: dominantColor.red, green: dominantColor.green, blue: dominantColor.blue, alpha: 1)
         targetImageView.addSubview(meshGradientView)
         let iconImageView = UIImageView()
         let importLabel = UILabel()
@@ -565,7 +558,6 @@ class ApplyCardViewControllerUnfactor: UIViewController, UIImagePickerController
             meshGradientView.centerYAnchor.constraint(equalTo: targetImageView.centerYAnchor),
             meshGradientView.widthAnchor.constraint(equalTo: targetImageView.widthAnchor),
             meshGradientView.heightAnchor.constraint(equalTo: targetImageView.heightAnchor),
-
 
             iconImageView.centerXAnchor.constraint(equalTo: targetImageView.centerXAnchor),
             iconImageView.centerYAnchor.constraint(equalTo: meshGradientView.centerYAnchor, constant: screenWidth * -0.025),
@@ -636,7 +628,6 @@ class ApplyCardViewControllerUnfactor: UIViewController, UIImagePickerController
             sendNotification(card: card)
         }
 
-
         let imageAdjustmentView = ImageAdjustmentView(originalImage: outputImage, card: card) { [weak self] in
 
             self?.dismiss(animated: true, completion: {
@@ -645,7 +636,6 @@ class ApplyCardViewControllerUnfactor: UIViewController, UIImagePickerController
             })
         }
         let hostingController = UIHostingController(rootView: imageAdjustmentView)
-
 
         self.present(hostingController, animated: true, completion: nil)
     }
@@ -690,14 +680,14 @@ class ApplyCardViewControllerUnfactor: UIViewController, UIImagePickerController
             self.presentPhotoLibrary()
         }
         let cameraAction = UIAlertAction(title: "Camera", style: .default) { _ in
-            var cameraVC = NoFilterCameraView(){_ in
+            var cameraVC = NoFilterCameraView {_ in
 
             }
             cameraVC.delegate = self
                 let hostingController = UIHostingController(rootView: cameraVC)
             self.navigationController?.pushViewController(hostingController, animated: true)
         }
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
         alert.addAction(photoLibraryAction)
         alert.addAction(cameraAction)
         alert.addAction(cancelAction)
@@ -710,12 +700,11 @@ class ApplyCardViewControllerUnfactor: UIViewController, UIImagePickerController
         present(picker, animated: true, completion: nil)
     }
 
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
            if let selectedImage = info[.originalImage] as? UIImage {
                targetImage = selectedImage // 保存選取的圖片
                self.meshGradientView.isHidden = true
                targetImageView.image = selectedImage
-
 
            }
            dismiss(animated: true, completion: nil)

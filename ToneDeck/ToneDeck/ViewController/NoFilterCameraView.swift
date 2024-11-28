@@ -31,7 +31,6 @@ struct NoFilterCameraView: View {
     }
     var body: some View {
         MCameraController(manager: manager)
-            //.cameraScreen(CustomCameraView.init)
             .onImageCaptured { image in
                 print("IMAGE CAPTURED")
                 PhotoSaver().savePhotoToLibrary(image: image)
@@ -39,7 +38,7 @@ struct NoFilterCameraView: View {
                 delegate?.didCapturePhoto(image)
                 self.presentationMode.wrappedValue.dismiss()
             }
-            .onVideoCaptured { url in
+            .onVideoCaptured { _ in
                 print("VIDEO CAPTURED")
             }
             .afterMediaCaptured { $0

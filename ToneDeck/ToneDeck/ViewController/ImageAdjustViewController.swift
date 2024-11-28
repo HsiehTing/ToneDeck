@@ -7,8 +7,6 @@
 
 import SwiftUI
 import CoreImage
-import CoreImage.CIFilterBuiltins
-
 struct ImageAdjustmentView: View {
     @State private var brightness: Float = 0.0
     @State private var contrast: Float = 1.0

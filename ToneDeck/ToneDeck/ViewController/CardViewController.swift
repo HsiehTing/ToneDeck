@@ -24,13 +24,14 @@ struct CardViewController: View {
     @State var path: [CardDestination] = []
     @State var feedPath: [FeedDestination] = []
     @State private var isSearchActive = false
-    @State var textFieldText : String = ""
+    @State var textFieldText: String = ""
     @State private var showingImageSourceAlert = false
     @State var animate = false
     @State private var loadingOpacity = 1.0
     @State private var mainContentOpacity = 0.0
     init() {
-        UINavigationBar.appearance().largeTitleTextAttributes = [.font : UIFont(name: "PlayfairDisplayRoman-Bold", size: 52)!]
+        UINavigationBar.appearance().largeTitleTextAttributes = 
+        [.font: UIFont(name: "PlayfairDisplayRoman-Bold", size: 52)!]
     }
 
     var body: some View {
@@ -38,14 +39,15 @@ struct CardViewController: View {
             ZStack {
                 InitialView(isLoading: $isLoading, animate: $animate)
                                    .opacity(loadingOpacity)
-                VStack{
+                VStack {
                     if firestoreService.cards.count == 0 {
                         Text("Add Card to Card List")
                             .font(.custom("PlayfairDisplayRoman-Semibold", size: 24))
                             .foregroundStyle(Color.gray)
-                    } else{
+                    } else {
                         List {
-                            ForEach(firestoreService.cards.sorted(by: {  ($0.createdTime.dateValue()) > ($1.createdTime.dateValue())  })) { card in
+                            ForEach(firestoreService.cards.sorted(by: { 
+                                ($0.createdTime.dateValue()) > ($1.createdTime.dateValue())  })) { card in
                                 CardRow(card: card, path: $path)
                                     .clipped()
                                     .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
@@ -165,7 +167,6 @@ struct CardViewController: View {
         }
 }
 
-
 struct CardRow: View {
     let card: Card
     @Binding var path: [CardDestination]
@@ -241,12 +242,9 @@ struct OptionMenuButton: View {
     let card: Card
     var body: some View {
         Menu { Button(action: {
-
             showRenameAlert = true
         }) { Label("Rename", systemImage: "pencil")}
             Button(action: {
-
-                print("Delete tapped")
                 firestoreService.deleteCard(card: card)
             }) { Label("Delete", systemImage: "trash")}
             Button(action: {
@@ -254,8 +252,6 @@ struct OptionMenuButton: View {
                 UIPasteboard.general.string = card.id
                 alertcopyView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
                 alertcopyView.titleLabel?.textColor = .white
-
-                print("Share tapped")
             }) { Label("Share", systemImage: "square.and.arrow.up")
                     .alert(isPresent: $showShareAlert, view: alertcopyView)
             }

@@ -8,12 +8,11 @@
 //
 //  Copyright ©2024 Mijick. Licensed under MIT License.
 
-
 import SwiftUI
 
 public protocol MCameraPreview: View {
     var capturedMedia: MCameraMedia { get }
     var namespace: Namespace.ID { get }
-    var retakeAction: () -> () { get }
-    var acceptMediaAction: () -> () { get }
+    var retakeAction: () -> Void { get }
+    var acceptMediaAction: () -> Void { get }
 }

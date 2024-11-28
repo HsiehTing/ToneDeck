@@ -7,14 +7,13 @@
 
 import SwiftUI
 import CoreImage
-import CoreImage.CIFilterBuiltins
 import Accelerate
 import UIKit
+import CoreImage.CIFilterBuiltins
 
 class ImageHistogramCalculator: ObservableObject {
 
     @Published var filterHistogramData: [String: [Float]] = [:]
-
 
     func calculateHistogram(for image: UIImage) -> [String: [Float]] {
         guard let ciImage = CIImage(image: image) else {
@@ -22,12 +21,10 @@ class ImageHistogramCalculator: ObservableObject {
             return ["none": [0]]
         }
 
-
         let totalPixels = getTotalPixels(from: image)
         let scale = Float(totalPixels) / 256.0
 
         let extent = ciImage.extent
-
 
         let redHistogram = calculateRGBHistogram(for: ciImage, extent: extent, scale: scale, channel: "red")
         let greenHistogram = calculateRGBHistogram(for: ciImage, extent: extent, scale: scale, channel: "green")
@@ -46,7 +43,6 @@ class ImageHistogramCalculator: ObservableObject {
         }
         return ["red": redHistogram, "green": greenHistogram, "blue": blueHistogram, "gray": grayHistogram]
     }
-
 
     private func calculateRGBHistogram(for ciImage: CIImage, extent: CGRect, scale: Float, channel: String) -> [Float] {
 
@@ -70,15 +66,12 @@ class ImageHistogramCalculator: ObservableObject {
             return [Float](repeating: 0, count: 256)
         }
 
-
         channelFilter.aVector = CIVector(x: 0, y: 0, z: 0, w: 1)
-
 
         guard let outputImage = channelFilter.outputImage else {
             print("ColorMatrix filter output is nil")
             return [Float](repeating: 0, count: 256)
         }
-
 
         let histogramFilter = CIFilter.areaHistogram()
         histogramFilter.inputImage = outputImage
@@ -93,13 +86,11 @@ class ImageHistogramCalculator: ObservableObject {
         return bitmap
     }
 
-
     private func calculateGrayScaleHistogram(for ciImage: CIImage, extent: CGRect, scale: Float) -> [Float] {
 
         let grayFilter = CIFilter.colorControls()
         grayFilter.inputImage = ciImage
         grayFilter.saturation = 0.0
-
 
         let histogramFilter = CIFilter.areaHistogram()
         histogramFilter.inputImage = grayFilter.outputImage
@@ -114,7 +105,6 @@ class ImageHistogramCalculator: ObservableObject {
         return bitmap
     }
 
-    
     private func getTotalPixels(from image: UIImage) -> Int {
         let width = image.size.width
         let height = image.size.height

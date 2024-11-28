@@ -25,7 +25,6 @@ class AddCardViewModel: ObservableObject {
     let alertView = AlertAppleMusic17View(title: "Card name error", subtitle: " should not be more than 14 texts", icon: .error)
     let successView = AlertAppleMusic17View(title: "Add card complete", subtitle: nil, icon: .done)
 
-
     func addCard() {
         guard let image = selectedImage, !cardName.isEmpty else {
             print("Card name or image is missing")
@@ -47,7 +46,7 @@ class AddCardViewModel: ObservableObject {
         }
 
         let storageRef = Storage.storage().reference().child("cards/\(UUID().uuidString).jpg")
-        storageRef.putData(imageData, metadata: nil) { metadata, error in
+        storageRef.putData(imageData, metadata: nil) { _, error in
             if let error = error {
                 print("Error uploading image: \(error)")
                 return
@@ -199,7 +198,7 @@ struct ImagePicker: UIViewControllerRepresentable {
             self.parent = parent
         }
 
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
             if let image = info[.originalImage] as? UIImage {
                 parent.image = image
             }

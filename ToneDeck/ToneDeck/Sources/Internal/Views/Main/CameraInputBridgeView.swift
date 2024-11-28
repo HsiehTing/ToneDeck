@@ -8,7 +8,6 @@
 //
 //  Copyright ©2024 Mijick. Licensed under MIT License.
 
-
 import SwiftUI
 
 struct CameraInputBridgeView: UIViewRepresentable {
@@ -28,11 +27,9 @@ extension CameraInputBridgeView: Equatable {
     static func == (lhs: Self, rhs: Self) -> Bool { true }
 }
 
-
 // MARK: - UIViewController
-fileprivate class UICameraInputView: UIViewController {
+private class UICameraInputView: UIViewController {
     var cameraManager: CameraManager!
-
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -74,8 +71,7 @@ private extension UICameraInputView {
 }
 private extension UICameraInputView {
     func setCameraFocus(_ touchPoint: CGPoint) {
-        do { try cameraManager.setCameraFocus(touchPoint) }
-        catch {}
+        do { try cameraManager.setCameraFocus(touchPoint) } catch {}
     }
 }
 
@@ -88,7 +84,6 @@ private extension UICameraInputView {
 }
 private extension UICameraInputView {
     func changeZoomFactor(_ desiredZoomFactor: CGFloat) {
-        do { try cameraManager.changeZoomFactor(desiredZoomFactor) }
-        catch {}
+        do { try cameraManager.changeZoomFactor(desiredZoomFactor) } catch {}
     }
 }

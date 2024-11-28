@@ -8,15 +8,12 @@
 //
 //  Copyright ©2024 Mijick. Licensed under MIT License.
 
-
 import AVKit
 
 extension AVCaptureDevice {
     var hdrMode: CameraHDRMode {
         get {
-            if automaticallyAdjustsVideoHDREnabled { return .auto }
-            else if isVideoHDREnabled { return .on }
-            else { return .off }
+            if automaticallyAdjustsVideoHDREnabled { return .auto } else if isVideoHDREnabled { return .on } else { return .off }
         }
         set {
             automaticallyAdjustsVideoHDREnabled = newValue == .auto

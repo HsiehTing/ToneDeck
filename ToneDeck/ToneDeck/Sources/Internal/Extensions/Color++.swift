@@ -8,7 +8,6 @@
 //
 //  Copyright ©2024 Mijick. Licensed under MIT License.
 
-
 import SwiftUI
 
 extension Color {
@@ -23,7 +22,6 @@ extension UIColor {
     static var red: UIColor = .init(hex: 0xD52941)
     static var background: UIColor = .init(hex: 0x040408)
 }
-
 
 // MARK: - Helpers
 fileprivate extension Color {

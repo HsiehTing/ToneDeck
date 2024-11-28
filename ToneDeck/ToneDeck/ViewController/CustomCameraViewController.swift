@@ -5,7 +5,7 @@
 //  Created by 謝霆 on 2024/9/23.
 //
 
-//import MijickCameraView
+// import MijickCameraView
 import AVFoundation
 import CoreImage
 import SwiftUI
@@ -46,7 +46,7 @@ struct CameraView: View {
                 PhotoSaver().savePhotoToLibrary(image: image)
                 delegate?.didCapturePhoto(image)
             }
-            .onVideoCaptured { url in
+            .onVideoCaptured { _ in
                 print("VIDEO CAPTURED")
                 self.presentationMode.wrappedValue.dismiss()
 
@@ -90,7 +90,6 @@ class PhotoSaver: NSObject {
         }
     }
 
-   
     @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer?) {
         if let error = error {
             print("Error saving image: \(error.localizedDescription)")

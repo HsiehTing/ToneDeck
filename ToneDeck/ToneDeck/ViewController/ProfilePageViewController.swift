@@ -15,7 +15,7 @@ struct ProfilePageView: View {
     @State var isFollowed: Bool = false
     @State var path: [ProfileDestination] = []
     @State private var fetchedPosts: [Post] = []
-    @State var userData: User? = nil
+    @State var userData: User?
     @State private var showBlockAlert = false
     @State private var showReportAlert = false
     let userID: String
@@ -132,7 +132,7 @@ struct ProfilePageView: View {
                                 showBlockAlert = true
                                 firestoreService.addBlockUserData(to: userID)
                                 alertView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
-                                alertView.titleLabel?.textColor = .white                                
+                                alertView.titleLabel?.textColor = .white
                             }) { Label("Block", systemImage: "shield")
                                 .alert(isPresent: $showBlockAlert, view: alertView)}
                             Button(action: {
@@ -152,7 +152,7 @@ struct ProfilePageView: View {
                                 .buttonStyle(PlainButtonStyle())
                         }
                     }
-                    
+
                 }
             }
         }
@@ -206,7 +206,7 @@ struct ProfilePostView: View {
     let fromUserID = UserDefaults.standard.string(forKey: "userDocumentID")
     let fireStoreService = FirestoreService()
     @Binding var path: [ProfileDestination]
-    @State var fetchedCard: Card? = nil
+    @State var fetchedCard: Card?
     @State private var isStarred: Bool = false
     @State private var isCommentViewPresented: Bool = false
     @State private var userAvatarURL: String = ""
@@ -339,7 +339,7 @@ struct ProfilePostView: View {
         let user = fireStoreService.user
         guard let user = user else {return}
         let likeRef = Firestore.firestore().collection("notifications").whereField("from", isEqualTo: user.id).whereField("to", isEqualTo: post.creatorID).whereField("type", isEqualTo: "like")
-        likeRef.getDocuments { query, error in
+        likeRef.getDocuments { query, _ in
             guard let documents = query?.documents else {return}
             for document in documents {
                 document.reference.delete()
@@ -349,7 +349,7 @@ struct ProfilePostView: View {
     func loadUserAvatar() {
         guard let fromUserID = fromUserID else {return}
         let userRef = Firestore.firestore().collection("users").document(fromUserID)
-        userRef.getDocument { document, error in
+        userRef.getDocument { document, _ in
             if let document = document, document.exists {
                 self.userAvatarURL = document.data()?["avatarURL"] as? String ?? ""
             }

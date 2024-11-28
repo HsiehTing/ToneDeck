@@ -8,18 +8,17 @@
 //
 //  Copyright ©2024 Mijick. Licensed under MIT License.
 
-
 import SwiftUI
 import AVKit
 import MetalKit
 import CoreMotion
-//import MijickTimer
+// import MijickTimer
 
 public class CameraManager: NSObject, ObservableObject { init(_ attributes: Attributes) { self.initialAttributes = attributes; self.attributes = attributes }
     // MARK: Attributes
     struct Attributes {
-        var capturedMedia: MCameraMedia? = nil
-        var error: Error? = nil
+        var capturedMedia: MCameraMedia?
+        var error: Error?
         var outputType: CameraOutputType = .photo
         var cameraPosition: CameraPosition = .back
         var cameraFilters: [CIFilter] = []
@@ -307,7 +306,7 @@ extension CameraManager {
 
 // MARK: - Camera Rotation
 extension CameraManager {
-    func fixCameraRotation() { if !orientationLocked { 
+    func fixCameraRotation() { if !orientationLocked {
         redrawGrid()
     }}
 }
@@ -352,7 +351,7 @@ extension CameraManager {
             removeCameraInput(attributes.cameraPosition)
             try setupCameraInput(newPosition)
             updateCameraPosition(newPosition)
-            
+
             updateTorchMode(.off)
             removeBlur()
         }
@@ -450,7 +449,7 @@ private extension CameraManager {
     func calculateZoomFactor(_ value: CGFloat, _ device: AVCaptureDevice) -> CGFloat {
         min(max(value, getMinZoomLevel(device)), getMaxZoomLevel(device))
     }
-    func setVideoZoomFactor(_ zoomFactor: CGFloat, _ device: AVCaptureDevice) throws  { try withLockingDeviceForConfiguration(device) { device in
+    func setVideoZoomFactor(_ zoomFactor: CGFloat, _ device: AVCaptureDevice) throws { try withLockingDeviceForConfiguration(device) { device in
         device.videoZoomFactor = zoomFactor
     }}
     func updateZoomFactor(_ value: CGFloat) {
@@ -518,10 +517,7 @@ private extension CameraManager {
 extension CameraManager {
     func changeExposureDuration(_ newExposureDuration: CMTime) throws { if let device = getDevice(attributes.cameraPosition),
 
-
     device.isExposureModeSupported(.custom), newExposureDuration != attributes.cameraExposure.duration {
-
-
 
         let newExposureDuration = min(max(newExposureDuration, device.activeFormat.minExposureDuration), device.activeFormat.maxExposureDuration)
 
@@ -558,11 +554,10 @@ private extension CameraManager {
 
 // MARK: - Changing Exposure Target Bias
 extension CameraManager {
-    func changeExposureTargetBias(_ newExposureTargetBias: Float) throws { if 
+    func changeExposureTargetBias(_ newExposureTargetBias: Float) throws { if
 
         let device = getDevice(attributes.cameraPosition), device.isExposureModeSupported(.custom), newExposureTargetBias != attributes.cameraExposure.targetBias {
 
-        
         let newExposureTargetBias = min(max(newExposureTargetBias, device.minExposureTargetBias), device.maxExposureTargetBias)
 
         try changeExposureTargetBias(newExposureTargetBias, device)
@@ -948,7 +943,7 @@ extension CameraManager {
 
 // MARK: - Helpers
 private extension CameraManager {
-    func captureCurrentFrameAndDelay(_ type: MetalAnimation, _ action: @escaping () throws -> ()) { Task { @MainActor in
+    func captureCurrentFrameAndDelay(_ type: MetalAnimation, _ action: @escaping () throws -> Void) { Task { @MainActor in
         metalAnimation = type
         try await Task.sleep(nanoseconds: 150_000_000)
 
@@ -958,7 +953,7 @@ private extension CameraManager {
         connection.isVideoMirrored = attributes.mirrorOutput ? attributes.cameraPosition != .front : attributes.cameraPosition == .front
         connection.videoOrientation = attributes.deviceOrientation
     }}
-    func withLockingDeviceForConfiguration(_ device: AVCaptureDevice, _ action: (AVCaptureDevice) -> ()) throws {
+    func withLockingDeviceForConfiguration(_ device: AVCaptureDevice, _ action: (AVCaptureDevice) -> Void) throws {
         try device.lockForConfiguration()
         action(device)
         device.unlockForConfiguration()
@@ -968,7 +963,6 @@ private extension CameraManager {
     var cameraView: UIView { cameraLayer.superview ?? .init() }
     var isChanging: Bool { (cameraBlurView?.alpha ?? 0) > 0 }
 }
-
 
 // MARK: - Errors
 public extension CameraManager { enum Error: Swift.Error {

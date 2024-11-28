@@ -224,7 +224,7 @@ class PostViewModel: ObservableObject {
         let user = fireStoreService.user
         guard let user = user else {return}
         let likeRef = Firestore.firestore().collection("notifications").whereField("from", isEqualTo: user.id).whereField("to", isEqualTo: post.creatorID).whereField("type", isEqualTo: "like")
-        likeRef.getDocuments { query, error in
+        likeRef.getDocuments { query, _ in
             guard let documents = query?.documents else {return}
             for document in documents {
                 document.reference.delete()
@@ -234,7 +234,7 @@ class PostViewModel: ObservableObject {
     func loadUserAvatar() {
         guard let fromUserID = fromUserID else {return}
         let userRef = Firestore.firestore().collection("users").document(fromUserID)
-        userRef.getDocument { document, error in
+        userRef.getDocument { document, _ in
             if let document = document, document.exists {
                 self.userAvatarURL = document.data()?["avatarURL"] as? String ?? ""
             }
@@ -359,7 +359,7 @@ struct PostButtonsView: View {
                 if path.last != .applyCard(card: card) {
                     path.append(.applyCard(card: card))
                 }
-                print("Navigating to applyCard with card \(card.cardName)")  
+                print("Navigating to applyCard with card \(card.cardName)")
             }) {
                 Text(card.cardName)
                     .font(.title3)

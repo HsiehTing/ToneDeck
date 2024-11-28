@@ -154,7 +154,7 @@ class MeshGradient {
                 [sinInRange(1.0...1.6, offset: 0.539, timeScale: 0.084), sinInRange(0.4...0.5, offset: 0.25, timeScale: 0.642)],
                 [sinInRange(-0.8...0.0, offset: 1.439, timeScale: 0.442), sinInRange(1.4...1.9, offset: 3.42, timeScale: 0.984)],
                 [sinInRange(0.3...0.6, offset: 0.339, timeScale: 0.784), sinInRange(1.0...1.2, offset: 1.22, timeScale: 0.772)],
-                [sinInRange(1.0...1.5, offset: 0.939, timeScale: 0.056), sinInRange(1.3...1.7, offset: 0.47, timeScale: 0.342)],
+                [sinInRange(1.0...1.5, offset: 0.939, timeScale: 0.056), sinInRange(1.3...1.7, offset: 0.47, timeScale: 0.342)]
             ]
         }
 
@@ -169,7 +169,6 @@ class MeshGradient {
                             CGPoint(x: CGFloat(point.x) * width, y: CGFloat(point.y) * height)
                         }
 
-                        
                         for ivalue in 0..<2 {
                             for jvalue in 0..<2 {
                                 let path = Path { pvalue in
@@ -189,7 +188,7 @@ class MeshGradient {
                                     Color(white: Double(ivalue + jvalue) / 3),
                                     Color(white: Double(ivalue + jvalue + 1) / 3),
                                     Color(white: Double(ivalue + jvalue + 2) / 3),
-                                    Color(white: Double(ivalue + jvalue + 1) / 3),
+                                    Color(white: Double(ivalue + jvalue + 1) / 3)
                                 ])
 
                                 let startPoint = scaledPositions[ivalue * 3 + jvalue]
@@ -225,4 +224,3 @@ class MeshGradient {
         }
     }
 }
-

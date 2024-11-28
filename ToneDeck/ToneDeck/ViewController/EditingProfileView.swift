@@ -53,17 +53,17 @@ struct EditingProfileView: View {
                     }
                 }
             }
-            TextField("Username", text: $userName)                
+            TextField("Username", text: $userName)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal)
-                .onChange(of: userName) { oldValue, newValue in
+                .onChange(of: userName) { _, _ in
                     updateUserName()
                 }
             Toggle("Private account", isOn: $isStatusActive)
                 .padding()
                 .background(Color.gray.opacity(0.2))
                 .cornerRadius(10)
-                .onChange(of: isStatusActive) { oldValue, newValue in
+                .onChange(of: isStatusActive) { _, _ in
                     guard let fromUserID = fromUserID else {return}
                     UserDefaults.standard.set(isStatusActive, forKey: "privacyStatus")
                     firestoreService.updateUserStatus(status: isStatusActive)

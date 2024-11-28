@@ -8,12 +8,10 @@
 //
 //  Copyright ©2024 Mijick. Licensed under MIT License.
 
-
 import AVKit
 
 extension AVCaptureDeviceInput {
     convenience init?(_ device: AVCaptureDevice?) {
-        if let device { try? self.init(device: device) }
-        else { return nil }
+        if let device { try? self.init(device: device) } else { return nil }
     }
 }

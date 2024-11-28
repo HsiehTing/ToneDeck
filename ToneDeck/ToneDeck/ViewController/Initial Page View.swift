@@ -57,5 +57,3 @@ func yOffset(for index: Int, in size: CGSize, animated: Bool) -> CGFloat {
     default: return 0
     }
 }
-
-

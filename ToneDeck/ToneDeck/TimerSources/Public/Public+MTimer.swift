@@ -8,7 +8,6 @@
 //
 //  Copyright ©2023 Mijick. Licensed under MIT License.
 
-
 import SwiftUI
 
 // MARK: - Creating New Instance Of Timer
@@ -21,7 +20,7 @@ extension MTimer {
 extension MTimer {
     /// Prepares the timer to start.
     /// WARNING: Use the start() method to start the timer.
-    public static func publish(every time: TimeInterval, tolerance: TimeInterval = 0.4, _ completion: @escaping (_ currentTime: MTime) -> ()) throws -> MTimer {
+    public static func publish(every time: TimeInterval, tolerance: TimeInterval = 0.4, _ completion: @escaping (_ currentTime: MTime) -> Void) throws -> MTimer {
         try shared.publish(every: time, tolerance: tolerance, completion)
     }
     /// Prepares the timer to start.
@@ -36,7 +35,7 @@ extension MTimer {
     }
     /// Prepares the timer to start.
     /// WARNING: Use the start() method to start the timer.
-    public func publish(every time: TimeInterval, tolerance: TimeInterval = 0.4, _ completion: @escaping (_ currentTime: MTime) -> ()) throws -> MTimer {
+    public func publish(every time: TimeInterval, tolerance: TimeInterval = 0.4, _ completion: @escaping (_ currentTime: MTime) -> Void) throws -> MTimer {
         try checkRequirementsForInitialisingTimer(time)
         assignInitialPublisherValues(time, tolerance, completion)
         return self
@@ -102,7 +101,7 @@ extension MTimer {
 // MARK: - Publishing Timer Activity Status
 extension MTimer {
     /// Publishes the timer activity changes.
-    public func onTimerActivityChange(_ action: @escaping (_ isRunning: Bool) -> ()) -> MTimer {
+    public func onTimerActivityChange(_ action: @escaping (_ isRunning: Bool) -> Void) -> MTimer {
         onTimerActivityChange = action
         return self
     }
@@ -115,7 +114,7 @@ extension MTimer {
 // MARK: - Publishing Timer Progress
 extension MTimer {
     /// Publishes the timer progress changes.
-    public func onTimerProgressChange(_ action: @escaping (_ progress: Double) -> ()) -> MTimer {
+    public func onTimerProgressChange(_ action: @escaping (_ progress: Double) -> Void) -> MTimer {
         onTimerProgressChange = action
         return self
     }

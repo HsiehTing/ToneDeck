@@ -48,11 +48,10 @@ struct AfterSignInContentView: View {
             }
             .tabItem {
                 Label("", systemImage: "person.crop.circle")
-            }            
+            }
         }
         .tint(.gray)
     }
-
 
 }
 

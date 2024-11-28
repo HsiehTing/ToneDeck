@@ -8,13 +8,11 @@
 //
 //  Copyright ©2024 Mijick. Licensed under MIT License.
 
-
 import SwiftUI
 
 struct DefaultCameraErrorView: MCameraErrorView {
     let error: CameraManager.Error
-    let closeControllerAction: () -> ()
-
+    let closeControllerAction: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
