@@ -90,6 +90,11 @@ func calculateSaturation(from histogramData: [String: [Float]]) -> Float {
         return 0.0
     }
 
+    print("Red Histogram: \(redHistogram)")
+    print("Green Histogram: \(greenHistogram)")
+    print("Blue Histogram: \(blueHistogram)")
+    print("Gray Histogram: \(grayHistogram)")
+
     let totalPixels = redHistogram.reduce(0, +)
     if totalPixels == 0 {
         return 0.0
@@ -103,12 +108,17 @@ func calculateSaturation(from histogramData: [String: [Float]]) -> Float {
         let blue = Float(blueHistogram[intensity])
         let gray = Float(grayHistogram[intensity])
 
-        let colorDistance = sqrt(pow(red - gray, 2) + pow(green - gray, 2) + pow(blue - gray, 2))
+        print("Intensity \(intensity): Red=\(red), Green=\(green), Blue=\(blue), Gray=\(gray)")
 
-        saturationSum += colorDistance
+        let maxColor = max(red, green, blue)
+        let minColor = min(red, green, blue)
+        let colorDifference = maxColor - minColor
+
+        saturationSum += colorDifference
     }
 
     let averageSaturation = saturationSum / totalPixels
+    print(averageSaturation)
     return averageSaturation
 }
 
@@ -119,6 +129,11 @@ func calculateColor(from histogramData: [String: [Float]]) -> [Float] {
           let grayHistogram = histogramData["gray"] else {
         return [0, 0, 0]
     }
+
+    print("Red Histogram: \(redHistogram)")
+    print("Green Histogram: \(greenHistogram)")
+    print("Blue Histogram: \(blueHistogram)")
+    print("Gray Histogram: \(grayHistogram)")
     let redAverage = !redHistogram.isEmpty ? redHistogram.reduce(0, +) / Float(redHistogram.count) : 0
     let greenAverage = !greenHistogram.isEmpty ? greenHistogram.reduce(0, +) / Float(greenHistogram.count) : 0
     let blueAverage = !blueHistogram.isEmpty ? blueHistogram.reduce(0, +) / Float(blueHistogram.count) : 0

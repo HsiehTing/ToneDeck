@@ -232,29 +232,52 @@ struct CardRow: View {
         }
     }
 }
-struct OptionMenuButton: View {
-    @State private var showRenameAlert = false
-    @State private var showShareAlert = false
-    @State private var newName = ""
-    let alertcopyView = AlertAppleMusic17View(title: "Copy to ClipBoard", subtitle: nil, icon: .done)
+
+class OptionMenuViewModel: ObservableObject {
+
+    @Published var showRenameAlert = false
+    @Published var showShareAlert = false
+    @Published var newName = ""
     let db = Firestore.firestore()
+    func renameCard(card: Card) {
+        let cardID = card.id
+        db.collection("cards").document(cardID).updateData([
+            "cardName": newName
+        ]) { error in
+            if let error = error {
+                print("Error updating card name: \(error)")
+            } else {
+                print("Card name successfully updated")
+            }
+        }
+    }
+
+}
+
+struct OptionMenuButton: View {
+    @ObservedObject var viewModel = OptionMenuViewModel()
+    let alertcopyView = AlertAppleMusic17View(title: "Copy to ClipBoard", subtitle: nil, icon: .done)
     let firestoreService = FirestoreService()
     let card: Card
     var body: some View {
         Menu { Button(action: {
-            showRenameAlert = true
+            viewModel.showRenameAlert = true
         }) { Label("Rename", systemImage: "pencil")}
+
             Button(action: {
                 firestoreService.deleteCard(card: card)
             }) { Label("Delete", systemImage: "trash")}
+
             Button(action: {
-                showShareAlert = true
+                viewModel.showShareAlert = true
                 UIPasteboard.general.string = card.id
                 alertcopyView.titleLabel?.font = UIFont.boldSystemFont(ofSize: 21)
                 alertcopyView.titleLabel?.textColor = .white
             }) { Label("Share", systemImage: "square.and.arrow.up")
-                    .alert(isPresent: $showShareAlert, view: alertcopyView)
+                    .alert(isPresent: $viewModel.showShareAlert, view: alertcopyView)
             }
+
+
         } label: {
             Image(systemName: "ellipsis")
                 .font(.system(size: 20, weight: .bold))
@@ -265,27 +288,14 @@ struct OptionMenuButton: View {
         }
         .buttonStyle(PlainButtonStyle())
         .padding(.top, 10)
-
-        .alert("Rename Card", isPresented: $showRenameAlert) {
-            TextField("Enter new name", text: $newName)
+        .alert("Rename Card", isPresented: $viewModel.showRenameAlert) {
+            TextField("Enter new name", text: $viewModel.newName)
             Button("Cancel", role: .cancel) { }
             Button("Save") {
-                renameCard()
+                viewModel.renameCard(card: card)
             }
         } message: {
             Text("Please enter a new name for the card.")
-        }
-    }
-    private func renameCard() {
-        let cardID = card.id
-        db.collection("cards").document(cardID).updateData([
-            "cardName": newName
-        ]) { error in
-            if let error = error {
-                print("Error updating card name: \(error)")
-            } else {
-                print("Card name successfully updated")
-            }
         }
     }
 

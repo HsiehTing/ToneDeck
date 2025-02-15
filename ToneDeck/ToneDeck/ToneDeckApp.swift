@@ -76,9 +76,9 @@ struct ContentView: View {
                     .padding()
                     Button(action: {
                         let defaults = UserDefaults.standard
-                        defaults.set(false, forKey: "signinWithApple") // Set signinWithApple to false
-                        isSignedIn = true // Allow the user to continue
-                        checkUserData() // Call checkUserData()
+                        defaults.set(false, forKey: "signinWithApple")  
+                        isSignedIn = true
+                        checkUserData()
                     }) {
                         Text("Continue without Sign In")
                             .font(.system(size: 16))
@@ -103,7 +103,6 @@ struct ContentView: View {
 
     private func checkIfSignedIn() {
         let defaults = UserDefaults.standard
-        // Check if "isSignedIn" is false, meaning the user has logged in before
         if defaults.bool(forKey: "isSignedIn") == true {
             isSignedIn = true
         } else {
@@ -121,7 +120,7 @@ func checkAndAddCredentialsData(id: String, email: String) {
         if let snapshot = snapshot, !snapshot.isEmpty {
             print("ID already exists. No need to add.")
         } else {
-            let document = credentialsCollection.document() // Firestore auto-generates a new document ID
+            let document = credentialsCollection.document()
             let data: [String: Any] = [
                 "id": id,
                 "email": email
@@ -163,8 +162,7 @@ class MeshGradient {
                 ZStack {
                     Canvas { context, size in
                         let width = size.width
-                        let height = size.height  // Adjust height to 2/3 of screen height
-
+                        let height = size.height
                         let scaledPositions = positions.map { point in
                             CGPoint(x: CGFloat(point.x) * width, y: CGFloat(point.y) * height)
                         }
@@ -176,24 +174,20 @@ class MeshGradient {
                                     let point2 = scaledPositions[ivalue * 3 + jvalue + 1]
                                     let point3 = scaledPositions[(ivalue + 1) * 3 + jvalue + 1]
                                     let point4 = scaledPositions[(ivalue + 1) * 3 + jvalue]
-
                                     pvalue.move(to: point1)
                                     pvalue.addLine(to: point2)
                                     pvalue.addLine(to: point3)
                                     pvalue.addLine(to: point4)
                                     pvalue.closeSubpath()
                                 }
-
                                 let gradient = Gradient(colors: [
                                     Color(white: Double(ivalue + jvalue) / 3),
                                     Color(white: Double(ivalue + jvalue + 1) / 3),
                                     Color(white: Double(ivalue + jvalue + 2) / 3),
                                     Color(white: Double(ivalue + jvalue + 1) / 3)
                                 ])
-
                                 let startPoint = scaledPositions[ivalue * 3 + jvalue]
                                 let endPoint = scaledPositions[(ivalue + 1) * 3 + jvalue + 1]
-
                                 context.fill(path, with: .linearGradient(
                                     gradient,
                                     startPoint: startPoint,
@@ -204,13 +198,11 @@ class MeshGradient {
                     }
                     .blur(radius: 30)
                     .layerEffect(ShaderLibrary.pixellate(.float(2)), maxSampleOffset: .zero)
-                    .frame(height: geometry.size.height ) // Set the frame height
-                    .position(x: geometry.size.width / 2, y: geometry.size.height / 2) // Center the view
-
+                    .frame(height: geometry.size.height )
+                    .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
                 }
                 .onReceive(timer) { _ in
                     time += 0.05
-
                 }
                 Color.black.opacity(0.3)
             }

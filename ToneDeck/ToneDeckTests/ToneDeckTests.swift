@@ -6,7 +6,9 @@
 //
 
 import XCTest
+import Firebase
 @testable import ToneDeck
+
 
  class ToneDeckTests: XCTestCase {
      var viewModel: NotificationViewModel!
@@ -18,11 +20,27 @@ import XCTest
      let followingIDArray = [""]
      let followerIDArray = [""]
      let photoIDArray = [""]
+     var db: Firestore!
      override func setUpWithError() throws {
          // Put setup code here. This method is called before the invocation of each test method in the class.
          super.setUp()
                  viewModel = NotificationViewModel()
 
+     }
+
+     override func setUp() {
+         super.setUp()
+         let settings = FirestoreSettings()
+         settings.host =  "localhost:8080"
+         settings.isPersistenceEnabled = false
+         settings.isSSLEnabled = false
+         Firestore.firestore().settings = settings
+         db = Firestore.firestore()
+     }
+
+     override func tearDown() {
+        db = nil
+         super.tearDown()
      }
 
      override func tearDownWithError() throws {
@@ -31,15 +49,34 @@ import XCTest
                  super.tearDown()
      }
 
+     func testAddDocument() {
+         let expectation = self.expectation(description: "Document Added")
+
+         let testData = ["name": "Test", "age": 24] as [String : Any]
+
+         db.collection("usersUnitTest").addDocument(data: testData) { error in
+             XCTAssertNil(error, "Error should be nil")
+             expectation.fulfill()
+         }
+
+         waitForExpectations(timeout: 5)
+     }
+
+     func testFetchDocuments() {
+         let expectation = self.expectation(description: "Document Fetched")
+         db.collection("usersUnitTest").getDocuments { snapShot, error in
+             XCTAssertNil(error, "Error should be nil")
+             XCTAssertNotNil(snapShot, "Snapshot should not be nil")
+             expectation.fulfill()
+         }
+     }
+
      func testToggleFollowBehavior() throws {
-             // Initial state should be false
              XCTAssertFalse(viewModel.isFollowed, "isFollowed should initially be false")
 
-             // First toggle - should become true
              viewModel.testToggleFollow()
              XCTAssertTrue(viewModel.isFollowed, "isFollowed should be true after first toggle")
 
-             // Second toggle - should become false
              viewModel.testToggleFollow()
              XCTAssertFalse(viewModel.isFollowed, "isFollowed should be false after second toggle")
          }
@@ -47,11 +84,10 @@ import XCTest
      func testToggleFollowBehaviorTrue() throws {
          viewModel = NotificationViewModel(isFollowed: true)
          XCTAssertTrue(viewModel.isFollowed, "isFollowed should be true after first toggle")
-         // First toggle - should become true
+
          viewModel.testToggleFollow()
          XCTAssertFalse(viewModel.isFollowed, "isFollowed should be false after second toggle")
 
-         // Second toggle - should become false
          viewModel.testToggleFollow()
          XCTAssertTrue(viewModel.isFollowed, "isFollowed should be true after first toggle")
      }
@@ -61,11 +97,9 @@ import XCTest
          let mockUser = User(id: "", userName: mockUserName, avatar: avatar, postIDArray: postIDArray, followingArray: followingIDArray,
                              followerArray: followerIDArray, blockUserArray: [""], photoIDArray: photoIDArray)
 
-         // Initially, isFollowed is false, so the button should display "unfollow"
          let initialButtonText = viewModel.isFollowed ? "follow" : "unfollow"
          XCTAssertEqual(initialButtonText, "unfollow", "The initial button text should be 'unfollow' when isFollowed is false")
 
-         // Toggle follow, isFollowed becomes true, so the button should display "follow"
          viewModel.toggleFollow(user: mockUser)
          let toggledButtonText = viewModel.isFollowed ? "follow" : "unfollow"
          XCTAssertEqual(toggledButtonText, "follow", "The button text should be 'follow' when isFollowed is true")

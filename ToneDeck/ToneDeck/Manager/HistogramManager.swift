@@ -17,7 +17,7 @@ class ImageHistogramCalculator: ObservableObject {
 
     func calculateHistogram(for image: UIImage) -> [String: [Float]] {
         guard let ciImage = CIImage(image: image) else {
-            print("+++++ Failed to convert UIImage to CIImage.")
+            print(" Failed to convert UIImage to CIImage.")
             return ["none": [0]]
         }
 
@@ -100,6 +100,7 @@ class ImageHistogramCalculator: ObservableObject {
 
         let context = CIContext()
         var bitmap = [Float](repeating: 0, count: 256)
+
         context.render(histogramFilter.outputImage!, toBitmap: &bitmap, rowBytes: 256 * MemoryLayout<Float>.size, bounds: CGRect(x: 0, y: 0, width: 256, height: 1), format: .Rf, colorSpace: nil)
 
         return bitmap

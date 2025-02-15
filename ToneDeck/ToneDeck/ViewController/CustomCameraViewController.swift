@@ -64,7 +64,6 @@ struct CameraView: View {
 }
 
 func createFilters(from filterData: [Float?]) -> [CIFilter] {
-    // First filter: Color Controls (Brightness, Contrast, Saturation)
     let colorFilter = CIFilter(name: "CIColorControls")!
     let brightnessValue = filterData[0] ?? 0.0
     let contrastValue = filterData[1] ?? 1.0
